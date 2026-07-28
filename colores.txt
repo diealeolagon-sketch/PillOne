@@ -1,0 +1,9 @@
+Fondo Principal: #F7F7FF (Ghost White / Blanco frío azulado)
+
+Header / Sidebar: #07004D (Deep Twilight / Azul marino profundo)
+
+Acento / Acciones / Bordes: #208AAE (Bondi Blue / Azul cian brillante)
+
+Texto Principal: #1D1E18 (Carbon Black / Negro carbón)
+
+Utilisaremos la tipografia poppins
