@@ -1,4 +1,4 @@
-package com.odin.odin;
+package com.pillone.pillone;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

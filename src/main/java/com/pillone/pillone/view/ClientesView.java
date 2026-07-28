@@ -1,7 +1,7 @@
-package com.odin.odin.view;
+package com.pillone.pillone.view;
 
-import com.odin.odin.model.Clientes;
-import com.odin.odin.repository.ClientesRepository;
+import com.pillone.pillone.model.Clientes;
+import com.pillone.pillone.repository.ClientesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +18,7 @@ public class ClientesView
     @GetMapping("/view/clientes")
     public String lista(Model model)
     {
-        model.addAttribute("bitacoras", clientesRepository.findAll());
+        model.addAttribute("clientes", clientesRepository.findAll());
 
         return "clientes/clientes";
     }
@@ -34,13 +34,13 @@ public class ClientesView
 
     // GUARDAR
     @PostMapping("/view/clientes/save")
-    public String save(@ModelAttribute Clientes bitacora,
+    public String save(@ModelAttribute Clientes clientes,
                        RedirectAttributes ra)
     {
-        clientesRepository.save(bitacora);
+        clientesRepository.save(clientes);
 
         ra.addFlashAttribute("mensaje",
-                "Bitácora registrada con éxito");
+                "cliente registrada con éxito");
 
         return "redirect:/view/clientes";
     }
@@ -59,7 +59,7 @@ public class ClientesView
     }
 
     // ELIMINAR
-    @PostMapping("/view/bitacoras/delete/{id}")
+    @PostMapping("/view/clientes/delete/{id}")
     public String delete(@PathVariable Long id,
                          RedirectAttributes ra)
     {

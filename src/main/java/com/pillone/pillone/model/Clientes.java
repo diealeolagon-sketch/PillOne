@@ -1,4 +1,4 @@
-package com.odin.odin.model;
+package com.pillone.pillone.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

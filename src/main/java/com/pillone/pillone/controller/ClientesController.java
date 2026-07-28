@@ -1,6 +1,6 @@
-package com.odin.odin.controller;
-import com.odin.odin.model.Clientes;
-import com.odin.odin.repository.ClientesRepository;
+package com.pillone.pillone.controller;
+import com.pillone.pillone.model.Clientes;
+import com.pillone.pillone.repository.ClientesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

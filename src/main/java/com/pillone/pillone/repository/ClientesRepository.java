@@ -1,6 +1,6 @@
-package com.odin.odin.repository;
+package com.pillone.pillone.repository;
 
-import com.odin.odin.model.Clientes;
+import com.pillone.pillone.model.Clientes;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClientesRepository extends JpaRepository<Clientes, Long>
