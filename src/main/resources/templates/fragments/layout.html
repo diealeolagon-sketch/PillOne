@@ -1,109 +1,338 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Pharma System</title>
 
-<!-- ===================== SIDEBAR ===================== -->
-<div th:fragment="sidebar(activeMenu)"
-     class="w-64 bg-white border-r border-slate-200 min-h-screen flex flex-col">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- LOGO -->
-    <div class="h-16 flex items-center justify-center border-b border-slate-200">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center text-white font-bold">
-                🏛
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Configuración personalizada de Tailwind con tu paleta de colores oficial -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pillone: {
+                            bg: '#F7F7FF',        /* Fondo Principal: Ghost White */
+                            dark: '#07004D',      /* Header / Sidebar: Deep Twilight */
+                            darker: '#04002C',    /* Tonalidad más profunda para degradados */
+                            accent: '#208AAE',    /* Acento / Acciones / Bordes: Bondi Blue */
+                            text: '#1D1E18'       /* Texto Principal: Carbon Black */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Estilos adicionales para la animación fluida de los submenús -->
+    <style>
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out;
+            opacity: 0;
+        }
+        .submenu-container.open {
+            max-height: 300px;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col selection:bg-pillone-accent selection:text-white">
+
+<!-- ===================== HEADER / TOPBAR ===================== -->
+<header th:fragment="topbar(title)"
+        class="h-16 bg-pillone-dark text-white flex items-center justify-between px-4 sm:px-6 z-30 sticky top-0 shadow-md border-b border-white/10 w-full">
+
+    <div class="flex items-center gap-3 sm:gap-4">
+        <button onclick="toggleSidebar()" class="md:hidden text-slate-300 hover:text-white hover:bg-white/10 p-2 rounded-xl transition-all duration-300 focus:outline-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+
+        <a th:href="@{/}" class="flex items-center gap-2.5 group focus:outline-none">
+            <div class="w-8 h-8 flex-shrink-0 group-hover:scale-105 transition-transform duration-300 ease-out">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-full h-full drop-shadow-sm">
+                    <defs>
+                        <linearGradient id="blueGradHeader" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#208AAE" />
+                            <stop offset="100%" stop-color="#07004D" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="512" height="512" rx="110" fill="#FFFFFF" />
+                    <g transform="translate(72, 102)">
+                        <path d="M 12,12 L 12,280 C 12,295.5 24.5,308 40,308 C 55.5,308 68,295.5 68,280 L 68,190 L 138,190 C 196,190 238,154 238,101 C 238,48 196,12 138,12 Z M 68,68 L 132,68 C 160,68 180,80 180,101 C 180,122 160,134 132,134 L 68,134 Z" fill="#07004D"/>
+                        <g transform="translate(248, 12)">
+                            <path d="M 0,148 L 0,58 C 0,26 26,0 58,0 L 66,0 C 98,0 124,26 124,58 L 124,148 Z" fill="url(#blueGradHeader)"/>
+                            <path d="M 0,156 L 124,156 L 124,246 C 124,278 98,304 66,304 L 58,304 C 26,304 0,278 0,246 Z" fill="#208AAE"/>
+                            <line x1="0" y1="152" x2="124" y2="152" stroke="#FFFFFF" stroke-width="6"/>
+                            <g stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="62" y1="62" x2="62" y2="242" stroke-width="22"/>
+                                <line x1="26" y1="98" x2="62" y2="62" stroke-width="20"/>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
             </div>
-            <span class="font-bold text-slate-800 text-lg">ODIN</span>
-        </div>
+            <div class="flex flex-col">
+                <span class="font-bold text-white text-base tracking-wider leading-none">PillOne</span>
+                <span class="text-[8px] text-pillone-accent uppercase tracking-widest font-semibold mt-0.5">Pharma System</span>
+            </div>
+        </a>
+
+        <div class="hidden sm:block h-5 w-px bg-white/15 mx-1"></div>
+
+        <h1 class="hidden md:block font-medium text-xs uppercase tracking-wider text-slate-300" th:text="${title}">
+            Gestión
+        </h1>
     </div>
 
-    <!-- MENU -->
-    <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
+    <div class="flex items-center gap-3 sm:gap-4">
+        <button class="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-300 ease-out focus:outline-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-pillone-accent rounded-full ring-2 ring-pillone-dark"></span>
+        </button>
 
-        <a th:href="@{/}"
-           th:classappend="${activeMenu == 'inicio'} ? 'bg-green-100 text-green-700 font-semibold' : 'text-slate-600'"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 transition">
-            🏠 Inicio
-        </a>
+        <div class="flex items-center gap-2.5 border-l border-white/10 pl-3.5">
+            <div class="w-8 h-8 rounded-xl bg-pillone-accent text-white flex items-center justify-center font-bold text-xs shadow-md">
+                F
+            </div>
+            <div class="hidden sm:flex flex-col text-left">
+                <span class="text-xs font-semibold text-white leading-tight">Farmacéutico</span>
+                <span class="text-[10px] text-slate-300">Turno Activo</span>
+            </div>
+        </div>
+    </div>
+</header>
 
-        <a th:href="@{/view/usuarios}"
-           th:classappend="${activeMenu == 'usuarios'} ? 'bg-green-100 text-green-700 font-semibold' : 'text-slate-600'"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 transition">
-            👤 Usuarios
-        </a>
+<!-- ===================== CONTENEDOR CENTRAL ===================== -->
+<div class="flex flex-1 relative">
 
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
-            🏢 Dependencias
-        </a>
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden backdrop-blur-sm transition-all duration-300"></div>
 
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
-            📄 Radicación
-        </a>
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside th:fragment="sidebar(activeMenu)"
+           class="w-60 bg-gradient-to-b from-pillone-dark to-pillone-darker text-white flex flex-col fixed md:sticky top-16 h-[calc(100vh-4rem)] z-20 transition-transform duration-300 ease-out -translate-x-full md:translate-x-0 shadow-2xl border-r border-white/10 flex-shrink-0">
 
-        <a href="#"
-           th:classappend="${activeMenu == 'consulta'} ? 'bg-green-100 text-green-700 font-semibold' : 'text-slate-600'"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 transition">
-            📊 Consulta y Seguimiento
-        </a>
+        <div class="px-4 py-3 border-b border-white/5">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Navegación</span>
+        </div>
 
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
-            ⚙️ Gestión de Trámites
-        </a>
+        <!-- LISTA DE MÓDULOS CON HOVER GENERAL UNIFICADO -->
+        <nav class="flex-1 px-3 py-3 space-y-1.5 overflow-y-auto">
 
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
-            📈 Reportes
-        </a>
+            <!-- Inicio -->
+            <a th:href="@{/}"
+               th:classappend="${activeMenu == 'inicio'} ? 'bg-pillone-accent text-white font-semibold shadow-lg shadow-pillone-accent/20 backdrop-blur-md' : 'text-slate-300 hover:bg-white/10 hover:backdrop-blur-md hover:text-white hover:translate-x-1.5'"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ease-out group">
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20 group-hover:text-pillone-accent transition-all duration-300">
+                    <svg class="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                </div>
+                <span>Inicio</span>
+            </a>
 
-    </nav>
+            <!-- Catálogo y Stock (Desplegable) -->
+            <div class="space-y-1">
+                <button onclick="toggleSubmenu('submenu-inventario')"
+                        class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-slate-300 hover:bg-white/10 hover:backdrop-blur-md hover:text-white hover:translate-x-1.5 transition-all duration-300 ease-out group focus:outline-none">
+                    <div class="flex items-center gap-3">
+                        <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20 group-hover:text-pillone-accent transition-all duration-300">
+                            <svg class="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>
+                        <span>Catálogo y Stock</span>
+                    </div>
+                    <svg id="arrow-inventario" class="w-3.5 h-3.5 transition-transform duration-300 text-slate-400 group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                <div id="submenu-inventario" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1">
+                    <a th:href="@{/view/medicamentos}"
+                       class="block px-3 py-2 rounded-lg text-[12px] text-slate-400 hover:text-white hover:bg-white/10 hover:translate-x-1 transition-all duration-300 ease-out">
+                        Medicamentos
+                    </a>
+                    <a th:href="@{/view/inventario}"
+                       class="block px-3 py-2 rounded-lg text-[12px] text-slate-400 hover:text-white hover:bg-white/10 hover:translate-x-1 transition-all duration-300 ease-out">
+                        Control de Lotes
+                    </a>
+                    <a href="#"
+                       class="block px-3 py-2 rounded-lg text-[12px] text-slate-400 hover:text-white hover:bg-white/10 hover:translate-x-1 transition-all duration-300 ease-out">
+                        Alertas de Vencimiento
+                    </a>
+                </div>
+            </div>
+
+            <!-- Dispensación / POS -->
+            <a th:href="@{/view/dispensacion}"
+               th:classappend="${activeMenu == 'dispensacion'} ? 'bg-pillone-accent text-white font-semibold shadow-lg shadow-pillone-accent/20 backdrop-blur-md' : 'text-slate-300 hover:bg-white/10 hover:backdrop-blur-md hover:text-white hover:translate-x-1.5'"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ease-out group">
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20 group-hover:text-pillone-accent transition-all duration-300">
+                    <svg class="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
+                    </svg>
+                </div>
+                <span>Dispensación / POS</span>
+            </a>
+
+            <!-- Proveedores -->
+            <a th:href="@{/view/proveedores}"
+               th:classappend="${activeMenu == 'proveedores'} ? 'bg-pillone-accent text-white font-semibold shadow-lg shadow-pillone-accent/20 backdrop-blur-md' : 'text-slate-300 hover:bg-white/10 hover:backdrop-blur-md hover:text-white hover:translate-x-1.5'"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ease-out group">
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20 group-hover:text-pillone-accent transition-all duration-300">
+                    <svg class="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9m4 0V7m0 0h4m-4 0H9"/>
+                    </svg>
+                </div>
+                <span>Proveedores</span>
+            </a>
+
+            <!-- Pacientes / Clientes -->
+            <a th:href="@{/view/pacientes}"
+               th:classappend="${activeMenu == 'pacientes'} ? 'bg-pillone-accent text-white font-semibold shadow-lg shadow-pillone-accent/20 backdrop-blur-md' : 'text-slate-300 hover:bg-white/10 hover:backdrop-blur-md hover:text-white hover:translate-x-1.5'"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ease-out group">
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20 group-hover:text-pillone-accent transition-all duration-300">
+                    <svg class="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <span>Pacientes / Clientes</span>
+            </a>
+
+            <!-- Usuarios -->
+            <a th:href="@{/view/usuarios}"
+               th:classappend="${activeMenu == 'usuarios'} ? 'bg-pillone-accent text-white font-semibold shadow-lg shadow-pillone-accent/20 backdrop-blur-md' : 'text-slate-300 hover:bg-white/10 hover:backdrop-blur-md hover:text-white hover:translate-x-1.5'"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ease-out group">
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20 group-hover:text-pillone-accent transition-all duration-300">
+                    <svg class="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </div>
+                <span>Usuarios</span>
+            </a>
+
+            <!-- Reportes -->
+            <a th:href="@{/view/reportes}"
+               th:classappend="${activeMenu == 'reportes'} ? 'bg-pillone-accent text-white font-semibold shadow-lg shadow-pillone-accent/20 backdrop-blur-md' : 'text-slate-300 hover:bg-white/10 hover:backdrop-blur-md hover:text-white hover:translate-x-1.5'"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ease-out group">
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20 group-hover:text-pillone-accent transition-all duration-300">
+                    <svg class="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <span>Reportes</span>
+            </a>
+
+            <!-- Configuración (Desplegable) -->
+            <div class="space-y-1">
+                <button onclick="toggleSubmenu('submenu-config')"
+                        class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-slate-300 hover:bg-white/10 hover:backdrop-blur-md hover:text-white hover:translate-x-1.5 transition-all duration-300 ease-out group focus:outline-none">
+                    <div class="flex items-center gap-3">
+                        <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20 group-hover:text-pillone-accent transition-all duration-300">
+                            <svg class="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <span>Configuración</span>
+                    </div>
+                    <svg id="arrow-config" class="w-3.5 h-3.5 transition-transform duration-300 text-slate-400 group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                <div id="submenu-config" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1">
+                    <a href="#"
+                       class="block px-3 py-2 rounded-lg text-[12px] text-slate-400 hover:text-white hover:bg-white/10 hover:translate-x-1 transition-all duration-300 ease-out">
+                        Sucursales
+                    </a>
+                    <a href="#"
+                       class="block px-3 py-2 rounded-lg text-[12px] text-slate-400 hover:text-white hover:bg-white/10 hover:translate-x-1 transition-all duration-300 ease-out">
+                        Impuestos / IVA
+                    </a>
+                    <a href="#"
+                       class="block px-3 py-2 rounded-lg text-[12px] text-slate-400 hover:text-white hover:bg-white/10 hover:translate-x-1 transition-all duration-300 ease-out">
+                        Métodos de Pago
+                    </a>
+                </div>
+            </div>
+
+        </nav>
+
+    </aside>
+
+    <!-- AREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            <!-- Contenido -->
+        </main>
+
+        <!-- ===================== FOOTER ===================== -->
+        <footer th:fragment="footer"
+                class="bg-white border-t border-slate-200 py-3 px-6 text-xs text-slate-500 mt-auto">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-pillone-dark">PillOne Pharma System</span>
+                    <span>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span>. Todos los derechos reservados.</span>
+                </div>
+
+                <div class="flex items-center gap-4 text-slate-400">
+                    <a href="#" class="hover:text-pillone-dark transition-colors duration-300">Soporte Técnico</a>
+                    <span>&bull;</span>
+                    <a href="#" class="hover:text-pillone-dark transition-colors duration-300">Normativa Sanitaria</a>
+                    <span>&bull;</span>
+                    <span class="text-slate-400 font-mono text-[11px]">v1.0.4-RELEASE</span>
+                </div>
+
+            </div>
+        </footer>
+
+    </div>
 
 </div>
 
-
-<!-- ===================== TOPBAR ===================== -->
-<div th:fragment="topbar(title)"
-     class="h-16 bg-green-700 text-white flex items-center justify-between px-6 shadow-sm">
-
-    <!-- IZQUIERDA -->
-    <div class="flex items-center gap-3">
-        <button onclick="toggleSidebar()" class="md:hidden text-white text-xl">
-            ☰
-        </button>
-
-        <span class="font-bold text-lg" th:text="${title}">ODIN</span>
-    </div>
-
-    <!-- DERECHA -->
-    <div class="flex items-center gap-4">
-
-        <button class="relative">
-            🔔
-            <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
-
-        <div class="w-9 h-9 rounded-full bg-white text-green-700 flex items-center justify-center font-bold">
-            U
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- ===================== SCRIPT ===================== -->
+<!-- SCRIPTS DE CONTROL -->
 <script>
     function toggleSidebar() {
-        const sidebar = document.querySelector('[th\\:fragment="sidebar"]');
+        const sidebar = document.querySelector('aside');
         const overlay = document.getElementById('overlay');
 
         if (sidebar) {
             sidebar.classList.toggle('-translate-x-full');
         }
-
         if (overlay) {
             overlay.classList.toggle('hidden');
+        }
+    }
+
+    function toggleSubmenu(id) {
+        const submenu = document.getElementById(id);
+        const arrow = document.getElementById('arrow-' + id.split('-')[1]);
+
+        if (submenu) {
+            submenu.classList.toggle('open');
+        }
+        if (arrow) {
+            arrow.classList.toggle('rotate-180');
         }
     }
 </script>
