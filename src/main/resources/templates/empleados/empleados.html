@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Empleados</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        body { font-family: var(--font-family-base, 'Poppins', sans-serif); }
+    </style>
+</head>
+
+<body class="bg-[var(--pillone-bg,#F7F7FF)] text-[var(--pillone-text,#1D1E18)]">
+
+<div class="min-h-screen flex">
+
+    <div th:replace="fragments/layout :: sidebar('empleados')"></div>
+
+    <div id="overlay" class="fixed inset-0 bg-black/40 z-20 hidden"></div>
+
+    <div class="flex-1 min-w-0">
+
+        <div th:replace="fragments/layout :: topbar('PillOne')"></div>
+
+        <main class="px-4 md:px-8 py-6">
+
+            <section class="mb-6">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-extrabold text-[var(--pillone-dark,#07004D)] leading-tight uppercase">
+                            Consulta y<br class="hidden md:block"> Seguimiento de Empleados
+                        </h1>
+                        <p class="text-sm text-slate-500 mt-2">
+                            Administre y rastree la información del personal registrado en la farmacia.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <a th:href="@{/view/empleados/form}"
+                           class="inline-flex items-center justify-center rounded-lg bg-[var(--pillone-accent,#208AAE)] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:opacity-90 transition">
+                            nuevo empleado
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <div th:if="${mensaje}" class="mb-5">
+                <div class="rounded-lg border border-[var(--pillone-accent,#208AAE)]/30 bg-[var(--pillone-accent,#208AAE)]/10 px-5 py-3 text-sm text-[var(--pillone-accent,#208AAE)] font-medium shadow-sm"
+                     th:text="${mensaje}">
+                </div>
+            </div>
+
+            <section class="mb-5">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-4 flex items-center text-slate-400">
+                        🔍
+                    </span>
+                    <input type="text"
+                           placeholder="Buscar por nombre, documento, cargo o correo..."
+                           class="w-full rounded-lg border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-[var(--pillone-text,#1D1E18)] shadow-sm outline-none focus:border-[var(--pillone-accent,#208AAE)] focus:ring-2 focus:ring-[var(--pillone-accent,#208AAE)]/20">
+                </div>
+            </section>
+
+            <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 px-5 py-4 border-b border-slate-100">
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
+                            Tipo Documento
+                        </label>
+                        <select class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-[var(--pillone-text,#1D1E18)] outline-none focus:border-[var(--pillone-accent,#208AAE)]">
+                            <option>Todos los tipos</option>
+                            <option>CC</option>
+                            <option>CE</option>
+                            <option>PASAPORTE</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
+                            Estado
+                        </label>
+                        <select class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-[var(--pillone-text,#1D1E18)] outline-none focus:border-[var(--pillone-accent,#208AAE)]">
+                            <option>Todos</option>
+                            <option>ACTIVO</option>
+                            <option>INACTIVO</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
+                            Cargo
+                        </label>
+                        <select class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-[var(--pillone-text,#1D1E18)] outline-none focus:border-[var(--pillone-accent,#208AAE)]">
+                            <option>Todos los cargos</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
+                            Acciones
+                        </label>
+                        <div class="flex gap-2">
+                            <button class="flex-1 rounded-md border border-slate-200 px-3 py-2 text-center text-sm text-slate-600 hover:bg-[var(--pillone-bg,#F7F7FF)] hover:text-[var(--pillone-accent,#208AAE)] transition">
+                                PDF
+                            </button>
+                            <button class="flex-1 rounded-md border border-slate-200 px-3 py-2 text-center text-sm text-slate-600 hover:bg-[var(--pillone-bg,#F7F7FF)] hover:text-[var(--pillone-accent,#208AAE)] transition">
+                                Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+
+                        <thead>
+                        <tr class="bg-[#fafafa] border-b border-slate-100 text-[11px] uppercase tracking-wide text-slate-500">
+                            <th class="px-5 py-4 text-left font-bold">Empleado</th>
+                            <th class="px-5 py-4 text-left font-bold">Documento</th>
+                            <th class="px-5 py-4 text-left font-bold">Cargo</th>
+                            <th class="px-5 py-4 text-left font-bold">Salario</th>
+                            <th class="px-5 py-4 text-left font-bold">Contacto</th>
+                            <th class="px-5 py-4 text-left font-bold">Estado</th>
+                            <th class="px-5 py-4 text-center font-bold">Acciones</th>
+                        </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-slate-100">
+
+                        <tr th:each="emp : ${empleados}" class="hover:bg-[var(--pillone-bg,#F7F7FF)]/50 transition">
+
+                            <td class="px-5 py-4">
+                                <div class="font-bold text-[var(--pillone-dark,#07004D)]" th:text="${emp.nombre_completo}"></div>
+                                <div class="text-xs text-slate-400" th:text="'ID: ' + ${emp.id_empleado}"></div>
+                            </td>
+
+                            <td class="px-5 py-4">
+                                <div class="font-medium text-slate-700" th:text="${emp.numero_documento}"></div>
+                                <div class="text-xs text-slate-400" th:text="${emp.tipo_documento}"></div>
+                            </td>
+
+                            <td class="px-5 py-4 text-slate-600 font-semibold" th:text="${emp.cargo}"></td>
+
+                            <td class="px-5 py-4 text-slate-700 font-medium" th:text="'$' + ${emp.salario}"></td>
+
+                            <td class="px-5 py-4">
+                                <div class="text-slate-700" th:text="${emp.telefono}"></div>
+                                <div class="text-xs text-slate-400" th:text="${emp.correo}"></div>
+                            </td>
+
+                            <td class="px-5 py-4">
+                                <span th:if="${emp.estado == 'ACTIVO'}"
+                                      class="inline-flex rounded-full bg-[var(--pillone-accent,#208AAE)]/15 px-3 py-1 text-xs font-bold text-[var(--pillone-accent,#208AAE)]">
+                                    ACTIVO
+                                </span>
+
+                                <span th:if="${emp.estado != 'ACTIVO'}"
+                                      class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700"
+                                      th:text="${emp.estado}">
+                                </span>
+                            </td>
+
+                            <td class="px-5 py-4">
+                                <div class="flex items-center justify-center gap-3">
+
+                                    <a th:href="@{'/view/empleados/edit/' + ${emp.id_empleado}}"
+                                       title="Editar"
+                                       class="text-slate-500 hover:text-[var(--pillone-accent,#208AAE)] transition">
+                                        ✏️
+                                    </a>
+
+                                    <form th:action="@{'/view/empleados/delete/' + ${emp.id_empleado}}"
+                                          method="post"
+                                          class="inline">
+                                        <button type="submit"
+                                                title="Eliminar"
+                                                class="text-slate-500 hover:text-red-600 transition"
+                                                onclick="return confirm('¿Está seguro de eliminar este Empleado?')">
+                                            🗑️
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(empleados)}">
+                            <td colspan="7" class="px-6 py-10 text-center text-slate-500">
+                                No hay empleados registrados en este momento.
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex items-center justify-between px-5 py-4 border-t border-slate-100 text-xs text-slate-500">
+                    <span th:text="'Mostrando ' + ${#lists.size(empleados)} + ' empleados registrados'">
+                        Mostrando empleados registrados
+                    </span>
+
+                    <div class="flex items-center gap-2">
+                        <button class="w-8 h-8 rounded-md text-slate-500 hover:bg-slate-100">‹</button>
+                        <button class="w-8 h-8 rounded-md bg-[var(--pillone-accent,#208AAE)] text-white font-bold">1</button>
+                        <button class="w-8 h-8 rounded-md text-slate-500 hover:bg-slate-100">›</button>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}" defer></script>
+
+</body>
+</html>

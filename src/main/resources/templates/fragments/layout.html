@@ -126,11 +126,11 @@
 
     <!-- ===================== SIDEBAR ===================== -->
     <aside th:fragment="sidebar(activeMenu)"
-           class="w-60 bg-gradient-to-b from-pillone-dark to-pillone-darker text-white flex flex-col fixed md:sticky top-16 h-[calc(100vh-4rem)] z-20 transition-transform duration-300 ease-out -translate-x-full md:translate-x-0 shadow-2xl border-r border-white/10 flex-shrink-0">
+       class="w-60 bg-gradient-to-b from-[var(--pillone-dark,#07004D)] to-[var(--pillone-text,#1D1E18)] text-white flex flex-col fixed md:sticky top-16 h-[calc(100vh-4rem)] z-20 transition-transform duration-300 ease-out -translate-x-full md:translate-x-0 shadow-2xl border-r border-white/10 flex-shrink-0">
 
-        <div class="px-4 py-3 border-b border-white/5">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Navegación</span>
-        </div>
+    <div class="px-4 py-3 border-b border-white/5">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Navegación</span>
+    </div>
 
         <!-- LISTA DE MÓDULOS CON HOVER GENERAL UNIFICADO -->
         <nav class="flex-1 px-3 py-3 space-y-1.5 overflow-y-auto">
