@@ -2,9 +2,7 @@ package com.pillone.pillone.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
 
 @Entity
 @Table(name = "clientes")
@@ -13,32 +11,41 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Clientes
-{
+public class Clientes {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id_bitacora;
+    private Long id_cliente;
 
-    @NotBlank(message = "El radicado es obligatorio")
-    private Integer id_radicado;
+    @NotBlank(message = "El nombre completo es obligatorio")
+    @Column(name = "nombre_completo", nullable = false, length = 150)
+    private String nombreCompleto;
 
-    @NotBlank(message = "el usuario es obligatoria")
-    private Integer id_usuario ;
+    @Column(name = "tipo_documento")
+    private String tipoDocumento;
 
-    @NotBlank(message = "la accion es obligatorio")
-    private String accion ;
+    @NotBlank(message = "El número de documento es obligatorio")
+    @Column(name = "numero_documento", nullable = false, unique = true, length = 20)
+    private String numeroDocumento;
 
-    @NotNull(message = "la descripcion es obligatorio")
-    private String descripcion ;
+    @Column(name = "telefono", length = 15)
+    private String telefono;
 
-    @NotNull(message = "la fecha es obligatorio")
-    private String fecha ;
+    @Column(name = "direccion", length = 200)
+    private String direccion;
 
+    @Column(name = "correo", length = 100)
+    private String correo;
 
+    @Column(name = "fecha_nacimiento")
+    private String fechaNacimiento; // O LocalDate si prefieres manejar fechas con Java Time
 
+    @Column(name = "eps", length = 100)
+    private String eps;
 
+    @Column(name = "alergias", columnDefinition = "TEXT")
+    private String alergias;
 
-
-
+    @Column(name = "fecha_registro", insertable = false, updatable = false)
+    private String fechaRegistro;
 }
-

@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario Empleado - PillOne</title>
-
+    <title>PillOne - Formulario de Cliente</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -28,20 +25,19 @@
         }
     </script>
 </head>
-
-<body class="bg-pillone-bg text-pillone-text antialiased min-h-screen flex flex-col text-xs font-sans">
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
 <!-- TOPBAR GLOBAL -->
-<div th:replace="fragments/layout :: topbar('Gestión de Empleados')"></div>
+<div th:replace="fragments/layout :: topbar('Gestión de Clientes')"></div>
 
 <!-- CONTENEDOR CENTRAL -->
 <div class="flex flex-1 relative min-h-[calc(100vh-4rem)] bg-pillone-bg">
 
     <!-- OVERLAY MÓVIL -->
-    <div id="overlay" class="fixed inset-0 bg-slate-900/60 z-20 hidden backdrop-blur-sm" onclick="toggleSidebar()"></div>
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-20 hidden backdrop-blur-sm"></div>
 
     <!-- SIDEBAR GLOBAL -->
-    <div th:replace="fragments/layout :: sidebar('empleados')"></div>
+    <div th:replace="fragments/layout :: sidebar('clientes')"></div>
 
     <!-- AREA PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
@@ -49,28 +45,22 @@
 
             <!-- ENCABEZADO -->
             <section class="mb-5">
-                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                    <div>
-                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight">
-                            Módulo de Empleados
-                        </h1>
-                        <p class="text-xs text-slate-500 mt-1">
-                            Gestión de datos, información laboral y accesos del personal en el sistema PillOne.
-                        </p>
-                    </div>
-                </div>
+                <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight">
+                    <span th:text="${cliente.id_cliente != null} ? 'Editar Cliente / Paciente' : 'Registrar Nuevo Cliente / Paciente'"></span>
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">
+                    Complete la información personal y antecedentes médicos del paciente en el sistema PillOne.
+                </p>
             </section>
 
-            <form th:action="@{/view/empleados/save}"
-                  th:object="${empleado}"
-                  method="post"
-                  novalidate>
+            <form th:action="@{/view/clientes/save}" th:object="${cliente}" method="post" novalidate>
 
-                <input type="hidden" th:field="*{id_empleado}" />
+                <!-- ID Oculto para Edición -->
+                <input type="hidden" th:field="*{id_cliente}"/>
 
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
-                    <!-- SECCIÓN 1: INFORMACIÓN DEL EMPLEADO -->
+                    <!-- SECCIÓN 1: INFORMACIÓN PERSONAL -->
                     <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
 
                         <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
@@ -86,31 +76,31 @@
 
                             <div class="md:col-span-2">
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Nombre completo
+                                    Nombre Completo
                                 </label>
-                                <input type="text" th:field="*{nombre_completo}" required
-                                       placeholder="Nombres y Apellidos"
+                                <input type="text" th:field="*{nombreCompleto}" required placeholder="Ej. Juan Pérez"
                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                             </div>
 
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Tipo de documento
+                                    Tipo de Documento
                                 </label>
-                                <select th:field="*{tipo_documento}" required
+                                <select th:field="*{tipoDocumento}" required
                                         class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
-                                    <option value="CC">CC</option>
-                                    <option value="CE">CE</option>
-                                    <option value="PASAPORTE">PASAPORTE</option>
+                                    <option value="CC">CC - Cédula de Ciudadanía</option>
+                                    <option value="CE">CE - Cédula de Extranjería</option>
+                                    <option value="PASAPORTE">Pasaporte</option>
+                                    <option value="TI">TI - Tarjeta de Identidad</option>
+                                    <option value="NIT">NIT</option>
                                 </select>
                             </div>
 
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Número de documento
+                                    Número de Documento
                                 </label>
-                                <input type="text" th:field="*{numero_documento}" required
-                                       placeholder="Número de documento"
+                                <input type="text" th:field="*{numeroDocumento}" required placeholder="Ej. 1020304050"
                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                             </div>
 
@@ -118,32 +108,30 @@
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                                     Teléfono
                                 </label>
-                                <input type="text" th:field="*{telefono}"
-                                       placeholder="Teléfono móvil"
+                                <input type="text" th:field="*{telefono}" placeholder="Ej. 3001234567"
                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                             </div>
 
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Dirección
+                                    Fecha de Nacimiento
                                 </label>
-                                <input type="text" th:field="*{direccion}"
-                                       placeholder="Dirección de residencia"
+                                <input type="date" th:field="*{fechaNacimiento}"
                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                             </div>
 
                         </div>
                     </section>
 
-                    <!-- SECCIÓN 2: INFORMACIÓN LABORAL Y CONTACTO -->
+                    <!-- SECCIÓN 2: CONTACTO Y ANTECEDENTES MÉDICOS -->
                     <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
 
                         <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
                             <svg class="w-4 h-4 text-pillone-accent shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
                             </svg>
                             <h2 class="text-xs font-extrabold text-pillone-dark uppercase tracking-wider">
-                                Información Laboral y Contacto
+                                Contacto y Antecedentes Médicos
                             </h2>
                         </div>
 
@@ -151,40 +139,34 @@
 
                             <div class="md:col-span-2">
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Correo electrónico
+                                    Correo Electrónico
                                 </label>
-                                <input type="email" th:field="*{correo}"
-                                       placeholder="correo@ejemplo.com"
+                                <input type="email" th:field="*{correo}" placeholder="correo@ejemplo.com"
                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                             </div>
 
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Cargo
+                                    EPS
                                 </label>
-                                <input type="text" th:field="*{cargo}" required
-                                       placeholder="Ej: Farmacéutico, Regente..."
+                                <input type="text" th:field="*{eps}" placeholder="Ej. Sura, Sanitas, Nueva EPS"
                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                             </div>
 
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Salario
+                                    Dirección
                                 </label>
-                                <input type="number" step="0.01" th:field="*{salario}" required
-                                       placeholder="Monto de salario"
+                                <input type="text" th:field="*{direccion}" placeholder="Ej. Calle 10 # 20-30"
                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                             </div>
 
                             <div class="md:col-span-2">
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Estado
+                                    Alergias o Antecedentes Médicos
                                 </label>
-                                <select th:field="*{estado}" required
-                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
-                                    <option value="ACTIVO">ACTIVO</option>
-                                    <option value="INACTIVO">INACTIVO</option>
-                                </select>
+                                <textarea th:field="*{alergias}" rows="3" placeholder="Indique si es alérgico a algún medicamento..."
+                                          class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition"></textarea>
                             </div>
 
                         </div>
@@ -194,7 +176,7 @@
 
                 <!-- BOTONERA DE ACCIÓN -->
                 <div class="flex items-center justify-end gap-3 mt-5">
-                    <a th:href="@{/view/empleados}"
+                    <a th:href="@{/view/clientes}"
                        class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-pillone-accent transition shadow-xs cursor-pointer">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                         Cancelar / Volver
@@ -203,7 +185,7 @@
                     <button type="submit"
                             class="inline-flex items-center gap-2 rounded-lg bg-pillone-accent px-6 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                        Guardar Empleado
+                        Guardar Cliente
                     </button>
                 </div>
 
@@ -217,6 +199,5 @@
 </div>
 
 <script th:src="@{/js/script.js}" defer></script>
-
 </body>
 </html>
