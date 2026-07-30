@@ -19,7 +19,6 @@ public class ClientesView
     public String lista(Model model)
     {
         model.addAttribute("clientes", clientesRepository.findAll());
-
         return "clientes/clientes";
     }
 
@@ -28,20 +27,16 @@ public class ClientesView
     public String form(Model model)
     {
         model.addAttribute("cliente", new Clientes());
-
-        return "Clientes/clientesForm";
+        return "clientes/clientesForm";
     }
 
     // GUARDAR
     @PostMapping("/view/clientes/save")
-    public String save(@ModelAttribute Clientes clientes,
+    public String save(@ModelAttribute Clientes cliente,
                        RedirectAttributes ra)
     {
-        clientesRepository.save(clientes);
-
-        ra.addFlashAttribute("mensaje",
-                "cliente registrada con éxito");
-
+        clientesRepository.save(cliente);
+        ra.addFlashAttribute("mensaje", "Cliente registrado con éxito");
         return "redirect:/view/clientes";
     }
 
@@ -50,11 +45,8 @@ public class ClientesView
     public String edit(@PathVariable Long id,
                        Model model)
     {
-        Clientes clientes =
-                clientesRepository.findById(id).orElse(null);
-
-        model.addAttribute("clientes", clientes);
-
+        Clientes cliente = clientesRepository.findById(id).orElse(null);
+        model.addAttribute("cliente", cliente);
         return "clientes/clientesForm";
     }
 
@@ -64,10 +56,7 @@ public class ClientesView
                          RedirectAttributes ra)
     {
         clientesRepository.deleteById(id);
-
-        ra.addFlashAttribute("mensaje",
-                "cliente eliminada con éxito");
-
+        ra.addFlashAttribute("mensaje", "Cliente eliminado con éxito");
         return "redirect:/view/clientes";
     }
 }

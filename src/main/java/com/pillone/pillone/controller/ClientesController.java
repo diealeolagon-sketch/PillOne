@@ -1,4 +1,5 @@
 package com.pillone.pillone.controller;
+
 import com.pillone.pillone.model.Clientes;
 import com.pillone.pillone.repository.ClientesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +18,19 @@ public class ClientesController
     public List<Clientes> getAll()
     {
         return clientesRepository.findAll();
-
     }
+
     @GetMapping("/{id}")
-    public Clientes getById(long id)
+    public Clientes getById(@PathVariable long id)
     {
         return clientesRepository.findById(id).orElse(null);
     }
 
     @PutMapping("/{id}")
-    public Clientes update(@PathVariable long id, @RequestBody Clientes clientes)
+    public Clientes update(@PathVariable long id, @RequestBody Clientes cliente)
     {
-        clientes.setId_bitacora(id);
-        return clientesRepository.save(clientes);
+        cliente.setId_cliente(id);
+        return clientesRepository.save(cliente);
     }
 
     @DeleteMapping("/{id}")
@@ -37,6 +38,4 @@ public class ClientesController
     {
         clientesRepository.deleteById(id);
     }
-
-
 }
