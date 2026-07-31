@@ -6,6 +6,8 @@
     <title>PillOne - Formulario de Cliente</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
     <script>
         tailwind.config = {
             theme: {
@@ -197,6 +199,8 @@
         <footer th:replace="fragments/layout :: footer"></footer>
     </div>
 </div>
+<div th:replace="fragments/layout :: scripts"></div>
+
 
 <script th:src="@{/js/script.js}" defer></script>
 </body>

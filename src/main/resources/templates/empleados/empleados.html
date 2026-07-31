@@ -6,6 +6,8 @@
     <title>PillOne - Consulta de Empleados</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Estilos del sidebar (submenu-container: colapsado + transición) -->
+    <th:block th:replace="fragments/layout :: styles"></th:block>
     <script>
         tailwind.config = {
             theme: {
@@ -160,6 +162,9 @@
         <footer th:replace="fragments/layout :: footer"></footer>
     </div>
 </div>
+
+<!-- Scripts del sidebar (toggleSidebar / toggleSubmenu) -->
+<div th:replace="fragments/layout :: scripts"></div>
 
 <!-- SCRIPT DE PAGINACIÓN Y BUSCADOR -->
 <script>

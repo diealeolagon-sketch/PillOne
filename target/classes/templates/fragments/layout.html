@@ -36,14 +36,20 @@
     </script>
 
     <!-- Estilos de transición suave para los submenús -->
-    <style>
-        .submenu-container {
-            max-height: 0px;
-            overflow: hidden;
-            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-in-out;
-            opacity: 0;
-        }
-    </style>
+    <!-- IMPORTANTE: envuelto en th:fragment="styles" porque, igual que el script,   -->
+    <!-- un th:replace de "sidebar" NO arrastra este <style>. Cada vista que use el  -->
+    <!-- sidebar debe incluir explícitamente: <th:block th:replace="fragments/layout :: styles"></th:block> -->
+    <!-- dentro de su propio <head>.                                                -->
+    <th:block th:fragment="styles">
+        <style>
+            .submenu-container {
+                max-height: 0px;
+                overflow: hidden;
+                transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-in-out;
+                opacity: 0;
+            }
+        </style>
+    </th:block>
 </head>
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col selection:bg-pillone-accent selection:text-white">
 
@@ -131,11 +137,11 @@
 <!-- ===================== CONTENEDOR CENTRAL ===================== -->
 <div class="flex flex-1 relative min-h-[calc(100vh-4rem)]">
 
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden backdrop-blur-sm transition-all duration-300"></div>
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden transition-all duration-300"></div>
 
     <!-- ===================== SIDEBAR ===================== -->
-    <aside th:fragment="sidebar(activeMenu)"
-           class="w-60 bg-gradient-to-b from-pillone-dark to-pillone-darker text-white flex flex-col fixed md:sticky top-16 h-[calc(100vh-4rem)] z-25 transition-transform duration-300 ease-out -translate-x-full md:translate-x-0 shadow-2xl border-r border-white/10 flex-shrink-0">
+    <aside th:fragment="sidebar(activeMenu)" id="pillone-sidebar"
+           class="w-60 bg-gradient-to-b from-pillone-dark to-pillone-darker text-white flex flex-col fixed md:sticky top-16 h-[calc(100vh-4rem)] z-40 transition-transform duration-300 ease-out -translate-x-full md:translate-x-0 shadow-2xl border-r border-white/10 flex-shrink-0">
 
         <div class="px-4 py-3 border-b border-white/5">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest cursor-default">Navegación</span>
@@ -172,7 +178,7 @@
                     </svg>
                 </button>
 
-                <div id="submenu-inventario" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1">
+                <div id="submenu-inventario" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1" style="max-height:0px;overflow:hidden;opacity:0;">
                     <a th:href="@{/view/medicamentos}"
                        class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
                         Medicamentos
@@ -205,7 +211,7 @@
                     </svg>
                 </button>
 
-                <div id="submenu-dispensacion" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1">
+                <div id="submenu-dispensacion" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1" style="max-height:0px;overflow:hidden;opacity:0;">
                     <a th:href="@{/view/ventas/nueva}"
                        class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
                         Nueva Venta / Facturación
@@ -234,7 +240,7 @@
                     </svg>
                 </button>
 
-                <div id="submenu-proveedores" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1">
+                <div id="submenu-proveedores" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1" style="max-height:0px;overflow:hidden;opacity:0;">
                     <a th:href="@{/view/proveedores}"
                        class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
                         Directorio de Proveedores
@@ -258,7 +264,7 @@
             </a>
 
             <!-- Usuarios y Personal -->
-            <a th:href="@{/view/usuarios}"
+            <a th:href="@{/view/empleados}"
                class="text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 group cursor-pointer">
                 <div class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-200">
                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -297,7 +303,7 @@
                     </svg>
                 </button>
 
-                <div id="submenu-config" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1">
+                <div id="submenu-config" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1" style="max-height:0px;overflow:hidden;opacity:0;">
                     <a th:href="@{/view/config/sucursales}"
                        class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
                         Sucursales
@@ -349,27 +355,63 @@
 
 </div>
 
-<!-- SCRIPTS DE CONTROL GLOBAL -->
-<script>
-    window.toggleSidebar = function() {
-        const sidebar = document.querySelector('aside');
-        const overlay = document.getElementById('overlay');
+<!-- ===================== SCRIPTS DE CONTROL GLOBAL ===================== -->
+<!-- IMPORTANTE: este bloque ahora es un fragmento propio (th:fragment="scripts")   -->
+<!-- porque los fragmentos th:replace/th:insert SOLO traen consigo el nodo         -->
+<!-- indicado. Si el script se queda suelto al final del <body> de este archivo,   -->
+<!-- las vistas que solo incluyen "sidebar" o "topbar" nunca reciben              -->
+<!-- toggleSubmenu()/toggleSidebar(), y por eso los submenús no se despliegan.     -->
+<!-- Debes incluir este fragmento explícitamente en cada vista que use el layout: -->
+<!--   <div th:replace="~{layout :: scripts}"></div>                              -->
+<!-- (idealmente justo antes de cerrar </body> en cada página)                    -->
+<th:block th:fragment="scripts">
+    <script>
+        // --- SIDEBAR MÓVIL ---
+        // Usa el id explícito "pillone-sidebar" (en vez de document.querySelector('aside'))
+        // para no romperse si en el futuro aparece otro <aside> en el contenido de la página.
+        // Además usa add()/remove() con un estado explícito (data-open) en vez de toggle(),
+        // así el botón y el overlay SIEMPRE quedan sincronizados aunque se llame varias veces
+        // seguidas o desde distintos sitios (botón hamburguesa + overlay).
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('pillone-sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar) return;
 
-        if (sidebar) {
-            sidebar.classList.toggle('-translate-x-full');
-        }
-        if (overlay) {
-            overlay.classList.toggle('hidden');
-        }
-    };
+            const isOpen = sidebar.dataset.open === 'true';
 
-    window.toggleSubmenu = function(id) {
-        const submenu = document.getElementById(id);
-        const arrowId = 'arrow-' + id.split('-')[1];
-        const arrow = document.getElementById(arrowId);
+            if (isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.dataset.open = 'false';
+                if (overlay) overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.dataset.open = 'true';
+                if (overlay) overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden'); // evita el scroll del fondo con el menú abierto
+            }
+        };
 
-        if (submenu) {
+        // --- SUBMENÚS DEL SIDEBAR (COMPORTAMIENTO ACORDEÓN) ---
+        // Al abrir un submenú, cierra cualquier otro que estuviera abierto.
+        window.toggleSubmenu = function(id) {
+            const submenu = document.getElementById(id);
+            if (!submenu) return;
+
+            const arrowId = 'arrow-' + id.split('-')[1];
+            const arrow = document.getElementById(arrowId);
             const isOpen = submenu.style.maxHeight && submenu.style.maxHeight !== '0px';
+
+            // Cerrar todos los demás submenús abiertos antes de abrir el nuevo
+            document.querySelectorAll('.submenu-container').forEach(function(otro) {
+                if (otro !== submenu) {
+                    otro.style.maxHeight = '0px';
+                    otro.style.opacity = '0';
+                    const otroArrowId = 'arrow-' + otro.id.split('-')[1];
+                    const otroArrow = document.getElementById(otroArrowId);
+                    if (otroArrow) otroArrow.classList.remove('rotate-180');
+                }
+            });
 
             if (isOpen) {
                 submenu.style.maxHeight = '0px';
@@ -380,38 +422,52 @@
                 submenu.style.opacity = '1';
                 if (arrow) arrow.classList.add('rotate-180');
             }
-        }
-    };
+        };
 
-    // Auto-apertura inteligente según la URL actual al cargar cualquier vista
-    document.addEventListener("DOMContentLoaded", function() {
-        const currentPath = window.location.pathname;
-        const submenuContainers = document.querySelectorAll('.submenu-container');
-
-        submenuContainers.forEach(submenu => {
-            const links = submenu.querySelectorAll('a');
-            let hasActiveLink = false;
-
-            links.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && href !== '#' && currentPath.includes(href)) {
-                    hasActiveLink = true;
-                    link.classList.add('text-white', 'bg-white/10');
-                }
-            });
-
-            if (hasActiveLink) {
-                const id = submenu.id;
-                const arrowId = 'arrow-' + id.split('-')[1];
-                const arrow = document.getElementById(arrowId);
-
-                submenu.style.maxHeight = submenu.scrollHeight + 'px';
-                submenu.style.opacity = '1';
-                if (arrow) arrow.classList.add('rotate-180');
+        // Cerrar el sidebar móvil automáticamente al navegar a un enlace (mejor UX en móvil)
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebar = document.getElementById('pillone-sidebar');
+            if (sidebar) {
+                sidebar.querySelectorAll('a[href]').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth < 768 && sidebar.dataset.open === 'true') {
+                            window.toggleSidebar();
+                        }
+                    });
+                });
             }
         });
-    });
-</script>
+
+        // Auto-apertura inteligente según la URL actual al cargar cualquier vista
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentPath = window.location.pathname;
+            const submenuContainers = document.querySelectorAll('.submenu-container');
+
+            submenuContainers.forEach(submenu => {
+                const links = submenu.querySelectorAll('a');
+                let hasActiveLink = false;
+
+                links.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && href !== '#' && currentPath.includes(href)) {
+                        hasActiveLink = true;
+                        link.classList.add('text-white', 'bg-white/10');
+                    }
+                });
+
+                if (hasActiveLink) {
+                    const id = submenu.id;
+                    const arrowId = 'arrow-' + id.split('-')[1];
+                    const arrow = document.getElementById(arrowId);
+
+                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                    submenu.style.opacity = '1';
+                    if (arrow) arrow.classList.add('rotate-180');
+                }
+            });
+        });
+    </script>
+</th:block>
 
 </body>
 </html>
