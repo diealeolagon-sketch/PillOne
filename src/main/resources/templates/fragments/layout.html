@@ -323,6 +323,7 @@
 
     </aside>
 
+    <!-- AREA PRINCIPAL (Corregido con bg-pillone-bg y flex-col completo) -->
     <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
 
         <main class="flex-1 p-4 sm:p-6 lg:p-8">
@@ -364,110 +365,109 @@
 <!--   <div th:replace="~{layout :: scripts}"></div>                              -->
 <!-- (idealmente justo antes de cerrar </body> en cada página)                    -->
 <th:block th:fragment="scripts">
-</th:block>
+    <script>
+        // --- SIDEBAR MÓVIL ---
+        // Usa el id explícito "pillone-sidebar" (en vez de document.querySelector('aside'))
+        // para no romperse si en el futuro aparece otro <aside> en el contenido de la página.
+        // Además usa add()/remove() con un estado explícito (data-open) en vez de toggle(),
+        // así el botón y el overlay SIEMPRE quedan sincronizados aunque se llame varias veces
+        // seguidas o desde distintos sitios (botón hamburguesa + overlay).
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('pillone-sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar) return;
 
-<script>
-    // --- SIDEBAR MÓVIL ---
-    // Usa el id explícito "pillone-sidebar" (en vez de document.querySelector('aside'))
-    // para no romperse si en el futuro aparece otro <aside> en el contenido de la página.
-    // Además usa add()/remove() con un estado explícito (data-open) en vez de toggle(),
-    // así el botón y el overlay SIEMPRE quedan sincronizados aunque se llame varias veces
-    // seguidas o desde distintos sitios (botón hamburguesa + overlay).
-    window.toggleSidebar = function() {
-        const sidebar = document.getElementById('pillone-sidebar');
-        const overlay = document.getElementById('overlay');
-        if (!sidebar) return;
+            const isOpen = sidebar.dataset.open === 'true';
 
-        const isOpen = sidebar.dataset.open === 'true';
-
-        if (isOpen) {
-            sidebar.classList.add('-translate-x-full');
-            sidebar.dataset.open = 'false';
-            if (overlay) overlay.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-        } else {
-            sidebar.classList.remove('-translate-x-full');
-            sidebar.dataset.open = 'true';
-            if (overlay) overlay.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden'); // evita el scroll del fondo con el menú abierto
-        }
-    };
-
-    // --- SUBMENÚS DEL SIDEBAR (COMPORTAMIENTO ACORDEÓN) ---
-    // Al abrir un submenú, cierra cualquier otro que estuviera abierto.
-    window.toggleSubmenu = function(id) {
-        const submenu = document.getElementById(id);
-        if (!submenu) return;
-
-        const arrowId = 'arrow-' + id.split('-')[1];
-        const arrow = document.getElementById(arrowId);
-        const isOpen = submenu.style.maxHeight && submenu.style.maxHeight !== '0px';
-
-        // Cerrar todos los demás submenús abiertos antes de abrir el nuevo
-        document.querySelectorAll('.submenu-container').forEach(function(otro) {
-            if (otro !== submenu) {
-                otro.style.maxHeight = '0px';
-                otro.style.opacity = '0';
-                const otroArrowId = 'arrow-' + otro.id.split('-')[1];
-                const otroArrow = document.getElementById(otroArrowId);
-                if (otroArrow) otroArrow.classList.remove('rotate-180');
+            if (isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.dataset.open = 'false';
+                if (overlay) overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.dataset.open = 'true';
+                if (overlay) overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden'); // evita el scroll del fondo con el menú abierto
             }
-        });
+        };
 
-        if (isOpen) {
-            submenu.style.maxHeight = '0px';
-            submenu.style.opacity = '0';
-            if (arrow) arrow.classList.remove('rotate-180');
-        } else {
-            submenu.style.maxHeight = submenu.scrollHeight + 'px';
-            submenu.style.opacity = '1';
-            if (arrow) arrow.classList.add('rotate-180');
-        }
-    };
+        // --- SUBMENÚS DEL SIDEBAR (COMPORTAMIENTO ACORDEÓN) ---
+        // Al abrir un submenú, cierra cualquier otro que estuviera abierto.
+        window.toggleSubmenu = function(id) {
+            const submenu = document.getElementById(id);
+            if (!submenu) return;
 
-    // Cerrar el sidebar móvil automáticamente al navegar a un enlace (mejor UX en móvil)
-    document.addEventListener("DOMContentLoaded", function() {
-        const sidebar = document.getElementById('pillone-sidebar');
-        if (sidebar) {
-            sidebar.querySelectorAll('a[href]').forEach(function(link) {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth < 768 && sidebar.dataset.open === 'true') {
-                        window.toggleSidebar();
-                    }
-                });
-            });
-        }
-    });
+            const arrowId = 'arrow-' + id.split('-')[1];
+            const arrow = document.getElementById(arrowId);
+            const isOpen = submenu.style.maxHeight && submenu.style.maxHeight !== '0px';
 
-    // Auto-apertura inteligente según la URL actual al cargar cualquier vista
-    document.addEventListener("DOMContentLoaded", function() {
-        const currentPath = window.location.pathname;
-        const submenuContainers = document.querySelectorAll('.submenu-container');
-
-        submenuContainers.forEach(submenu => {
-            const links = submenu.querySelectorAll('a');
-            let hasActiveLink = false;
-
-            links.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && href !== '#' && currentPath.includes(href)) {
-                    hasActiveLink = true;
-                    link.classList.add('text-white', 'bg-white/10');
+            // Cerrar todos los demás submenús abiertos antes de abrir el nuevo
+            document.querySelectorAll('.submenu-container').forEach(function(otro) {
+                if (otro !== submenu) {
+                    otro.style.maxHeight = '0px';
+                    otro.style.opacity = '0';
+                    const otroArrowId = 'arrow-' + otro.id.split('-')[1];
+                    const otroArrow = document.getElementById(otroArrowId);
+                    if (otroArrow) otroArrow.classList.remove('rotate-180');
                 }
             });
 
-            if (hasActiveLink) {
-                const id = submenu.id;
-                const arrowId = 'arrow-' + id.split('-')[1];
-                const arrow = document.getElementById(arrowId);
-
+            if (isOpen) {
+                submenu.style.maxHeight = '0px';
+                submenu.style.opacity = '0';
+                if (arrow) arrow.classList.remove('rotate-180');
+            } else {
                 submenu.style.maxHeight = submenu.scrollHeight + 'px';
                 submenu.style.opacity = '1';
                 if (arrow) arrow.classList.add('rotate-180');
             }
+        };
+
+        // Cerrar el sidebar móvil automáticamente al navegar a un enlace (mejor UX en móvil)
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebar = document.getElementById('pillone-sidebar');
+            if (sidebar) {
+                sidebar.querySelectorAll('a[href]').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth < 768 && sidebar.dataset.open === 'true') {
+                            window.toggleSidebar();
+                        }
+                    });
+                });
+            }
         });
-    });
-</script>
+
+        // Auto-apertura inteligente según la URL actual al cargar cualquier vista
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentPath = window.location.pathname;
+            const submenuContainers = document.querySelectorAll('.submenu-container');
+
+            submenuContainers.forEach(submenu => {
+                const links = submenu.querySelectorAll('a');
+                let hasActiveLink = false;
+
+                links.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && href !== '#' && currentPath.includes(href)) {
+                        hasActiveLink = true;
+                        link.classList.add('text-white', 'bg-white/10');
+                    }
+                });
+
+                if (hasActiveLink) {
+                    const id = submenu.id;
+                    const arrowId = 'arrow-' + id.split('-')[1];
+                    const arrow = document.getElementById(arrowId);
+
+                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                    submenu.style.opacity = '1';
+                    if (arrow) arrow.classList.add('rotate-180');
+                }
+            });
+        });
+    </script>
+</th:block>
 
 </body>
 </html>

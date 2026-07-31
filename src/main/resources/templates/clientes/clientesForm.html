@@ -6,8 +6,8 @@
     <title>PillOne - Formulario de Cliente</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Estilos del sidebar (submenu-container: colapsado + transición) -->
     <th:block th:replace="fragments/layout :: styles"></th:block>
-
     <script>
         tailwind.config = {
             theme: {
@@ -36,7 +36,7 @@
 <div class="flex flex-1 relative min-h-[calc(100vh-4rem)] bg-pillone-bg">
 
     <!-- OVERLAY MÓVIL -->
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-20 hidden backdrop-blur-sm"></div>
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-20 hidden"></div>
 
     <!-- SIDEBAR GLOBAL -->
     <div th:replace="fragments/layout :: sidebar('clientes')"></div>
