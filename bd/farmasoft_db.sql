@@ -22,9 +22,28 @@ DROP TABLE IF EXISTS categorias;
 DROP TABLE IF EXISTS proveedores;
 DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS empleados;
+DROP TABLE IF EXISTS sucursales;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS clientes;
+DROP TABLE IF EXISTS configuracion_global;
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ------------------------------------------------------------
+-- 0. TABLA CONFIGURACION GLOBAL (Parámetros del sistema)
+-- ------------------------------------------------------------
+CREATE TABLE configuracion_global (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_farmacia VARCHAR(150) NOT NULL,
+    nit VARCHAR(50) NOT NULL,
+    telefono VARCHAR(30),
+    direccion VARCHAR(200),
+    iva_general DECIMAL(5,2) DEFAULT 19.00,
+    moneda VARCHAR(10) DEFAULT 'COP',
+    tiempo_alerta_vencimiento_dias INT DEFAULT 60
+) ENGINE=InnoDB;
+
+INSERT INTO configuracion_global (id, nombre_farmacia, nit, telefono, direccion, iva_general, moneda, tiempo_alerta_vencimiento_dias) VALUES
+(1, 'FarmaSoft Plus S.A.S.', '900123456-7', '6022345678', 'Calle Principal # 10-20', 19.00, 'COP', 60);
 
 -- ------------------------------------------------------------
 -- 1. TABLA ROLES
@@ -39,6 +58,25 @@ INSERT INTO roles (id_rol, nombre) VALUES
 (2, 'FARMACEUTICO_REGENTE'),
 (3, 'VENDEDOR'),
 (4, 'AUXILIAR_FARMACIA');
+
+-- ------------------------------------------------------------
+-- 1.1 TABLA SUCURSALES
+-- ------------------------------------------------------------
+CREATE TABLE sucursales (
+    id_sucursal INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    codigo_sucursal VARCHAR(30) UNIQUE NOT NULL,
+    direccion VARCHAR(200) NOT NULL,
+    telefono VARCHAR(15),
+    ciudad VARCHAR(100) DEFAULT 'Tuluá',
+    departamento VARCHAR(100) DEFAULT 'Valle del Cauca',
+    estado ENUM('ACTIVA', 'INACTIVA') DEFAULT 'ACTIVA'
+) ENGINE=InnoDB;
+
+INSERT INTO sucursales (id_sucursal, nombre, codigo_sucursal, direccion, telefono, ciudad, departamento, estado) VALUES
+(1, 'FarmaSoft Principal Tuluá', 'TUL-01', 'Calle 25 # 22-10', '6022345678', 'Tuluá', 'Valle del Cauca', 'ACTIVA'),
+(2, 'FarmaSoft Sucursal Centro', 'TUL-02', 'Carrera 28 # 26-45', '6022345679', 'Tuluá', 'Valle del Cauca', 'ACTIVA'),
+(3, 'FarmaSoft Norte', 'BUG-01', 'Calle 18 # 12-30', '6022289012', 'Buga', 'Valle del Cauca', 'ACTIVA');
 
 -- ------------------------------------------------------------
 -- 2. TABLA CLIENTES
@@ -69,6 +107,7 @@ INSERT INTO clientes (nombre_completo, tipo_documento, numero_documento, telefon
 -- ------------------------------------------------------------
 CREATE TABLE empleados (
     id_empleado INT AUTO_INCREMENT PRIMARY KEY,
+    id_sucursal INT NOT NULL,
     nombre_completo VARCHAR(150) NOT NULL,
     tipo_documento ENUM('CC', 'CE', 'PASAPORTE') DEFAULT 'CC',
     numero_documento VARCHAR(20) NOT NULL UNIQUE,
@@ -77,14 +116,15 @@ CREATE TABLE empleados (
     correo VARCHAR(100),
     cargo VARCHAR(50) NOT NULL,
     salario DECIMAL(12,2) NOT NULL,
-    estado ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO'
+    estado ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO',
+    FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal)
 ) ENGINE=InnoDB;
 
-INSERT INTO empleados (id_empleado, nombre_completo, tipo_documento, numero_documento, telefono, direccion, correo, cargo, salario) VALUES
-(1, 'Luz Marina Bermúdez', 'CC', '31892014', '3115678901', 'Calle 12 # 4-15', 'luz.bermudez@farmasoft.com', 'Administrador General', 4500000.00),
-(2, 'Jonathan Smith Pérez', 'CC', '1115938201', '3174561230', 'Cra 15 # 22-08', 'jonathan.perez@farmasoft.com', 'Regente de Farmacia', 3200000.00),
-(3, 'Sandra Patricia Osorio', 'CC', '66982014', '3148901234', 'Calle 40 # 18-90', 'sandra.osorio@farmasoft.com', 'Auxiliar de Farmacia', 1800000.00),
-(4, 'Kevin Alexis Quintero', 'CC', '1112938471', '3201237894', 'Cra 27 # 8-33', 'kevin.quintero@farmasoft.com', 'Vendedor / Cajero', 1600000.00);
+INSERT INTO empleados (id_empleado, id_sucursal, nombre_completo, tipo_documento, numero_documento, telefono, direccion, correo, cargo, salario) VALUES
+(1, 1, 'Luz Marina Bermúdez', 'CC', '31892014', '3115678901', 'Calle 12 # 4-15', 'luz.bermudez@farmasoft.com', 'Administrador General', 4500000.00),
+(2, 1, 'Jonathan Smith Pérez', 'CC', '1115938201', '3174561230', 'Cra 15 # 22-08', 'jonathan.perez@farmasoft.com', 'Regente de Farmacia', 3200000.00),
+(3, 1, 'Sandra Patricia Osorio', 'CC', '66982014', '3148901234', 'Calle 40 # 18-90', 'sandra.osorio@farmasoft.com', 'Auxiliar de Farmacia', 1800000.00),
+(4, 1, 'Kevin Alexis Quintero', 'CC', '1112938471', '3201237894', 'Cra 27 # 8-33', 'kevin.quintero@farmasoft.com', 'Vendedor / Cajero', 1600000.00);
 
 CREATE TABLE usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
@@ -98,7 +138,7 @@ CREATE TABLE usuarios (
 ) ENGINE=InnoDB;
 
 INSERT INTO usuarios (id_empleado, id_rol, username, password_hash) VALUES
-(1, 1, 'admin', '$2a$10$wT3yKkXG1z/9W8Z3E9s2.e.yG9v5uL7Qf1u1u1u1u1u1u1u1u1u1u'), -- pass: admin123 (BCrypt demo)
+(1, 1, 'admin', '$2a$10$wT3yKkXG1z/9W8Z3E9s2.e.yG9v5uL7Qf1u1u1u1u1u1u1u1u1u1u'),
 (2, 2, 'regente01', '$2a$10$wT3yKkXG1z/9W8Z3E9s2.e.yG9v5uL7Qf1u1u1u1u1u1u1u1u1u1u'),
 (3, 4, 'sandra.aux', '$2a$10$wT3yKkXG1z/9W8Z3E9s2.e.yG9v5uL7Qf1u1u1u1u1u1u1u1u1u1u'),
 (4, 3, 'kevin.vendedor', '$2a$10$wT3yKkXG1z/9W8Z3E9s2.e.yG9v5uL7Qf1u1u1u1u1u1u1u1u1u1u');
@@ -152,8 +192,8 @@ CREATE TABLE productos (
     nombre_comercial VARCHAR(150) NOT NULL,
     nombre_generico VARCHAR(150),
     descripcion TEXT,
-    presentacion VARCHAR(100), -- Ej: Caja x 10 tabletas, Frasco x 120ml
-    concentracion VARCHAR(50), -- Ej: 500 mg, 50mg/ml
+    presentacion VARCHAR(100),
+    concentracion VARCHAR(50),
     laboratorio VARCHAR(100),
     registro_invima VARCHAR(50) NOT NULL,
     id_categoria INT NOT NULL,
@@ -210,6 +250,7 @@ INSERT INTO lotes (id_producto, numero_lote, fecha_fabricacion, fecha_vencimient
 -- ------------------------------------------------------------
 CREATE TABLE compras (
     id_compra INT AUTO_INCREMENT PRIMARY KEY,
+    id_sucursal INT NOT NULL,
     numero_factura_proveedor VARCHAR(50) NOT NULL,
     id_proveedor INT NOT NULL,
     id_empleado INT NOT NULL,
@@ -219,13 +260,14 @@ CREATE TABLE compras (
     total DECIMAL(12,2) NOT NULL,
     forma_pago ENUM('EFECTIVO', 'TRANSFERENCIA', 'CREDITO_PROVEEDOR') DEFAULT 'CREDITO_PROVEEDOR',
     estado ENUM('PENDIENTE', 'RECIBIDA', 'PARCIALMENTE_RECIBIDA', 'CANCELADA', 'DEVUELTA') DEFAULT 'RECIBIDA',
+    FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal),
     FOREIGN KEY (id_proveedor) REFERENCES proveedores(id_proveedor),
     FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
 ) ENGINE=InnoDB;
 
-INSERT INTO compras (numero_factura_proveedor, id_proveedor, id_empleado, fecha_compra, subtotal, impuestos, total, forma_pago, estado) VALUES
-('FAC-TQ-90812', 3, 1, '2026-07-01 10:30:00', 1625000.00, 308750.00, 1933750.00, 'CREDITO_PROVEEDOR', 'RECIBIDA'),
-('FAC-GEN-11204', 2, 2, '2026-07-15 14:15:00', 960000.00, 182400.00, 1142400.00, 'TRANSFERENCIA', 'RECIBIDA');
+INSERT INTO compras (id_sucursal, numero_factura_proveedor, id_proveedor, id_empleado, fecha_compra, subtotal, impuestos, total, forma_pago, estado) VALUES
+(1, 'FAC-TQ-90812', 3, 1, '2026-07-01 10:30:00', 1625000.00, 308750.00, 1933750.00, 'CREDITO_PROVEEDOR', 'RECIBIDA'),
+(1, 'FAC-GEN-11204', 2, 2, '2026-07-15 14:15:00', 960000.00, 182400.00, 1142400.00, 'TRANSFERENCIA', 'RECIBIDA');
 
 CREATE TABLE detalles_compras (
     id_detalle_compra INT AUTO_INCREMENT PRIMARY KEY,
@@ -248,6 +290,7 @@ INSERT INTO detalles_compras (id_compra, id_producto, cantidad, precio_unitario,
 -- ------------------------------------------------------------
 CREATE TABLE ventas (
     id_venta INT AUTO_INCREMENT PRIMARY KEY,
+    id_sucursal INT NOT NULL,
     numero_factura VARCHAR(50) UNIQUE NOT NULL,
     id_cliente INT,
     id_empleado INT NOT NULL,
@@ -258,13 +301,14 @@ CREATE TABLE ventas (
     total DECIMAL(12,2) NOT NULL,
     metodo_pago ENUM('EFECTIVO', 'TARJETA_DEBITO', 'TARJETA_CREDITO', 'TRANSFERENCIA', 'NEQUI_DAVIPLATA', 'PAGO_MIXTO') DEFAULT 'EFECTIVO',
     estado ENUM('PENDIENTE', 'PAGADA', 'ANULADA', 'DEVUELTA') DEFAULT 'PAGADA',
+    FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal),
     FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
     FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
 ) ENGINE=InnoDB;
 
-INSERT INTO ventas (numero_factura, id_cliente, id_empleado, fecha_venta, subtotal, descuento, impuesto_iva, total, metodo_pago, estado) VALUES
-('FARM-00001', 1, 4, '2026-07-27 09:10:00', 34500.00, 0.00, 0.00, 34500.00, 'NEQUI_DAVIPLATA', 'PAGADA'),
-('FARM-00002', 2, 4, '2026-07-27 10:25:00', 22000.00, 0.00, 0.00, 22000.00, 'EFECTIVO', 'PAGADA');
+INSERT INTO ventas (id_sucursal, numero_factura, id_cliente, id_empleado, fecha_venta, subtotal, descuento, impuesto_iva, total, metodo_pago, estado) VALUES
+(1, 'FARM-00001', 1, 4, '2026-07-27 09:10:00', 34500.00, 0.00, 0.00, 34500.00, 'NEQUI_DAVIPLATA', 'PAGADA'),
+(1, 'FARM-00002', 2, 4, '2026-07-27 10:25:00', 22000.00, 0.00, 0.00, 22000.00, 'EFECTIVO', 'PAGADA');
 
 CREATE TABLE detalles_ventas (
     id_detalle_venta INT AUTO_INCREMENT PRIMARY KEY,
@@ -292,7 +336,7 @@ CREATE TABLE formulas_medicas (
     id_cliente INT NOT NULL,
     nombre_medico VARCHAR(150) NOT NULL,
     tarjeta_profesional VARCHAR(50) NOT NULL,
-    entidad_salud VARCHAR(100), -- IPS / EPS / Clínica
+    entidad_salud VARCHAR(100),
     fecha_expedicion DATE NOT NULL,
     vigencia_dias INT DEFAULT 30,
     archivo_adjunto_url VARCHAR(255),
@@ -307,9 +351,9 @@ CREATE TABLE detalles_formulas (
     id_detalle_formula INT AUTO_INCREMENT PRIMARY KEY,
     id_formula INT NOT NULL,
     id_producto INT NOT NULL,
-    dosis VARCHAR(100) NOT NULL, -- Ej: 1 Cápsula
-    frecuencia VARCHAR(100) NOT NULL, -- Ej: Cada 8 horas
-    duracion_tratamiento VARCHAR(100) NOT NULL, -- Ej: 7 días
+    dosis VARCHAR(100) NOT NULL,
+    frecuencia VARCHAR(100) NOT NULL,
+    duracion_tratamiento VARCHAR(100) NOT NULL,
     FOREIGN KEY (id_formula) REFERENCES formulas_medicas(id_formula) ON DELETE CASCADE,
     FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
 ) ENGINE=InnoDB;
@@ -322,7 +366,8 @@ INSERT INTO detalles_formulas (id_formula, id_producto, dosis, frecuencia, durac
 -- ------------------------------------------------------------
 CREATE TABLE movimientos_inventario (
     id_movimiento INT AUTO_INCREMENT PRIMARY KEY,
-    tipo_movimiento ENUM('ENTRADA_COMPRA', 'SALIDA_VENTA', 'AJUSTE_PERDIDA', 'AJUSTE_DANIO', 'DEVOLUCION_CLIENTE', 'DEVOLUCION_PROVEEDOR') NOT NULL,
+    id_sucursal INT NOT NULL,
+    tipo_movimiento ENUM('ENTRADA_COMPRA', 'SALIDA_VENTA', 'AJUSTE_PERDIDA', 'AJUSTE_DANIO', 'DEVOLUCION_CLIENTE', 'DEVOLUCION_PROVEEDOR', 'TRASLADO_ENTRADA', 'TRASLADO_SALIDA') NOT NULL,
     id_producto INT NOT NULL,
     id_lote INT,
     cantidad INT NOT NULL,
@@ -331,14 +376,15 @@ CREATE TABLE movimientos_inventario (
     fecha_movimiento DATETIME DEFAULT CURRENT_TIMESTAMP,
     id_usuario INT NOT NULL,
     motivo VARCHAR(255),
+    FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal),
     FOREIGN KEY (id_producto) REFERENCES productos(id_producto),
     FOREIGN KEY (id_lote) REFERENCES lotes(id_lote),
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 ) ENGINE=InnoDB;
 
-INSERT INTO movimientos_inventario (tipo_movimiento, id_producto, id_lote, cantidad, existencia_anterior, nueva_existencia, id_usuario, motivo) VALUES
-('ENTRADA_COMPRA', 1, 1, 100, 0, 100, 1, 'Carga inicial por compra FAC-TQ-90812'),
-('SALIDA_VENTA', 1, 1, 1, 100, 99, 4, 'Venta según Factura FARM-00001');
+INSERT INTO movimientos_inventario (id_sucursal, tipo_movimiento, id_producto, id_lote, cantidad, existence_anterior, nueva_existencia, id_usuario, motivo) VALUES
+(1, 'ENTRADA_COMPRA', 1, 1, 100, 0, 100, 1, 'Carga inicial por compra FAC-TQ-90812'),
+(1, 'SALIDA_VENTA', 1, 1, 1, 100, 99, 4, 'Venta según Factura FARM-00001');
 
 -- ------------------------------------------------------------
 -- 12. TABLA DOMICILIOS
@@ -366,6 +412,7 @@ INSERT INTO domicilios (id_venta, id_cliente, direccion_entrega, telefono_contac
 -- ------------------------------------------------------------
 CREATE TABLE devoluciones (
     id_devolucion INT AUTO_INCREMENT PRIMARY KEY,
+    id_sucursal INT NOT NULL,
     tipo_devolucion ENUM('CLIENTE', 'PROVEEDOR') NOT NULL,
     id_venta INT NULL,
     id_compra INT NULL,
@@ -374,8 +421,9 @@ CREATE TABLE devoluciones (
     motivo ENUM('PRODUCTO_DEFECTUOSO', 'ERROR_ENTREGA', 'PROXIMO_A_VENCER', 'VENCIDO', 'RETIRO_MERCADO', 'EMPAQUE_DANADO') NOT NULL,
     estado_producto ENUM('APTO_PARA_REINGRESO', 'DESECHADO', 'DEVUELTO_A_FABRICA') NOT NULL,
     fecha_devolucion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    id_usuario_regente INT NOT NULL, -- Debe ser un Regente o Administrador
+    id_usuario_regente INT NOT NULL,
     observaciones TEXT,
+    FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal),
     FOREIGN KEY (id_venta) REFERENCES ventas(id_venta),
     FOREIGN KEY (id_compra) REFERENCES compras(id_compra),
     FOREIGN KEY (id_producto) REFERENCES productos(id_producto),

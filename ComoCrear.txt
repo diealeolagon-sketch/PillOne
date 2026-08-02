@@ -1,0 +1,149 @@
+FASE 1: Los Cimientos (Configuración y Maestros Independientes)
+1. Configuración (Sucursales, Impuestos / IVA, Métodos de Pago)
+Qué debe hacer el usuario:
+
+Ingresar los datos de la sede principal de la farmacia (nombre, dirección, NIT).
+
+Registrar los porcentajes de impuestos vigentes (por ejemplo, IVA del 0% para medicamentos esenciales y 19% para otros productos de aseo o dermocosmética).
+
+Activar o desactivar los métodos de pago que aceptará el sistema en caja (EFECTIVO, TARJETA_DEBITO, TARJETA_CREDITO, TRANSFERENCIA, NEQUI_DAVIPLATA, PAGO_MIXTO).
+
+Qué debe hacer el sistema:
+
+Guardar estos parámetros globales para que luego las pantallas de ventas y compras los utilicen automáticamente al calcular totales e impuestos.
+
+2. Usuarios y Personal (empleados, usuarios, roles)
+Qué debe hacer el usuario:
+
+Rellenar el formulario de empleados con datos personales, cargo (ej. Regente de Farmacia, Vendedor / Cajero), salario y estado (ACTIVO).
+
+Asignar un username, una contraseña y elegir un Rol de seguridad de la lista predefinida (ADMINISTRADOR, FARMACEUTICO_REGENTE, VENDEDOR, AUXILIAR_FARMACIA).
+
+Qué debe hacer el sistema:
+
+Cifrar la contraseña con BCrypt antes de guardarla en la tabla usuarios.
+
+Vincular el usuario con su respectivo empleado (id_empleado) y restringir o permitir el acceso a los módulos según el rol asignado.
+
+3. Pacientes / Clientes (clientes)
+Qué debe hacer el usuario:
+
+Registrar a los compradores frecuentes o pacientes ingresando su nombre completo, tipo y número de documento (Cédula, NIT, etc.), teléfono, dirección, correo y fecha de nacimiento.
+
+Indicar obligatoriamente la EPS a la que está afiliado y registrar de forma clara sus alergias conocidas (ej. alergia a la penicilina).
+
+Qué be hacer el sistema:
+
+Almacenar la información en la tabla clientes y mostrar alertas visuales en las pantallas de venta si un paciente registra alergias críticas.
+
+4. Proveedores / Directorio de Proveedores (proveedores)
+Qué debe hacer el usuario:
+
+Dar de alta a los laboratorios y distribuidores (ej. Procaps, Genfar, Bayer), capturando su razón social, NIT único, dirección, teléfono, correo de pedidos, nombre del contacto y tipo de productos que surten.
+
+Qué debe hacer el sistema:
+
+Mantener un directorio limpio y activo que servirá como base obligatoria al momento de registrar nuevas compras de inventario.
+
+FASE 2: Gestión de Productos y Abastecimiento
+5. Catálogo y Stock: Medicamentos / Productos (productos, categorias, proveedores)
+Qué debe hacer el usuario:
+
+Registrar cada medicamento o producto ingresando código interno, código de barras, nombre comercial, genérico, presentación, concentración, laboratorio y el registro INVIMA (obligatorio en Colombia).
+
+Definir precios de compra, precio de venta, stock mínimo y la ubicación física en estante.
+
+Marcar casillas de verificación (checkboxes) si el producto requiere_formula, es_controlado, es_controlado o requiere_refrigeracion.
+
+Seleccionar obligatoriamente una Categoría y un Proveedor de los menús desplegables.
+
+Qué debe hacer el sistema:
+
+Validar que los campos obligatorios no viajen vacíos y rechazar el registro si el id_categoria o id_proveedor no están seleccionados (evitando el error de SQL de llave foránea).
+
+6. Proveedores: Órdenes de Compra (compras, detalles_compras)
+Qué debe hacer el usuario:
+
+Registrar la factura física que envió el proveedor (número de factura, proveedor, empleado que recibe, forma de pago).
+
+Agregar los ítems comprados indicando qué productos y cuántas cantidades llegaron.
+
+Qué debe hacer el sistema:
+
+Calcular automáticamente subtotales, impuestos y el total de la compra.
+
+Generar los registros correspondientes para que luego se puedan abrir y asociar a los lotes físicos de entrada.
+
+FASE 3: Control Interno, Lotes y Seguridad Sanitaria
+7. Catálogo y Stock: Control de Lotes e Inventario (lotes)
+Qué debe hacer el usuario:
+
+Al recibir la mercancía de una compra, ingresar el número de lote exacto impreso en la caja del medicamento, la fecha de fabricación y, sobre todo, la fecha de vencimiento.
+
+Registrar la cantidad inicial y actual que ingresa a la estantería o nevera.
+
+Qué debe hacer el sistema:
+
+Vincular el lote al producto correspondiente. Cada vez que se mueva inventario, el sistema restará unidades de este lote específico para garantizar la trazabilidad farmacéutica.
+
+8. Catálogo y Stock: Alertas de Vencimiento (lotes filtrados)
+Qué debe hacer el usuario:
+
+Revisar periódicamente esta pantalla para identificar qué medicamentos están a punto de vencer.
+
+Qué debe hacer el sistema:
+
+Consultar los lotes cuya fecha de caducidad esté próxima (ej. en menos de 30, 60 o 90 días) o ya haya expirado, cambiando automáticamente su estado a PROXIMO_A_VENCER o VENCIDO y resaltándolos con alertas visuales (rojo/amarillo).
+
+FASE 4: Módulo Comercial y Cierre
+9. Dispensación / POS: Nueva Venta / Facturación (ventas, detalles_ventas, formulas_medicas, detalles_formulas, domicilios)
+Qué debe hacer el usuario:
+
+Buscar y seleccionar al Cliente que realiza la compra.
+
+Escanear o buscar el medicamento.
+
+Si el medicamento exige receta (requiere_formula = true), el sistema le obligará a rellenar los datos de la Fórmula Médica (nombre del médico, tarjeta profesional, entidad de salud, fecha de expedición y los detalles del fármaco recetado).
+
+Elegir de qué lote específico se descontará el producto.
+
+Aplicar descuentos si aplican, calcular el IVA y seleccionar el método de pago (EFECTIVO, NEQUI_DAVIPLATA, etc.).
+
+Si es un pedido para enviar a casa, activar la opción de domicilio y rellenar los datos de entrega.
+
+Qué debe hacer el sistema:
+
+Validar que haya stock suficiente en el lote elegido.
+
+Descontar automáticamente las unidades del inventario y del lote.
+
+Registrar los movimientos de auditoría en la tabla correspondiente y generar el número de factura único (ej. FARM-00001).
+
+10. Dispensación / POS: Historial de Dispensación (ventas, devoluciones)
+Qué debe hacer el usuario:
+
+Consultar el listado de ventas pasadas, filtrar por fecha o buscar por número de factura.
+
+Si un cliente regresa a devolver un producto, hacer clic en la opción de devolución, indicar el motivo (ej. producto próximo a vencer o defecto de fábrica) y decidir si el artículo regresa al inventario físico o se desecha.
+
+Qué debe hacer el sistema:
+
+Modificar el estado de la venta de ser necesario, registrar el motivo en la tabla de devoluciones y realizar el reingreso físico al stock únicamente si el producto fue marcado como apto.
+
+11. Reportes
+Qué debe hacer el usuario:
+
+Seleccionar rangos de fechas o tipos de reportes (ventas totales, productos con mayor rotación, auditoría de movimientos de inventario por usuario).
+
+Qué debe hacer el sistema:
+
+Consultar las tablas históricas (ventas, compras, movimientos_inventario) y renderizar gráficos estadísticos y tablas exportables para la toma de decisiones gerenciales.
+
+12. Inicio (Dashboard Principal)
+Qué debe hacer el usuario:
+
+Abrir el software y visualizar de un solo vistazo el estado general de la farmacia.
+
+Qué debe hacer el sistema:
+
+Mostrar en tiempo real los indicadores clave (KPIs): total recaudado en el día, cantidad de alertas críticas por lotes vencidos, productos con stock por debajo del mínimo permitido y botones de acceso rápido a las tareas más comunes.

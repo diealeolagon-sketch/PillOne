@@ -36,10 +36,6 @@
     </script>
 
     <!-- Estilos de transición suave para los submenús -->
-    <!-- IMPORTANTE: envuelto en th:fragment="styles" porque, igual que el script,   -->
-    <!-- un th:replace de "sidebar" NO arrastra este <style>. Cada vista que use el  -->
-    <!-- sidebar debe incluir explícitamente: <th:block th:replace="fragments/layout :: styles"></th:block> -->
-    <!-- dentro de su propio <head>.                                                -->
     <th:block th:fragment="styles">
         <style>
             .submenu-container {
@@ -304,17 +300,13 @@
                 </button>
 
                 <div id="submenu-config" class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1" style="max-height:0px;overflow:hidden;opacity:0;">
-                    <a th:href="@{/view/config/sucursales}"
+                    <a th:href="@{/view/sucursales}"
                        class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
                         Sucursales
                     </a>
-                    <a th:href="@{/view/config/impuestos}"
+                    <a th:href="@{/view/configuracion}"
                        class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Impuestos / IVA
-                    </a>
-                    <a th:href="@{/view/config/pagos}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Métodos de Pago
+                        Impuestos / Métodos de Pago
                     </a>
                 </div>
             </div>
@@ -323,7 +315,7 @@
 
     </aside>
 
-    <!-- AREA PRINCIPAL (Corregido con bg-pillone-bg y flex-col completo) -->
+    <!-- AREA PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
 
         <main class="flex-1 p-4 sm:p-6 lg:p-8">
@@ -356,22 +348,8 @@
 </div>
 
 <!-- ===================== SCRIPTS DE CONTROL GLOBAL ===================== -->
-<!-- IMPORTANTE: este bloque ahora es un fragmento propio (th:fragment="scripts")   -->
-<!-- porque los fragmentos th:replace/th:insert SOLO traen consigo el nodo         -->
-<!-- indicado. Si el script se queda suelto al final del <body> de este archivo,   -->
-<!-- las vistas que solo incluyen "sidebar" o "topbar" nunca reciben              -->
-<!-- toggleSubmenu()/toggleSidebar(), y por eso los submenús no se despliegan.     -->
-<!-- Debes incluir este fragmento explícitamente en cada vista que use el layout: -->
-<!--   <div th:replace="~{layout :: scripts}"></div>                              -->
-<!-- (idealmente justo antes de cerrar </body> en cada página)                    -->
 <th:block th:fragment="scripts">
     <script>
-        // --- SIDEBAR MÓVIL ---
-        // Usa el id explícito "pillone-sidebar" (en vez de document.querySelector('aside'))
-        // para no romperse si en el futuro aparece otro <aside> en el contenido de la página.
-        // Además usa add()/remove() con un estado explícito (data-open) en vez de toggle(),
-        // así el botón y el overlay SIEMPRE quedan sincronizados aunque se llame varias veces
-        // seguidas o desde distintos sitios (botón hamburguesa + overlay).
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('pillone-sidebar');
             const overlay = document.getElementById('overlay');
@@ -388,12 +366,10 @@
                 sidebar.classList.remove('-translate-x-full');
                 sidebar.dataset.open = 'true';
                 if (overlay) overlay.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden'); // evita el scroll del fondo con el menú abierto
+                document.body.classList.add('overflow-hidden');
             }
         };
 
-        // --- SUBMENÚS DEL SIDEBAR (COMPORTAMIENTO ACORDEÓN) ---
-        // Al abrir un submenú, cierra cualquier otro que estuviera abierto.
         window.toggleSubmenu = function(id) {
             const submenu = document.getElementById(id);
             if (!submenu) return;
@@ -402,7 +378,6 @@
             const arrow = document.getElementById(arrowId);
             const isOpen = submenu.style.maxHeight && submenu.style.maxHeight !== '0px';
 
-            // Cerrar todos los demás submenús abiertos antes de abrir el nuevo
             document.querySelectorAll('.submenu-container').forEach(function(otro) {
                 if (otro !== submenu) {
                     otro.style.maxHeight = '0px';
@@ -424,7 +399,6 @@
             }
         };
 
-        // Cerrar el sidebar móvil automáticamente al navegar a un enlace (mejor UX en móvil)
         document.addEventListener("DOMContentLoaded", function() {
             const sidebar = document.getElementById('pillone-sidebar');
             if (sidebar) {
@@ -438,7 +412,6 @@
             }
         });
 
-        // Auto-apertura inteligente según la URL actual al cargar cualquier vista
         document.addEventListener("DOMContentLoaded", function() {
             const currentPath = window.location.pathname;
             const submenuContainers = document.querySelectorAll('.submenu-container');

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Formulario de Sucursal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Estilos del sidebar y layout -->
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pillone: {
+                            bg: '#F7F7FF',
+                            dark: '#07004D',
+                            darker: '#04002C',
+                            accent: '#208AAE',
+                            text: '#1D1E18'
+                        }
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
+
+<!-- TOPBAR -->
+<div th:replace="fragments/layout :: topbar('Sucursales')"></div>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="flex flex-1 relative min-h-[calc(100vh-4rem)] bg-pillone-bg">
+
+    <!-- SIDEBAR -->
+    <div th:replace="fragments/layout :: sidebar('sucursales')"></div>
+
+    <!-- AREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full">
+
+            <!-- ENCABEZADO -->
+            <section class="mb-5">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark leading-tight uppercase tracking-tight"
+                            th:text="${sucursal.id != null ? 'Editar Sucursal' : 'Nueva Sucursal'}">
+                            Gestión de Sucursal
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Complete los campos para registrar o actualizar la información de la sede en el sistema.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FORMULARIO -->
+            <form th:action="@{/view/sucursales/save}" th:object="${sucursal}" method="post" class="space-y-6">
+
+                <!-- ID Oculto para Edición -->
+                <input type="hidden" th:field="*{id}" />
+
+                <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
+                    <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                        <h2 class="text-xs font-bold text-pillone-dark uppercase tracking-wider">Información General de la Sede</h2>
+                    </div>
+
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                        <!-- Código -->
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1.5">Código de Sucursal <span class="text-rose-500">*</span></label>
+                            <input type="text" th:field="*{codigo}" required placeholder="Ej: SUC-001"
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-50/50 text-pillone-text outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
+                        </div>
+
+                        <!-- Nombre -->
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1.5">Nombre / Sede <span class="text-rose-500">*</span></label>
+                            <input type="text" th:field="*{nombre}" required placeholder="Ej: Sede Principal Norte"
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-50/50 text-pillone-text outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
+                        </div>
+
+                        <!-- Ciudad -->
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1.5">Ciudad <span class="text-rose-500">*</span></label>
+                            <input type="text" th:field="*{ciudad}" required placeholder="Ej: Bogotá D.C."
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-50/50 text-pillone-text outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div>
+                            <label class="block text-slate-600 font-semibold mb-1.5">Teléfono de Contacto</label>
+                            <input type="text" th:field="*{telefono}" placeholder="Ej: 3001234567"
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-50/50 text-pillone-text outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
+                        </div>
+
+                        <!-- Dirección -->
+                        <div class="md:col-span-2">
+                            <label class="block text-slate-600 font-semibold mb-1.5">Dirección Física <span class="text-rose-500">*</span></label>
+                            <input type="text" th:field="*{direccion}" required placeholder="Ej: Calle 100 # 15-20"
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-50/50 text-pillone-text outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="md:col-span-2">
+                            <label class="block text-slate-600 font-semibold mb-1.5">Estado de Operación <span class="text-rose-500">*</span></label>
+                            <select th:field="*{estado}" required
+                                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-50/50 text-pillone-text outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
+                                <option value="ACTIVO">ACTIVO</option>
+                                <option value="INACTIVO">INACTIVO</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- BOTONERA DE ACCIÓN -->
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <a th:href="@{/view/sucursales}"
+                       class="px-5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 font-semibold transition shadow-xs">
+                        Cancelar
+                    </a>
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 rounded-lg bg-pillone-accent px-6 py-2.5 font-bold text-white shadow-sm hover:opacity-90 transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                        Guardar Sucursal
+                    </button>
+                </div>
+
+            </form>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer th:replace="fragments/layout :: footer"></footer>
+    </div>
+</div>
+
+<!-- SCRIPTS DEL LAYOUT -->
+<div th:replace="fragments/layout :: scripts"></div>
+
+</body>
+</html>
