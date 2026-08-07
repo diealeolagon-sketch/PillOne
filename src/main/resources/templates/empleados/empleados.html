@@ -81,7 +81,7 @@
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </span>
-                        <input type="text" id="buscador-tabla" onkeyup="filtrarTabla()" placeholder="Buscar empleado por nombre, documento, cargo..."
+                        <input type="text" id="buscador-tabla" onkeyup="filtrarTabla()" placeholder="Buscar empleado por nombre, documento, cargo, sucursal..."
                                class="w-full pl-9 pr-3.5 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
                     </div>
                     <div class="text-xs text-slate-500 font-medium">
@@ -97,6 +97,7 @@
                             <th class="px-4 py-3.5 font-bold">Documento</th>
                             <th class="px-4 py-3.5 font-bold">Nombre Completo</th>
                             <th class="px-4 py-3.5 font-bold">Cargo</th>
+                            <th class="px-4 py-3.5 font-bold">Sucursal</th>
                             <th class="px-4 py-3.5 font-bold">Teléfono</th>
                             <th class="px-4 py-3.5 font-bold">Correo</th>
                             <th class="px-4 py-3.5 text-center font-bold">Estado</th>
@@ -104,7 +105,7 @@
                         </tr>
                         </thead>
                         <tbody id="tabla-empleados" class="divide-y divide-slate-100">
-                        <!-- Iteración Thymeleaf adaptada exactamente a los atributos del modelo Empleados -->
+                        <!-- Iteración Thymeleaf adaptada con la columna de Sucursal -->
                         <tr th:each="empleado : ${empleados}" class="fila-empleado hover:bg-pillone-bg/40 transition">
                             <td class="px-4 py-3.5">
                                 <span class="font-bold text-pillone-accent px-2 py-1 rounded bg-pillone-accent/5 border border-pillone-accent/10"
@@ -113,6 +114,7 @@
                             </td>
                             <td class="px-4 py-3.5 font-semibold text-slate-700" th:text="${empleado.nombre_completo}"></td>
                             <td class="px-4 py-3.5 text-slate-600 font-medium" th:text="${empleado.cargo}"></td>
+                            <td class="px-4 py-3.5 font-semibold text-pillone-dark" th:text="${empleado.sucursal != null ? empleado.sucursal.nombre : 'Sin Sucursal'}"></td>
                             <td class="px-4 py-3.5 text-slate-600" th:text="${empleado.telefono}"></td>
                             <td class="px-4 py-3.5 text-slate-600" th:text="${empleado.correo}"></td>
                             <td class="px-4 py-3.5 text-center">
@@ -137,7 +139,7 @@
                             </td>
                         </tr>
                         <tr id="sin-registros" class="hidden">
-                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                            <td colspan="8" class="px-6 py-12 text-center text-slate-400">
                                 <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                 No se encontraron registros de empleados coincidentes.
                             </td>

@@ -6,7 +6,6 @@
     <title>PillOne - Gestión de Sucursales</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Estilos del sidebar (submenu-container: colapsado + transición) -->
     <th:block th:replace="fragments/layout :: styles"></th:block>
     <script>
         tailwind.config = {
@@ -48,9 +47,9 @@
                 <span th:text="${mensaje}">Mensaje de éxito</span>
             </div>
 
-            <!-- MENSAJE DE ERROR -->
+            <!-- MENSAJE FLASH DE ERROR -->
             <div th:if="${error}" class="mb-4 rounded-lg bg-rose-50 border border-rose-200 p-3 text-rose-800 text-xs font-medium shadow-sm flex items-center gap-2">
-                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 <span th:text="${error}">Mensaje de error</span>
             </div>
 
@@ -62,7 +61,7 @@
                             Gestión de Sucursales
                         </h1>
                         <p class="text-xs text-slate-500 mt-1">
-                            Administre la red de sedes físicas, puntos de venta y centros de distribución centralizados.
+                            Administre la información general, códigos, ubicaciones y estado de las sucursales de la red farmacéutica.
                         </p>
                     </div>
                     <div>
@@ -98,14 +97,15 @@
                         <thead>
                         <tr class="bg-pillone-dark text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">
                             <th class="px-4 py-3.5 font-bold">Código</th>
-                            <th class="px-4 py-3.5 font-bold">Nombre / Sede</th>
-                            <th class="px-4 py-3.5 font-bold">Ciudad / Dirección</th>
+                            <th class="px-4 py-3.5 font-bold">Nombre Sucursal</th>
+                            <th class="px-4 py-3.5 font-bold">Ubicación</th>
                             <th class="px-4 py-3.5 font-bold">Teléfono</th>
                             <th class="px-4 py-3.5 font-bold">Estado</th>
-                            <th class="px-4 py-3.5 text-center font-bold w-24">Acciones</th>
+                            <th class="px-4 py-3.5 text-center font-bold w-28">Acciones</th>
                         </tr>
                         </thead>
                         <tbody id="tabla-sucursales" class="divide-y divide-slate-100">
+                        <!-- CORREGIDO AQUÍ: Cambiado a ${sucursales} para que coincida con el controlador -->
                         <tr th:each="sucursal : ${sucursales}" class="fila-sucursal hover:bg-pillone-bg/40 transition">
                             <td class="px-4 py-3.5">
                                 <span class="font-bold text-pillone-accent px-2 py-1 rounded bg-pillone-accent/5 border border-pillone-accent/10"
@@ -113,24 +113,26 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3.5 font-semibold text-slate-700" th:text="${sucursal.nombre}"></td>
-                            <td class="px-4 py-3.5 text-slate-600">
-                                <span class="block font-semibold text-slate-800" th:text="${sucursal.ciudad}"></span>
-                                <span class="text-[11px] text-slate-400" th:text="${sucursal.direccion}"></span>
-                            </td>
+                            <td class="px-4 py-3.5 text-slate-600" th:text="${sucursal.direccion + ' (' + sucursal.ciudad + ' - ' + sucursal.departamento + ')'}"></td>
                             <td class="px-4 py-3.5 text-slate-600" th:text="${sucursal.telefono}"></td>
                             <td class="px-4 py-3.5">
-                                <span th:if="${sucursal.estado == 'ACTIVO'}" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">ACTIVO</span>
-                                <span th:unless="${sucursal.estado == 'ACTIVO'}" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">INACTIVO</span>
+                                <span th:if="${sucursal.estado == 'ACTIVA'}" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">ACTIVA</span>
+                                <span th:unless="${sucursal.estado == 'ACTIVA'}" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">INACTIVA</span>
                             </td>
                             <td class="px-4 py-3.5 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
+                                    <!-- Botón Ver Detalle -->
+                                    <a th:href="@{/view/sucursales/detalle/{id}(id=${sucursal.idSucursal})}"
+                                       class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-pillone-accent transition shadow-xs" title="Ver detalles">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </a>
                                     <!-- Botón Editar -->
-                                    <a th:href="@{/view/sucursales/edit/{id}(id=${sucursal.id})}"
+                                    <a th:href="@{/view/sucursales/edit/{id}(id=${sucursal.idSucursal})}"
                                        class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-pillone-accent transition shadow-xs" title="Editar registro">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </a>
                                     <!-- Botón Eliminar -->
-                                    <form th:action="@{'/view/sucursales/delete/' + ${sucursal.id}}" method="post" onsubmit="return confirm('¿Estás seguro de eliminar esta sucursal del sistema?');" class="inline-flex">
+                                    <form th:action="@{'/view/sucursales/delete/' + ${sucursal.idSucursal}}" method="post" onsubmit="return confirm('¿Estás seguro de eliminar esta sucursal del sistema?');" class="inline-flex">
                                         <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-rose-600 transition shadow-xs bg-transparent border-0 cursor-pointer" title="Eliminar registro">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
@@ -165,10 +167,10 @@
     </div>
 </div>
 
-<!-- SCRIPTS DEL LAYOUT (toggleSidebar / toggleSubmenu) -->
+<!-- SCRIPTS DEL LAYOUT -->
 <div th:replace="fragments/layout :: scripts"></div>
 
-<!-- LÓGICA DE TABLA PROFESIONAL (Paginación + Buscador) -->
+<!-- LÓGICA DE TABLA PROFESIONAL -->
 <script>
     const registrosPorPagina = 8;
     let paginaActual = 1;

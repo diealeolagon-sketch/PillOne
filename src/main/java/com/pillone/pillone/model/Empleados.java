@@ -42,4 +42,99 @@ public class Empleados {
     private BigDecimal salario;
 
     private String estado;
+
+    // Relación con Sucursales
+    @NotNull(message = "La sucursal es obligatoria")
+    @ManyToOne
+    @JoinColumn(name = "id_sucursal", nullable = false)
+    private Sucursales sucursal;
+
+    // Getters y Setters
+    public Long getId_empleado() {
+        return id_empleado;
+    }
+
+    public void setId_empleado(Long id_empleado) {
+        this.id_empleado = id_empleado;
+    }
+
+    public String getNombre_completo() {
+        return nombre_completo;
+    }
+
+    public void setNombre_completo(String nombre_completo) {
+        this.nombre_completo = nombre_completo;
+    }
+
+    public String getTipo_documento() {
+        return tipo_documento;
+    }
+
+    public void setTipo_documento(String tipo_documento) {
+        this.tipo_documento = tipo_documento;
+    }
+
+    public String getNumero_documento() {
+        return numero_documento;
+    }
+
+    public void setNumero_documento(String numero_documento) {
+        this.numero_documento = numero_documento;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public String getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(String cargo) {
+        this.cargo = cargo;
+    }
+
+    public BigDecimal getSalario() {
+        return salario;
+    }
+
+    public void setSalario(BigDecimal salario) {
+        this.salario = salario;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Sucursales getSucursal() {
+        return sucursal;
+    }
+
+    public void setSucursal(Sucursales sucursal) {
+        this.sucursal = sucursal;
+    }
 }

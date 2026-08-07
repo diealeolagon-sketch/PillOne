@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Detalles de Sucursal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pillone: {
+                            bg: '#F7F7FF',
+                            dark: '#07004D',
+                            darker: '#04002C',
+                            accent: '#208AAE',
+                            text: '#1D1E18'
+                        }
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
+
+<!-- TOPBAR -->
+<div th:replace="fragments/layout :: topbar('Sucursales')"></div>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="flex flex-1 relative min-h-[calc(100vh-4rem)] bg-pillone-bg">
+
+    <!-- SIDEBAR -->
+    <div th:replace="fragments/layout :: sidebar('sucursales')"></div>
+
+    <!-- AREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 flex items-center justify-center">
+
+            <!-- TARJETA DE DETALLES -->
+            <div class="w-full max-w-3xl bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+
+                <!-- ENCABEZADO -->
+                <div class="bg-pillone-dark px-6 py-4 flex items-center justify-between text-white">
+                    <div>
+                        <h1 class="text-base font-extrabold uppercase tracking-tight">Detalles de la Sucursal</h1>
+                        <p class="text-[11px] text-slate-300 mt-0.5">Información general y personal asociado.</p>
+                    </div>
+                    <a th:href="@{/view/sucursales}" class="text-slate-300 hover:text-white transition p-1.5 rounded-lg hover:bg-white/10" title="Volver al listado">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                </div>
+
+                <!-- CUERPO DE DETALLES -->
+                <div class="p-6 space-y-6">
+
+                    <!-- SECCIÓN 1: DATOS DE LA SUCURSAL -->
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Información de la Sucursal</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/60 p-4 rounded-xl border border-slate-100">
+                            <div>
+                                <span class="block text-slate-400 font-medium text-[11px]">Nombre</span>
+                                <span class="font-semibold text-slate-800 text-sm" th:text="${sucursal.nombre}">Nombre Sucursal</span>
+                            </div>
+                            <div>
+                                <span class="block text-slate-400 font-medium text-[11px]">Código</span>
+                                <span class="font-semibold text-slate-800 text-sm" th:text="${sucursal.codigo}">COD-00</span>
+                            </div>
+                            <div>
+                                <span class="block text-slate-400 font-medium text-[11px]">Teléfono</span>
+                                <span class="font-semibold text-slate-800 text-sm" th:text="${sucursal.telefono != null ? sucursal.telefono : 'No registrado'}">Teléfono</span>
+                            </div>
+                            <div>
+                                <span class="block text-slate-400 font-medium text-[11px]">Estado</span>
+                                <div>
+                                    <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+                                          th:classappend="${sucursal.estado == 'ACTIVA'} ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'"
+                                          th:text="${sucursal.estado}">ACTIVA</span>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <span class="block text-slate-400 font-medium text-[11px]">Dirección</span>
+                                <span class="font-semibold text-slate-800 text-sm" th:text="${sucursal.direccion + ' (' + sucursal.ciudad + ' - ' + sucursal.departamento + ')'}">Dirección</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 2: EMPLEADOS ASOCIADOS -->
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Personal Asociado a la Sucursal</h2>
+
+                        <!-- Si la sucursal tiene empleados (usando empleadosSucursal) -->
+                        <div th:if="${empleadosSucursal != null and not #lists.isEmpty(empleadosSucursal)}" class="overflow-x-auto rounded-xl border border-slate-200">
+                            <table class="min-w-full text-xs text-left">
+                                <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th class="px-3.5 py-2.5">Documento</th>
+                                    <th class="px-3.5 py-2.5">Nombre Completo</th>
+                                    <th class="px-3.5 py-2.5">Cargo</th>
+                                    <th class="px-3.5 py-2.5">Correo</th>
+                                    <th class="px-3.5 py-2.5">Teléfono</th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 bg-white">
+                                <tr th:each="emp : ${empleadosSucursal}" class="hover:bg-slate-50">
+                                    <td class="px-3.5 py-2.5 font-medium text-pillone-accent" th:text="${emp.tipo_documento + ' - ' + emp.numero_documento}">Doc</td>
+                                    <td class="px-3.5 py-2.5 font-semibold text-slate-700" th:text="${emp.nombre_completo}">Nombre</td>
+                                    <td class="px-3.5 py-2.5 text-slate-600" th:text="${emp.cargo}">Cargo</td>
+                                    <td class="px-3.5 py-2.5 text-slate-600" th:text="${emp.correo}">Correo</td>
+                                    <td class="px-3.5 py-2.5 text-slate-600" th:text="${emp.telefono}">Teléfono</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Si NO tiene empleados asignados -->
+                        <div th:if="${empleadosSucursal == null or #lists.isEmpty(empleadosSucursal)}" class="p-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 text-center text-slate-400 italic">
+                            No hay ningún empleado asociado a esta sucursal actualmente.
+                        </div>
+                    </div>
+
+                    <!-- BOTÓN DE RETORNO -->
+                    <div class="flex items-center justify-end pt-4 border-t border-slate-100">
+                        <a th:href="@{/view/sucursales}"
+                           class="px-5 py-2 rounded-lg bg-pillone-dark text-white font-bold hover:bg-pillone-darker transition shadow-sm">
+                            Volver al Listado
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer th:replace="fragments/layout :: footer"></footer>
+    </div>
+</div>
+
+<!-- SCRIPTS DEL LAYOUT -->
+<div th:replace="fragments/layout :: scripts"></div>
+
+</body>
+</html>
