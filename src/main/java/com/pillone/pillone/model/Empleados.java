@@ -49,6 +49,20 @@ public class Empleados {
     @JoinColumn(name = "id_sucursal", nullable = false)
     private Sucursales sucursal;
 
+    // Relación con Usuarios (Asegúrate de que la entidad se llame Usuarios o Usuario)
+    // Relación con Usuarios (Asegúrate de que la clase se llame Usuarios o Usuario)
+    @ManyToOne
+    @JoinColumn(name = "id_usuario") // O el nombre de la columna foránea en tu base de datos
+    private Usuarios usuario;
+
+    // Getter y Setter (si no usas Lombok para esto)
+    public Usuarios getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuarios usuario) {
+        this.usuario = usuario;
+    }
     // Getters y Setters
     public Long getId_empleado() {
         return id_empleado;

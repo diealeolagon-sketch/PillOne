@@ -71,6 +71,7 @@ public class SucursalesView {
         List<Empleados> listaEmpleados = empleadosRepository.findBySucursal_IdSucursal(id);
 
         model.addAttribute("sucursal", sucursal);
+        //se crea el objeto que contiene todos los datos del empleado,el primero es el nombre que usaremos el segundo es el nombre del arreglo o lista
         model.addAttribute("empleadosSucursal", listaEmpleados);
         return "sucursales/sucursalDetalle";
     }
