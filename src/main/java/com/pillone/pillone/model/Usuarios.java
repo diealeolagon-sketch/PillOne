@@ -11,12 +11,12 @@ public class Usuarios {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
-    private Long idUsuario; // Cambiado a camelCase
+    private Long idUsuario;
 
-    @Column(name = "id_empleado", nullable = false, unique = true)
-    private Long idEmpleado; // Cambiado a camelCase
+    @JoinColumn(name = "id_empleado", nullable = true)
+    private Long idEmpleado;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol", nullable = false)
     private Roles rol; // Relacionado con Roles
 
@@ -24,7 +24,7 @@ public class Usuarios {
     private String username;
 
     @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash; // Opcional, pero recomendado en camelCase (actualiza el @Column si tu BD usa password_hash)
+    private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado")
