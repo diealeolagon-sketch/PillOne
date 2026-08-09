@@ -212,8 +212,8 @@
                             </h2>
                         </div>
 
-                        <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <!-- Username: Vinculado a usuario.username -->
+                        <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Username -->
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                                     Nombre de Usuario (Username) <span class="text-rose-500">*</span>
@@ -223,7 +223,7 @@
                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                             </div>
 
-                            <!-- Password: Se mantiene como password_hash ya que no es bueno leer la pass desde la BD -->
+                            <!-- Contraseña -->
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                                     Contraseña <span class="text-rose-500">*</span>
@@ -233,7 +233,7 @@
                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                             </div>
 
-                            <!-- Rol: Vinculado a usuario.rol.idRol -->
+                            <!-- Rol del Sistema -->
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                                     Rol del Sistema <span class="text-rose-500">*</span>
@@ -245,6 +245,18 @@
                                             th:value="${r.idRol}"
                                             th:text="${r.nombre}">
                                     </option>
+                                </select>
+                            </div>
+
+                            <!-- Estado del Usuario (Activo / Inactivo) -->
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
+                                    Estado de Usuario <span class="text-rose-500">*</span>
+                                </label>
+                                <select th:field="*{usuario.estado}" required
+                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
+                                    <option th:each="e : ${T(com.pillone.pillone.model.Usuarios.EstadoUsuario).values()}"
+                                            th:value="${e}" th:text="${e}">ACTIVO</option>
                                 </select>
                             </div>
                         </div>
