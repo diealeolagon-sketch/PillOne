@@ -29,7 +29,7 @@ public class SucursalesView {
         model.addAttribute("sucursales", sucursalesRepository.findAll());
         return "sucursales/sucursales";
     }
-
+//acceso a
     @GetMapping("/view/sucursales/form")
     public String form(Model model) {
         model.addAttribute("sucursal", new Sucursales());

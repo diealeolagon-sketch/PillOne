@@ -8,12 +8,16 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
+
+//se trae la tabla empleados
 @Table(name = "empleados")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
+//se cra la clase para poder traer los datos
 public class Empleados {
 
     @Id

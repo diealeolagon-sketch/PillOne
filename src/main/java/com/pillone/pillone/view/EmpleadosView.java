@@ -1,5 +1,6 @@
 package com.pillone.pillone.view;
-
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 import com.pillone.pillone.model.Empleados;
 import com.pillone.pillone.model.Roles;
 import com.pillone.pillone.model.Usuarios;
@@ -47,10 +48,30 @@ public class EmpleadosView {
     }
 
     @PostMapping("/view/empleados/save")
-    public String save(@ModelAttribute Empleados empleado,
+    public String save(
+            @Valid @ModelAttribute Empleados empleado,
+                       BindingResult result,
                        @RequestParam(value = "password_hash", required = false) String passwordHash,
                        RedirectAttributes ra) {
 
+        if (result.hasErrors())
+        {
+            ra.addFlashAttribute("error", "hay campos obligatorios vacios.");
+            return "redirect:/view/empleados/form";
+        }
+
+        if (empleado.getId_empleado() == null &&
+                empleadosRepository.existsByNumeroDocumento(
+                        empleado.getNumero_documento()))
+        {
+
+            ra.addFlashAttribute(
+                    "error",
+                    "Ese número de documento ya está registrado."
+            );
+
+            return "redirect:/view/empleados/form";
+        }
         // 1. Extraer el usuario del formulario y desvincularlo temporalmente
         Usuarios usuarioForm = empleado.getUsuario();
         empleado.setUsuario(null);

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+    <title>Nuevo Proveedor - PillOne</title>
+</head>
+<body>
+
+<!-- Topbar -->
+<header th:replace="~{fragments/layout :: topbar('Nuevo Proveedor')}"></header>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/layout :: sidebar('proveedores')}"></aside>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 p-6 sm:p-8 max-w-4xl mx-auto">
+        <h1 class="text-xl font-bold text-pillone-dark mb-6">Registrar Nuevo Proveedor</h1>
+
+        <!-- Formulario conectado al objeto proveedor -->
+        <form th:action="@{/view/proveedores/guardar}" th:object="${proveedor}" method="post" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Razón Social</label>
+                <input type="text" th:field="*{razon_social}" required class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pillone-accent">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">NIT</label>
+                    <input type="text" th:field="*{nit}" required class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pillone-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Teléfono</label>
+                    <input type="text" th:field="*{telefono}" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pillone-accent">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Dirección</label>
+                <input type="text" th:field="*{direccion}" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pillone-accent">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Correo Electrónico</label>
+                    <input type="email" th:field="*{correo}" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pillone-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre de Contacto</label>
+                    <input type="text" th:field="*{nombre_contacto}" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pillone-accent">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Productos</label>
+                    <input type="text" th:field="*{tipo_productos}" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pillone-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Estado</label>
+                    <select th:field="*{estado}" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pillone-accent">
+                        <option th:value="ACTIVO">ACTIVO</option>
+                        <option th:value="INACTIVO">INACTIVO</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <a th:href="@{/view/proveedores}" class="px-4 py-2 border rounded-xl text-sm text-slate-600 hover:bg-slate-50">Cancelar</a>
+                <button type="submit" class="px-5 py-2 bg-pillone-dark text-white rounded-xl text-sm font-semibold hover:bg-pillone-darker transition-colors">Guardar Proveedor</button>
+            </div>
+
+        </form>
+    </main>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+</body>
+</html>

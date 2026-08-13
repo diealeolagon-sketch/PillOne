@@ -5,41 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PillOne - Pharma System</title>
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <th:block th:fragment="styles">
+        <!-- Tailwind CSS CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts: Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <!-- Google Fonts: Poppins -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" th:href="@{/img/img.png}">
 
-    <!-- Configuración personalizada de Tailwind con la paleta de colores oficial -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        pillone: {
-                            bg: '#F7F7FF',        /* Fondo Principal: Ghost White */
-                            dark: '#07004D',      /* Header / Sidebar: Deep Twilight */
-                            darker: '#04002C',    /* Tonalidad más profunda para degradados */
-                            accent: '#208AAE',    /* Acento / Acciones / Bordes: Bondi Blue */
-                            text: '#1D1E18'       /* Texto Principal: Carbon Black */
+        <!-- Configuración personalizada de Tailwind con la paleta de colores oficial -->
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            pillone: {
+                                bg: '#F7F7FF',        /* Fondo Principal: Ghost White */
+                                dark: '#07004D',      /* Header / Sidebar: Deep Twilight */
+                                darker: '#04002C',    /* Tonalidad más profunda para degradados */
+                                accent: '#208AAE',    /* Acento / Acciones / Bordes: Bondi Blue */
+                                text: '#1D1E18'       /* Texto Principal: Carbon Black */
+                            }
+                        },
+                        fontFamily: {
+                            sans: ['Poppins', 'sans-serif'],
                         }
-                    },
-                    fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
                     }
                 }
             }
-        }
-    </script>
+        </script>
 
-    <!-- Estilos de transición suave para los submenús -->
-    <th:block th:fragment="styles">
+        <!-- Estilos de transición suave para los submenús -->
         <style>
             .submenu-container {
                 max-height: 0px;

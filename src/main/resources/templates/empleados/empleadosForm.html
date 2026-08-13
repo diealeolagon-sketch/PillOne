@@ -293,6 +293,8 @@
 <!-- Scripts del sidebar -->
 <div th:replace="fragments/layout :: scripts"></div>
 <script th:src="@{/js/script.js}" defer></script>
+<script th:if="${error}">alert('⚠️ ' + '[[${error}]]');</script>
+<script th:if="${mensaje}">alert('✅ ' + '[[${mensaje}]]');</script>
 
 </body>
 </html>
