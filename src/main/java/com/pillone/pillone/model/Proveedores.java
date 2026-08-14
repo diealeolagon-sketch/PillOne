@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotNull;
 public class Proveedores {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_proveedor;
+    private Integer id_proveedor;
 
     //NotNull para numeros y NotBlank es para cadenas de texto
     @NotBlank(message = "la razon social es obligatoria")

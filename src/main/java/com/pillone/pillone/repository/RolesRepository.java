@@ -8,5 +8,4 @@ import java.util.List;
 public interface RolesRepository extends JpaRepository<Roles, Integer> {
 
 
-    List<Roles> findByUsuarios_Rol_IdRol(Integer idRol);
 }

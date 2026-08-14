@@ -18,8 +18,6 @@ public class ProveedoresController {
 
     // ---------- API REST (JSON) ----------
 
-
-
     @GetMapping
     @ResponseBody
     public List<Proveedores> getAll() {
@@ -51,9 +49,7 @@ public class ProveedoresController {
         proveedoresRepository.deleteById(id);
     }
 
-    // ---------- FORMULARIO (HTML / Thymeleaf) ----------
 
-    // ---------- FORMULARIO (HTML / Thymeleaf) ----------
 
     @GetMapping("/vista")
     public String lista(Model model) {
@@ -65,14 +61,14 @@ public class ProveedoresController {
     @GetMapping("/vista/nuevo")
     public String mostrarFormulario(Model model) {
         model.addAttribute("proveedor", new Proveedores());
-        // CAMBIADO AQUÍ: ahora apunta a "proveedores.form" que corresponde a proveedores.form.html
-        return "proveedores/proveedores.form";
+        // CAMBIADO AQUÍ: ahora apunta a "proveedores.form" que corresponde a proveedoresForm.html
+        return "proveedores/proveedores/form";
     }
 
     @PostMapping("/vista/guardar")
     public String guardar(@ModelAttribute Proveedores proveedor) {
         proveedoresRepository.save(proveedor);
-        return "redirect:/api/proveedores/vista";
+        return "redirect:/proveedores/proveedores";
     }
 
 }
