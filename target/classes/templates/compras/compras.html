@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Órdenes de Compra</title>
+    <!-- Tus estilos locales -->
+    <link rel="stylesheet" th:href="@{/css/globals.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/styleguide.css}">
+</head>
+<body>
+<div class="main-container"> <!-- Cambia esta clase por la que uses en tu layout -->
+    <h1>Gestión de Órdenes de Compra</h1>
+
+    <!-- Mensajes -->
+    <div th:if="${mensaje}" th:text="${mensaje}"></div>
+
+    <a th:href="@{/view/compras/form}">Nueva Orden de Compra</a>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Factura Prov.</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${compras}">
+            <td th:text="${c.idCompra}"></td>
+            <td th:text="${c.numeroFacturaProveedor}"></td>
+            <td th:text="${c.fechaCompra}"></td>
+            <td th:text="${c.total}"></td>
+            <td th:text="${c.estado}"></td>
+            <td>
+                <a th:href="@{/view/compras/edit/{id}(id=${c.idCompra})}">Editar</a>
+                <form th:action="@{/view/compras/delete/{id}(id=${c.idCompra})}" method="post">
+                    <button type="submit">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

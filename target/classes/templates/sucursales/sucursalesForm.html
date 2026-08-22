@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Formulario de Sucursal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pillone: {
+                            bg: '#F7F7FF',
+                            dark: '#07004D',
+                            darker: '#04002C',
+                            accent: '#208AAE',
+                            text: '#1D1E18'
+                        }
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
+
+<!-- TOPBAR -->
+<div th:replace="fragments/layout :: topbar('Sucursales')"></div>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="flex flex-1 relative min-h-[calc(100vh-4rem)] bg-pillone-bg">
+
+    <!-- SIDEBAR -->
+    <div th:replace="fragments/layout :: sidebar('sucursales')"></div>
+
+    <!-- AREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 flex items-center justify-center">
+
+            <!-- TARJETA DEL FORMULARIO -->
+            <div class="w-full max-w-2xl bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+
+                <!-- ENCABEZADO DEL FORMULARIO -->
+                <div class="bg-pillone-dark px-6 py-4 flex items-center justify-between text-white">
+                    <div>
+                        <h1 class="text-base font-extrabold uppercase tracking-tight" th:text="${sucursal.idSucursal == null ? 'Registrar Nueva Sucursal' : 'Editar Sucursal'}">Registrar Nueva Sucursal</h1>
+                        <p class="text-[11px] text-slate-300 mt-0.5">Complete los datos correspondientes para la sucursal del sistema.</p>
+                    </div>
+                    <a th:href="@{/view/sucursales}" class="text-slate-300 hover:text-white transition p-1.5 rounded-lg hover:bg-white/10" title="Volver al listado">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                </div>
+
+                <!-- CUERPO / FORMULARIO THYMELEAF -->
+                <form th:action="@{/view/sucursales/save}" th:object="${sucursal}" method="post" class="p-6 space-y-4">
+
+                    <!-- ID Oculto para actualización -->
+                    <input type="hidden" th:field="*{idSucursal}"/>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Nombre -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Nombre de la Sucursal <span class="text-rose-500">*</span></label>
+                            <input type="text" th:field="*{nombre}" required placeholder="Ej: FarmaSoft Principal Tuluá"
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
+                        </div>
+
+                        <!-- Código Sucursal (Enlazado a 'codigo') -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Código de Sucursal <span class="text-rose-500">*</span></label>
+                            <input type="text" th:field="*{codigo}" required placeholder="Ej: TUL-01"
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Teléfono -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Teléfono</label>
+                            <input type="text" th:field="*{telefono}" placeholder="Ej: 6022345678"
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
+                        </div>
+
+                        <!-- Estado -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Estado <span class="text-rose-500">*</span></label>
+                            <select th:field="*{estado}" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
+                                <option value="ACTIVA">ACTIVA</option>
+                                <option value="INACTIVA">INACTIVA</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Dirección <span class="text-rose-500">*</span></label>
+                        <input type="text" th:field="*{direccion}" required placeholder="Ej: Calle 25 # 22-10"
+                               class="w-full px-3.5 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Ciudad -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Ciudad</label>
+                            <input type="text" th:field="*{ciudad}" placeholder="Ej: Tuluá"
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
+                        </div>
+
+                        <!-- Departamento -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Departamento</label>
+                            <input type="text" th:field="*{departamento}" placeholder="Ej: Valle del Cauca"
+                                   class="w-full px-3.5 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
+                        </div>
+                    </div>
+
+                    <!-- BOTONES DE ACCIÓN -->
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+                        <a th:href="@{/view/sucursales}"
+                           class="px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 transition font-medium shadow-xs">
+                            Cancelar
+                        </a>
+                        <button type="submit"
+                                class="px-5 py-2 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition shadow-sm cursor-pointer">
+                            Guardar Sucursal
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer th:replace="fragments/layout :: footer"></footer>
+    </div>
+</div>
+
+<!-- SCRIPTS DEL LAYOUT -->
+<div th:replace="fragments/layout :: scripts"></div>
+
+</body>
+</html>

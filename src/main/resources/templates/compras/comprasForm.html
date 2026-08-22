@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario de Orden de Compra</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+</head>
+<body style="font-family: 'Poppins', sans-serif;">
+<div class="container mx-auto mt-5 max-w-xl">
+    <h1 class="text-2xl font-bold mb-4" th:text="${compra.idCompra == null ? 'Nueva Orden de Compra' : 'Editar Orden de Compra'}"></h1>
+
+    <form th:action="@{/view/compras/save}" th:object="${compra}" method="post" class="bg-white p-6 border rounded shadow">
+
+        <!-- Campo oculto para el ID en caso de edición -->
+        <input type="hidden" th:field="*{idCompra}" />
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">ID Sucursal:</label>
+            <input type="number" th:field="*{idSucursal}" class="w-full border px-3 py-2 rounded" required />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Número Factura Proveedor:</label>
+            <input type="text" th:field="*{numeroFacturaProveedor}" class="w-full border px-3 py-2 rounded" />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">ID Proveedor:</label>
+            <input type="number" th:field="*{idProveedor}" class="w-full border px-3 py-2 rounded" required />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">ID Empleado:</label>
+            <input type="number" th:field="*{idEmpleado}" class="w-full border px-3 py-2 rounded" required />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Subtotal:</label>
+            <input type="number" step="0.01" th:field="*{subtotal}" class="w-full border px-3 py-2 rounded" required />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Impuestos:</label>
+            <input type="number" step="0.01" th:field="*{impuestos}" class="w-full border px-3 py-2 rounded" />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Total:</label>
+            <input type="number" step="0.01" th:field="*{total}" class="w-full border px-3 py-2 rounded" required />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Forma de Pago:</label>
+            <input type="text" th:field="*{formaPago}" class="w-full border px-3 py-2 rounded" />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Estado:</label>
+            <input type="text" th:field="*{estado}" class="w-full border px-3 py-2 rounded" />
+        </div>
+
+        <div class="flex justify-between">
+            <a th:href="@{/view/compras}" class="bg-gray-500 text-white px-4 py-2 rounded">Cancelar</a>
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Guardar</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
