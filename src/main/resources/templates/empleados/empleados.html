@@ -98,7 +98,6 @@
                             <th class="px-4 py-3.5 font-bold">Nombre Completo</th>
                             <th class="px-4 py-3.5 font-bold">Cargo / Salario</th>
                             <th class="px-4 py-3.5 font-bold">Sucursal</th>
-                            <th class="px-4 py-3.5 font-bold">Rol</th>
                             <th class="px-4 py-3.5 font-bold">Contacto</th>
                             <th class="px-4 py-3.5 text-center font-bold">Estado</th>
                             <th class="px-4 py-3.5 text-center font-bold w-24">Acciones</th>
@@ -119,14 +118,6 @@
                                 <div class="text-[10px] font-semibold text-pillone-dark" th:text="${empleado.salario != null ? '$' + #numbers.formatDecimal(empleado.salario, 0, 'POINT', 2, 'COMMA') : 'N/A'}"></div>
                             </td>
                             <td class="px-4 py-3.5 text-slate-600 font-medium" th:text="${empleado.sucursal != null ? empleado.sucursal.nombre : 'Sin Sucursal'}"></td>
-
-                            <!-- Columna de Rol (Protegida contra nulos) -->
-                            <td class="px-4 py-3.5">
-                                <span class="inline-flex px-2 py-0.5 rounded bg-pillone-accent/10 text-[10px] font-bold text-pillone-accent border border-pillone-accent/20"
-                                      th:text="${empleado.usuario != null && empleado.usuario.rol != null ? empleado.usuario.rol.nombre : 'Sin Rol'}">
-                                </span>
-                            </td>
-
                             <td class="px-4 py-3.5">
                                 <div class="text-slate-600" th:text="${empleado.telefono}"></div>
                                 <div class="text-slate-400 text-[10px]" th:text="${empleado.correo}"></div>
@@ -154,7 +145,7 @@
                         </tr>
 
                         <tr id="sin-registros" class="hidden">
-                            <td colspan="8" class="px-6 py-12 text-center text-slate-400">
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">
                                 <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                 No se encontraron registros de empleados coincidentes.
                             </td>

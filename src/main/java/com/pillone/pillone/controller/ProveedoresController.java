@@ -65,11 +65,13 @@ public class ProveedoresController {
         return "proveedores/proveedores/form";
     }
 
-    @PostMapping("/vista/guardar")
-    public String guardar(@ModelAttribute Proveedores proveedor) {
+
+    @PostMapping("/guardar") // O la ruta a la que apunte el th:action de tu formulario
+    public String guardarProveedor(@ModelAttribute Proveedores proveedor) {
         proveedoresRepository.save(proveedor);
-        return "redirect:/proveedores/proveedores";
+        return "redirect:/view/proveedores"; // O la ruta donde lista tus proveedores
     }
+
 
 }
 

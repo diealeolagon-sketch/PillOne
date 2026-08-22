@@ -11,14 +11,6 @@ public class Sucursales {
     @Column(name = "id_sucursal")
     private Long idSucursal;
 
-    @ManyToOne
-    @JoinColumn(name = "id_empleado") // O el nombre de la columna que tengas en tu BD para el empleado
-    private Empleados empleado;
-
-    // No olvides su Getter y Setter:
-    public Empleados getEmpleado() { return empleado; }
-    public void setEmpleado(Empleados empleado) { this.empleado = empleado; }
-
     @Column(name = "nombre", nullable = false, length = 150)
     private String nombre;
 

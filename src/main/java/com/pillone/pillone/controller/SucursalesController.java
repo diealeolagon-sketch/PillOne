@@ -4,6 +4,7 @@ import com.pillone.pillone.model.Sucursales;
 import com.pillone.pillone.repository.SucursalesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -25,10 +26,11 @@ public class SucursalesController
         return sucursalesRepository.findById(id).orElse(null);
     }
 
-    @PostMapping
-    public Sucursales create(@RequestBody Sucursales sucursales)
-    {
-        return sucursalesRepository.save(sucursales);
+    @PostMapping("/view/sucursales/save")
+    public String save(@ModelAttribute Sucursales sucursales, RedirectAttributes ra) {
+        sucursalesRepository.save(sucursales);
+        ra.addFlashAttribute("mensaje", "Sucursal registrada exitosamente");
+        return "redirect:/view/sucursales";
     }
 
     @PutMapping("/{id}")

@@ -49,7 +49,7 @@
                 <!-- ENCABEZADO DEL FORMULARIO -->
                 <div class="bg-pillone-dark px-6 py-4 flex items-center justify-between text-white">
                     <div>
-                        <h1 class="text-base font-extrabold uppercase tracking-tight" th:text="${sucursal.idSucursal == null ? 'Registrar Nueva Sucursal' : 'Editar Sucursal'}">Registrar Nueva Sucursal</h1>
+                        <h1 class="text-base font-extrabold uppercase tracking-tight" th:text="${sucursal.idSucursal == null} ? 'Registrar Nueva Sucursal' : 'Editar Sucursal'">Registrar Nueva Sucursal</h1>
                         <p class="text-[11px] text-slate-300 mt-0.5">Complete los datos correspondientes para la sucursal del sistema.</p>
                     </div>
                     <a th:href="@{/view/sucursales}" class="text-slate-300 hover:text-white transition p-1.5 rounded-lg hover:bg-white/10" title="Volver al listado">
@@ -60,7 +60,7 @@
                 <!-- CUERPO / FORMULARIO THYMELEAF -->
                 <form th:action="@{/view/sucursales/save}" th:object="${sucursal}" method="post" class="p-6 space-y-4">
 
-                    <!-- ID Oculto para actualización -->
+                    <!-- ID Oculto indispensable para actualizaciones y mapeo correcto -->
                     <input type="hidden" th:field="*{idSucursal}"/>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -71,7 +71,7 @@
                                    class="w-full px-3.5 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
                         </div>
 
-                        <!-- Código Sucursal (Enlazado a 'codigo') -->
+                        <!-- Código Sucursal -->
                         <div>
                             <label class="block font-semibold text-slate-700 mb-1">Código de Sucursal <span class="text-rose-500">*</span></label>
                             <input type="text" th:field="*{codigo}" required placeholder="Ej: TUL-01"

@@ -40,7 +40,6 @@ public class EmpleadosView {
     @GetMapping("/view/empleados/form")
     public String form(Model model) {
         Empleados empleado = new Empleados();
-        empleado.setUsuario(new Usuarios()); // <-- Vital para evitar nulos en el th:field
         model.addAttribute("empleado", empleado);
         model.addAttribute("sucursales", sucursalesRepository.findAll());
         model.addAttribute("roles", rolesRepository.findAll());
@@ -72,60 +71,12 @@ public class EmpleadosView {
 
             return "redirect:/view/empleados/form";
         }
-        // 1. Extraer el usuario del formulario y desvincularlo temporalmente
-        Usuarios usuarioForm = empleado.getUsuario();
-        empleado.setUsuario(null);
+
 
         // 2. Guardar primero el empleado para obtener/asegurar su ID
         Empleados empleadoGuardado = empleadosRepository.save(empleado);
 
-        // 3. Procesar el usuario solo si se ingresó un username
-        if (usuarioForm != null && usuarioForm.getUsername() != null && !usuarioForm.getUsername().trim().isEmpty()) {
 
-            Usuarios usuarioToSave = null;
-
-            // A. Buscar si el empleado ya tiene un usuario asociado en la base de datos
-            if (empleadoGuardado.getId_empleado() != null) {
-                // Nota: Asegúrate de que en UsuariosRepository exista un método como findByIdEmpleado(Long id)
-                // o findByEmpleados_Id(Long id) dependiendo de cómo lo tengas definido.
-                usuarioToSave = usuariosRepository.findByIdEmpleado(empleadoGuardado.getId_empleado());
-            }
-
-            // B. Si no se encontró por empleado pero viene un idUsuario desde el formulario
-            if (usuarioToSave == null && usuarioForm.getIdUsuario() != null) {
-                usuarioToSave = usuariosRepository.findById(usuarioForm.getIdUsuario()).orElse(null);
-            }
-
-            // C. Si definitivamente es nuevo, creamos la instancia
-            if (usuarioToSave == null) {
-                usuarioToSave = new Usuarios();
-                usuarioToSave.setIdEmpleado(empleadoGuardado.getId_empleado());
-            }
-
-            // 4. Actualizar los campos del usuario
-            usuarioToSave.setUsername(usuarioForm.getUsername());
-            usuarioToSave.setEstado(usuarioForm.getEstado());
-
-            // Gestionar contraseña
-            if (passwordHash != null && !passwordHash.trim().isEmpty()) {
-                usuarioToSave.setPasswordHash(passwordHash);
-            } else if (usuarioToSave.getPasswordHash() == null || usuarioToSave.getPasswordHash().trim().isEmpty()) {
-                usuarioToSave.setPasswordHash("$2a$10$DefaultHashedPasswordPlaceholder"); // Valor por seguridad si está vacía
-            }
-
-            // Asignar rol
-            if (usuarioForm.getRol() != null && usuarioForm.getRol().getIdRol() != null) {
-                Roles rol = rolesRepository.findById(usuarioForm.getRol().getIdRol()).orElse(null);
-                usuarioToSave.setRol(rol);
-            }
-
-            // 5. Guardar el usuario
-            Usuarios usuarioGuardado = usuariosRepository.save(usuarioToSave);
-
-            // 6. Vincular de regreso al empleado y actualizar
-            empleadoGuardado.setUsuario(usuarioGuardado);
-            empleadosRepository.save(empleadoGuardado);
-        }
 
         ra.addFlashAttribute("mensaje", "Empleado y usuario guardados con éxito");
         return "redirect:/view/empleados";

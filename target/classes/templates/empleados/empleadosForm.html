@@ -59,7 +59,7 @@
                             Módulo de Empleados
                         </h1>
                         <p class="text-xs text-slate-500 mt-1">
-                            Gestión de datos, información laboral y accesos del personal en el sistema PillOne.
+                            Gestión de datos e información laboral del personal en el sistema PillOne.
                         </p>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                 <input type="hidden" th:field="*{id_empleado}" />
 
                 <!-- CONTENEDOR PRINCIPAL EN GRID DE 2 COLUMNAS -->
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-6">
 
                     <!-- SECCIÓN 1: INFORMACIÓN DEL EMPLEADO -->
                     <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
@@ -180,11 +180,11 @@
                                 <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                                     Sucursal Asociada <span class="text-rose-500">*</span>
                                 </label>
-                                <select th:field="*{sucursal}" required
+                                <select th:field="*{id_sucursal}" required
                                         class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
                                     <option value="">Seleccione una sucursal...</option>
                                     <option th:each="s : ${sucursales}"
-                                            th:value="${s.idSucursal}"
+                                            th:value="${s.id_sucursal}"
                                             th:text="${s.nombre}">
                                     </option>
                                 </select>
@@ -203,79 +203,18 @@
                         </div>
                     </section>
 
-                    <!-- SECCIÓN 3: CREDENCIALES DE ACCESO (USUARIO) -->
-                    <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col xl:col-span-2">
-                        <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-pillone-accent shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                            </svg>
-                            <h2 class="text-xs font-extrabold text-pillone-dark uppercase tracking-wider">
-                                Credenciales de Acceso al Sistema (Usuario)
-                            </h2>
-                        </div>
-
-                        <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <!-- Username -->
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Nombre de Usuario (Username) <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text" th:field="*{usuario.username}" required
-                                       placeholder="Ej: jperez"
-                                       class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
-                            </div>
-
-                            <!-- Contraseña -->
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Contraseña <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="password" name="password_hash"
-                                       placeholder="••••••••"
-                                       class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
-                            </div>
-
-                            <!-- Rol del Sistema -->
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Rol del Sistema <span class="text-rose-500">*</span>
-                                </label>
-                                <select th:field="*{usuario.rol.idRol}" required
-                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
-                                    <option value="">Seleccione un rol...</option>
-                                    <option th:each="r : ${roles}"
-                                            th:value="${r.idRol}"
-                                            th:text="${r.nombre}">
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Estado del Usuario (Activo / Inactivo) -->
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Estado de Usuario <span class="text-rose-500">*</span>
-                                </label>
-                                <select th:field="*{usuario.estado}" required
-                                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs outline-none focus:border-pillone-accent focus:bg-white focus:ring-2 focus:ring-pillone-accent/20 transition">
-                                    <option th:each="e : ${T(com.pillone.pillone.model.Usuarios.EstadoUsuario).values()}"
-                                            th:value="${e}" th:text="${e}">ACTIVO</option>
-                                </select>
-                            </div>
-                        </div>
-                    </section>
-
                 </div>
 
-                <!-- BOTONERA DE ACCIÓN -->
-                <div class="flex items-center justify-end gap-3 mt-5">
+                <!-- BOTONERA DE ACCIÓN (GARANTIZADA Y VISIBLE) -->
+                <div class="flex items-center justify-end gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                     <a th:href="@{/view/empleados}"
-                       class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-pillone-accent transition shadow-xs cursor-pointer">
+                       class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-pillone-accent transition shadow-xs cursor-pointer">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                         Cancelar / Volver
                     </a>
 
                     <button type="submit"
-                            class="inline-flex items-center gap-2 rounded-lg bg-pillone-accent px-6 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 transition cursor-pointer">
+                            class="inline-flex items-center gap-2 rounded-lg bg-pillone-accent px-6 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
                         Guardar Empleado
                     </button>
