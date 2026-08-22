@@ -3,42 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <title>Órdenes de Compra</title>
-    <!-- Tus estilos locales -->
-    <link rel="stylesheet" th:href="@{/css/globals.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/styleguide.css}">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
 </head>
-<body>
-<div class="main-container"> <!-- Cambia esta clase por la que uses en tu layout -->
-    <h1>Gestión de Órdenes de Compra</h1>
+<body style="font-family: 'Poppins', sans-serif;">
+<div class="container mx-auto mt-5">
+    <h1 class="text-2xl font-bold mb-4">Gestión de Órdenes de Compra</h1>
 
-    <!-- Mensajes -->
-    <div th:if="${mensaje}" th:text="${mensaje}"></div>
+    <!-- Mensajes flash -->
+    <div th:if="${mensaje}" class="bg-green-100 text-green-700 p-3 mb-4 rounded" th:text="${mensaje}"></div>
+    <div th:if="${error}" class="bg-red-100 text-red-700 p-3 mb-4 rounded" th:text="${error}"></div>
 
-    <a th:href="@{/view/compras/form}">Nueva Orden de Compra</a>
+    <!-- Botón para nueva orden -->
+    <a th:href="@{/view/compras/form}" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 inline-block">Nueva Orden de Compra</a>
 
-    <table>
+    <!-- Tabla -->
+    <table class="min-w-full bg-white border border-gray-200 mt-3">
         <thead>
-        <tr>
-            <th>ID</th>
-            <th>Factura Prov.</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+        <tr class="bg-gray-100 border-b">
+            <th class="py-2 px-4 border-r">ID</th>
+            <th class="py-2 px-4 border-r">Factura Prov.</th>
+            <th class="py-2 px-4 border-r">Fecha</th>
+            <th class="py-2 px-4 border-r">Total</th>
+            <th class="py-2 px-4 border-r">Estado</th>
+            <th class="py-2 px-4">Acciones</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="c : ${compras}">
-            <td th:text="${c.idCompra}"></td>
-            <td th:text="${c.numeroFacturaProveedor}"></td>
-            <td th:text="${c.fechaCompra}"></td>
-            <td th:text="${c.total}"></td>
-            <td th:text="${c.estado}"></td>
-            <td>
-                <a th:href="@{/view/compras/edit/{id}(id=${c.idCompra})}">Editar</a>
-                <form th:action="@{/view/compras/delete/{id}(id=${c.idCompra})}" method="post">
-                    <button type="submit">Eliminar</button>
+        <tr th:each="c : ${compras}" class="border-b">
+            <td class="py-2 px-4 border-r text-center" th:text="${c.idCompra}"></td>
+            <td class="py-2 px-4 border-r" th:text="${c.numeroFacturaProveedor}"></td>
+            <td class="py-2 px-4 border-r" th:text="${c.fechaCompra}"></td>
+            <td class="py-2 px-4 border-r" th:text="${c.total}"></td>
+            <td class="py-2 px-4 border-r text-center" th:text="${c.estado}"></td>
+            <td class="py-2 px-4 text-center">
+                <a th:href="@{/view/compras/edit/{id}(id=${c.idCompra})}" class="text-yellow-600 mr-2">Editar</a>
+                <form th:action="@{/view/compras/delete/{id}(id=${c.idCompra})}" method="post" class="inline">
+                    <button type="submit" class="text-red-600" onclick="return confirm('¿Estás seguro de eliminar esta orden?');">Eliminar</button>
                 </form>
             </td>
         </tr>
