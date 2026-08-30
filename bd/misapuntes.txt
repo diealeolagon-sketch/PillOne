@@ -18,3 +18,11 @@ si por alguna razon no te funciona un enlace asegurate de que tenga "th:" antes 
 
 @NotBlank: sirve para que los datos no sean nulos o vacios
 (obliga al usuario a rellenar los campos)
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+                                    error de que se crea una carpeta en el documento
+
+es por que la clase esta mal escrita
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------

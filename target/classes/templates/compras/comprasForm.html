@@ -63,15 +63,19 @@
 
             <!-- FORMULARIO -->
             <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden p-6">
-                <form th:action="@{/view/compras/save}" th:object="${compra}" method="post" class="space-y-4">
+                <form th:action="@{/view/compras/gestion/guardar}" th:object="${compra}" method="post" class="space-y-4">
 
                     <!-- Campo oculto para el ID en caso de edición -->
                     <input type="hidden" th:field="*{idCompra}" />
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Sucursal con carga dinámica -->
                         <div>
-                            <label class="block text-slate-700 font-bold mb-1">ID Sucursal:</label>
-                            <input type="number" th:field="*{idSucursal}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required />
+                            <label class="block text-slate-700 font-bold mb-1">Sucursal:</label>
+                            <select th:field="*{idSucursal}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required>
+                                <option value="">Seleccione una sucursal</option>
+                                <option th:each="s : ${sucursales}" th:value="${s.idSucursal}" th:text="${s.nombre}"></option>
+                            </select>
                         </div>
 
                         <div>
@@ -81,14 +85,22 @@
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Proveedor con carga dinámica -->
                         <div>
-                            <label class="block text-slate-700 font-bold mb-1">ID Proveedor:</label>
-                            <input type="number" th:field="*{idProveedor}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required />
+                            <label class="block text-slate-700 font-bold mb-1">Proveedor:</label>
+                            <select th:field="*{idProveedor}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required>
+                                <option value="">Seleccione un proveedor</option>
+                                <option th:each="p : ${proveedores}" th:value="${p.id_proveedor}" th:text="${p.razon_social}"></option>
+                            </select>
                         </div>
 
+                        <!-- Empleado con carga dinámica -->
                         <div>
-                            <label class="block text-slate-700 font-bold mb-1">ID Empleado:</label>
-                            <input type="number" th:field="*{idEmpleado}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required />
+                            <label class="block text-slate-700 font-bold mb-1">Empleado:</label>
+                            <select th:field="*{idEmpleado}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required>
+                                <option value="">Seleccione un empleado</option>
+                                <option th:each="e : ${empleados}" th:value="${e.id_empleado}" th:text="${e.nombre_completo}"></option>
+                            </select>
                         </div>
                     </div>
 
@@ -112,12 +124,24 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-slate-700 font-bold mb-1">Forma de Pago:</label>
-                            <input type="text" th:field="*{formaPago}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" />
+                            <select th:field="*{formaPago}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+                                <option value="">Seleccione forma de pago</option>
+                                <option value="EFECTIVO">Efectivo</option>
+                                <option value="TRANSFERENCIA">Transferencia</option>
+                                <option value="CREDITO_PROVEEDOR">Crédito Proveedor</option>
+                            </select>
                         </div>
 
                         <div>
                             <label class="block text-slate-700 font-bold mb-1">Estado:</label>
-                            <input type="text" th:field="*{estado}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" />
+                            <select th:field="*{estado}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+                                <option value="">Seleccione estado</option>
+                                <option value="PENDIENTE">Pendiente</option>
+                                <option value="RECIBIDA">Recibida</option>
+                                <option value="PARCIALMENTE_RECIBIDA">Parcialmente Recibida</option>
+                                <option value="CANCELADA">Cancelada</option>
+                                <option value="DEVUELTA">Devuelta</option>
+                            </select>
                         </div>
                     </div>
 

@@ -24,6 +24,7 @@ public class EmpleadosController {
         return empleadosRepository.findById(id).orElse(null);
     }
 
+    // Cambiado de "/form" a raíz o un endpoint de API para evitar choques con la vista
     @PostMapping
     public Empleados create(@RequestBody Empleados empleados) {
         return empleadosRepository.save(empleados);

@@ -39,6 +39,7 @@ public class Empleados {
 
     private String correo;
 
+
     @NotBlank(message = "El cargo es obligatorio")
     private String cargo;
 
@@ -58,6 +59,8 @@ public class Empleados {
     public Long getId_empleado() {
         return id_empleado;
     }
+
+
 
     public void setId_empleado(Long id_empleado) {
         this.id_empleado = id_empleado;
