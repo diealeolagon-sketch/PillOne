@@ -47,16 +47,11 @@
                     <h1 class="text-xl sm:text-2xl font-bold text-pillone-dark uppercase tracking-wide">PUNTO DE VENTA (POS) — NUEVA VENTA</h1>
                     <p class="text-xs sm:text-sm text-slate-500">Dispensación con control de lotes FEFO, validación de stock y fórmulas médicas.</p>
                 </div>
-                <div>
-                    <a th:href="@{/view/ventas}" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-300 transition-colors">
-                        ← Volver al Historial
-                    </a>
-                </div>
             </div>
 
             <!-- Formulario Principal de Venta -->
             <form th:action="@{/view/ventas/save}" th:object="${venta}" method="post">
-                <input type="hidden" th:field="*{id_venta}" />
+                <input type="hidden" th:field="*{idVenta}" />
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -114,9 +109,9 @@
 
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Cliente / Paciente</label>
-                                <select th:field="*{id_cliente}" class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+                                <select th:field="*{idCliente}" class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
                                     <option value="">Seleccione cliente (Opcional)</option>
-                                    <!-- Iterar lista de clientes si se pasa desde el controlador -->
+                                    <!-- Nota: iterar aquí ${clientes} usando el nombre real del campo en tu entidad Clientes.java, ej: th:each="c : ${clientes}" th:value="${c.idCliente}" th:text="${c.nombre}" -->
                                 </select>
                             </div>
 
@@ -145,7 +140,7 @@
                                 </div>
                                 <div class="flex justify-between text-slate-600">
                                     <span>Impuesto IVA:</span>
-                                    <span class="font-semibold text-slate-900" th:text="*{impuesto_iva}">$0.00</span>
+                                    <span class="font-semibold text-slate-900" th:text="*{impuestoIva}">$0.00</span>
                                 </div>
                                 <div class="flex justify-between text-sm font-bold text-pillone-dark pt-2 border-t border-slate-100">
                                     <span>Total a Pagar:</span>
@@ -155,7 +150,7 @@
 
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Método de Pago</label>
-                                <select th:field="*{metodo_pago}" class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+                                <select th:field="*{metodoPago}" class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
                                     <option value="EFECTIVO">EFECTIVO</option>
                                     <option value="TARJETA">TARJETA</option>
                                     <option value="TRANSFERENCIA">TRANSFERENCIA</option>
