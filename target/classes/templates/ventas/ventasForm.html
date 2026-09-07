@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Punto de Venta (POS) — Nueva Venta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pillone: {
+                            bg: '#F7F7FF',
+                            dark: '#07004D',
+                            darker: '#04002C',
+                            accent: '#208AAE',
+                            text: '#1D1E18'
+                        }
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col selection:bg-pillone-accent selection:text-white">
+
+<header th:replace="~{fragments/layout :: topbar('Dispensación / POS')}"></header>
+
+<div class="flex flex-1 relative min-h-[calc(100vh-4rem)]">
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden transition-all duration-300"></div>
+    <aside th:replace="~{fragments/layout :: sidebar('dispensacion')}"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+
+            <div th:if="${mensaje}" class="mb-4 p-4 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl" th:text="${mensaje}"></div>
+            <div th:if="${error}" class="mb-4 p-4 text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 rounded-xl" th:text="${error}"></div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-pillone-dark uppercase tracking-wide">PUNTO DE VENTA (POS) — NUEVA VENTA</h1>
+                    <p class="text-xs sm:text-sm text-slate-500">Dispensación con control de lotes FEFO, validación de stock y fórmulas médicas.</p>
+                </div>
+                <div>
+                    <a th:href="@{/view/ventas}" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-300 transition-colors">
+                        ← Volver al Historial
+                    </a>
+                </div>
+            </div>
+
+            <!-- Formulario Principal de Venta -->
+            <form th:action="@{/view/ventas/save}" th:object="${venta}" method="post">
+                <input type="hidden" th:field="*{id_venta}" />
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Columna Izquierda: Búsqueda y Detalle de Productos -->
+                    <div class="lg:col-span-2 space-y-6">
+
+                        <!-- Buscador / Escáner -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Búsqueda / Escaneo de Medicamento o Producto</label>
+                            <div class="relative w-full">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </span>
+                                <input type="text" id="buscador-producto" placeholder="Escanee código de barras o escriba el nombre del fármaco..." class="w-full pl-9 pr-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1.5">El sistema asignará de forma automática el lote con regla FEFO (First Expired, First Out) y validará existencias.</p>
+                        </div>
+
+                        <!-- Tabla de Ítems Agregados -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between">
+                                <h2 class="text-xs sm:text-sm font-bold text-pillone-dark uppercase tracking-wider">Productos en Carrito de Dispensación</h2>
+                                <span class="text-xs font-medium text-slate-500">Líneas: <span class="font-bold text-pillone-dark">0</span></span>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="bg-pillone-dark text-white text-xs uppercase tracking-wider">
+                                    <tr>
+                                        <th class="p-3.5">Producto</th>
+                                        <th class="p-3.5">Lote (FEFO)</th>
+                                        <th class="p-3.5">Stock</th>
+                                        <th class="p-3.5">Cantidad</th>
+                                        <th class="p-3.5">Subtotal</th>
+                                        <th class="p-3.5 text-center">Acción</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                    <tr>
+                                        <td colspan="6" class="p-6 text-center text-slate-400 text-xs">No hay productos seleccionados para la venta.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Columna Derecha: Cliente, Fórmula, Totales y Cobro -->
+                    <div class="space-y-6">
+
+                        <!-- Datos del Paciente / Cliente y Receta -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+                            <h2 class="text-xs sm:text-sm font-bold text-pillone-dark uppercase tracking-wider border-b border-slate-100 pb-3">Validaciones Clínicas</h2>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Cliente / Paciente</label>
+                                <select th:field="*{id_cliente}" class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+                                    <option value="">Seleccione cliente (Opcional)</option>
+                                    <!-- Iterar lista de clientes si se pasa desde el controlador -->
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Fórmula Médica Requerida</label>
+                                <select name="id_formula" class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+                                    <option value="">Asociar fórmula médica (Si aplica receta)</option>
+                                    <!-- Iterar fórmulas médicas activas -->
+                                </select>
+                                <p class="text-[10px] text-amber-600 mt-1">Bloquea la dispensación si el medicamento requiere prescripción vigente.</p>
+                            </div>
+                        </div>
+
+                        <!-- Resumen y Cobro -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+                            <h2 class="text-xs sm:text-sm font-bold text-pillone-dark uppercase tracking-wider border-b border-slate-100 pb-3">Totalización y Pago</h2>
+
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Subtotal:</span>
+                                    <span class="font-semibold text-slate-900">$0.00</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600 items-center">
+                                    <span>Descuento:</span>
+                                    <input type="number" step="0.01" th:field="*{descuento}" value="0.00" class="w-24 px-2 py-1 text-right bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-pillone-accent">
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Impuesto IVA:</span>
+                                    <span class="font-semibold text-slate-900" th:text="*{impuesto_iva}">$0.00</span>
+                                </div>
+                                <div class="flex justify-between text-sm font-bold text-pillone-dark pt-2 border-t border-slate-100">
+                                    <span>Total a Pagar:</span>
+                                    <span class="text-pillone-accent" th:text="*{total}">$0.00</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Método de Pago</label>
+                                <select th:field="*{metodo_pago}" class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+                                    <option value="EFECTIVO">EFECTIVO</option>
+                                    <option value="TARJETA">TARJETA</option>
+                                    <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Estado de la Venta</label>
+                                <select th:field="*{estado}" class="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+                                    <option value="PAGADA">PAGADA</option>
+                                    <option value="PENDIENTE">PENDIENTE</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="w-full mt-2 py-3 bg-pillone-accent text-white rounded-xl text-xs font-semibold uppercase tracking-wider hover:opacity-95 transition-opacity cursor-pointer shadow-sm">
+                                Cobrar y Dispensar Venta
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </main>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
