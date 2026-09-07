@@ -18,7 +18,7 @@ public class ProveedoresController {
 
     // ---------- API REST (JSON) ----------
 
-    @GetMapping
+        @GetMapping
     @ResponseBody
     public List<Proveedores> getAll() {
         return proveedoresRepository.findAll();
