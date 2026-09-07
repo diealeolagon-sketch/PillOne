@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Historial de Ventas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pillone: {
+                            bg: '#F7F7FF',
+                            dark: '#07004D',
+                            darker: '#04002C',
+                            accent: '#208AAE',
+                            text: '#1D1E18'
+                        }
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col selection:bg-pillone-accent selection:text-white">
+
+<header th:replace="~{fragments/layout :: topbar('Dispensación / POS')}"></header>
+
+<div class="flex flex-1 relative min-h-[calc(100vh-4rem)]">
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden transition-all duration-300"></div>
+    <aside th:replace="~{fragments/layout :: sidebar('dispensacion')}"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+            <div th:if="${mensaje}" class="mb-4 p-4 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl" th:text="${mensaje}"></div>
+            <div th:if="${error}" class="mb-4 p-4 text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 rounded-xl" th:text="${error}"></div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-pillone-dark uppercase tracking-wide">HISTORIAL DE VENTAS Y DISPENSACIÓN</h1>
+                    <p class="text-xs sm:text-sm text-slate-500">Consulte las transacciones de POS realizadas y el estado de la dispensación.</p>
+                </div>
+                <div>
+                    <a th:href="@{/view/ventas/form}" class="bg-pillone-accent text-white px-4 py-2 rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity">
+                        + Nueva Venta (POS)
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="relative w-full sm:w-96">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </span>
+                        <input type="text" placeholder="Buscar por número de factura..." class="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+                    </div>
+                    <div class="text-xs sm:text-sm font-medium text-slate-600">
+                        Total registros: <span class="font-bold text-pillone-dark" th:text="${#lists.size(ventas)}">0</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-pillone-dark text-white text-xs uppercase tracking-wider">
+                        <tr>
+                            <th class="p-4">N° Factura</th>
+                            <th class="p-4">Fecha</th>
+                            <th class="p-4">Cliente ID</th>
+                            <th class="p-4">Método Pago</th>
+                            <th class="p-4">Total</th>
+                            <th class="p-4">Estado</th>
+                            <th class="p-4 text-center">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                        <tr th:if="${#lists.isEmpty(ventas)}">
+                            <td colspan="7" class="p-6 text-center text-slate-400 text-xs">No hay ventas registradas en el sistema.</td>
+                        </tr>
+                        <tr th:each="v : ${ventas}" class="hover:bg-slate-50/80 transition-colors duration-150">
+                            <td class="p-4 font-semibold text-pillone-dark" th:text="${v.numero_factura}">FAC-001</td>
+                            <td class="p-4 text-slate-600" th:text="${v.fecha_venta}">2026-09-07</td>
+                            <td class="p-4 text-slate-600" th:text="${v.id_cliente}">1</td>
+                            <td class="p-4 text-slate-600" th:text="${v.metodo_pago}">EFECTIVO</td>
+                            <td class="p-4 font-medium text-slate-900" th:text="${v.total}">$0.00</td>
+                            <td class="p-4">
+                                    <span class="inline-flex px-2.5 py-1 text-[10px] font-semibold rounded-full"
+                                          th:classappend="${v.estado.name() == 'PAGADA'} ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'"
+                                          th:text="${v.estado}">PAGADA</span>
+                            </td>
+                            <td class="p-4 text-center">
+                                <a th:href="@{/view/ventas/edit/{id}(id=${v.id_venta})}" class="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors duration-200" title="Ver Detalle">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
