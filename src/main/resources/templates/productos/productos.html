@@ -6,9 +6,9 @@
     <title>PillOne - Consulta de Productos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/png" th:href="@{/img/img.png}">
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <th:block th:replace="fragments/layout :: styles"></th:block>
+
     <script>
         tailwind.config = {
             theme: {
@@ -28,20 +28,15 @@
         }
     </script>
 </head>
+
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
-<!-- TOPBAR GLOBAL -->
 <header th:replace="fragments/layout :: topbar('Gestión de Productos')"></header>
 
-<!-- CONTENEDOR CENTRAL -->
 <div class="flex flex-1 relative">
-
     <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden"></div>
-
-    <!-- SIDEBAR GLOBAL -->
     <aside th:replace="fragments/layout :: sidebar('productos')"></aside>
 
-    <!-- AREA PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0">
         <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
 
@@ -56,213 +51,340 @@
                             Administre y rastree el inventario de medicamentos y productos farmacéuticos de forma centralizada.
                         </p>
                     </div>
-                    <div>
-                        <a th:href="@{/view/productos/form}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-pillone-accent px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 transition cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                            Nuevo Producto
-                        </a>
-                    </div>
+
+                    <a th:href="@{/view/productos/form}"
+                       class="inline-flex items-center justify-center gap-2 rounded-lg bg-pillone-accent px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Nuevo Producto
+                    </a>
                 </div>
             </section>
 
-            <!-- MENSAJE FLASH -->
-            <div th:if="${mensaje}" class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 text-xs font-medium shadow-sm flex items-center gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                <span th:text="${mensaje}">Mensaje de éxito</span>
+            <!-- MENSAJE -->
+            <div th:if="${mensaje}" class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 text-xs font-medium">
+                <span th:text="${mensaje}"></span>
             </div>
 
-            <!-- CONTENEDOR DE TABLA Y FILTROS -->
-            <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
-
-                <!-- BARRA DE BÚSQUEDA -->
-                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white">
+            <!-- TABLA -->
+            <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div class="relative w-full sm:w-80">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
                         </span>
-                        <input type="text" id="buscador-tabla" onkeyup="filtrarTabla()" placeholder="Buscar por código, nombre, categoría..."
-                               class="w-full pl-9 pr-3.5 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
+
+                        <input type="text"
+                               id="buscador-tabla"
+                               onkeyup="filtrarTabla()"
+                               placeholder="Buscar por código, nombre, laboratorio..."
+                               class="w-full pl-9 pr-3.5 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
                     </div>
+
                     <div class="text-xs text-slate-500 font-medium">
-                        Total registros: <span id="contador-total" class="font-bold text-pillone-dark">0</span>
+                        Total registros:
+                        <span id="contador-total"
+                              class="font-bold text-pillone-dark"
+                              th:text="${#lists.size(productos)}">0</span>
                     </div>
                 </div>
 
-                <!-- TABLA RESPONSIVA -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-xs text-left">
                         <thead>
-                        <tr class="bg-pillone-dark text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">
-                            <th class="px-4 py-3.5 font-bold">Códigos</th>
-                            <th class="px-4 py-3.5 font-bold">Nombre Comercial / Genérico</th>
-                            <th class="px-4 py-3.5 font-bold">Categoría / Proveedor</th>
-                            <th class="px-4 py-3.5 font-bold">Precios (Compra / Venta)</th>
-                            <th class="px-4 py-3.5 text-center font-bold">Stock</th>
-                            <th class="px-4 py-3.5 text-center font-bold">Estado</th>
-                            <th class="px-4 py-3.5 text-center font-bold w-24">Acciones</th>
+                        <tr class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
+                            <th class="px-4 py-3.5">Códigos</th>
+                            <th class="px-4 py-3.5">Producto / Laboratorio</th>
+                            <th class="px-4 py-3.5">Presentación / Invima</th>
+                            <th class="px-4 py-3.5">Precios (Unidad / Empaque)</th>
+                            <th class="px-4 py-3.5 text-center">Stock</th>
+                            <th class="px-4 py-3.5 text-center">Estado</th>
+                            <th class="px-4 py-3.5 text-center">Acciones</th>
                         </tr>
                         </thead>
-                        <tbody id="tabla-productos" class="divide-y divide-slate-100">
 
-                        <!-- Iteración de Productos -->
+                        <tbody id="tabla-productos" class="divide-y divide-slate-100">
                         <tr th:each="p : ${productos}" class="fila-producto hover:bg-pillone-bg/40 transition">
+
                             <td class="px-4 py-3.5">
-                                <span class="font-bold text-pillone-accent px-2 py-1 rounded bg-pillone-accent/5 border border-pillone-accent/10"
-                                      th:text="${p.codigoInterno}">
-                                </span>
-                                <div class="text-[10px] text-slate-400 mt-0.5" th:text="${'Barra: ' + p.codigoBarras}"></div>
+                                <span class="font-bold text-pillone-accent px-2 py-1 rounded bg-pillone-accent/5"
+                                      th:text="${p.codigoInterno}"></span>
+                                <div class="text-[10px] text-slate-400"
+                                     th:text="${'Barra: ' + p.codigoBarras}"></div>
                             </td>
+
                             <td class="px-4 py-3.5">
                                 <div class="font-semibold text-slate-700" th:text="${p.nombreComercial}"></div>
-                                <div class="text-[10px] text-slate-400" th:text="${p.nombreGenerico != null ? p.nombreGenerico : 'Sin genérico'}"></div>
+                                <div class="text-[10px] text-slate-500"
+                                     th:text="${p.nombreGenerico != null ? p.nombreGenerico : 'Sin genérico'}"></div>
+                                <div class="text-[10px] text-pillone-accent"
+                                     th:text="${'Lab: ' + (p.laboratorio != null ? p.laboratorio : 'N/A')}"></div>
                             </td>
+
                             <td class="px-4 py-3.5">
-                                <div class="text-slate-700 font-medium" th:text="${p.categoria != null ? p.categoria.nombre : 'Sin Categoría'}"></div>
-                                <div class="text-[10px] text-slate-400" th:text="${p.proveedor != null ? p.proveedor.nombreRazonSocial : 'Sin Proveedor'}"></div>
+                                <div class="text-slate-700 font-medium"
+                                     th:text="${(p.presentacion != null ? p.presentacion : 'N/A') + (p.concentracion != null ? ' - ' + p.concentracion : '')}"></div>
+                                <div class="text-[10px] text-slate-400"
+                                     th:text="${'Invima: ' + p.registroInvima}"></div>
                             </td>
+
                             <td class="px-4 py-3.5">
-                                <div class="text-[10px] text-slate-500" th:text="${p.precioCompra != null ? 'Compra: $' + #numbers.formatDecimal(p.precioCompra, 0, 'POINT', 2, 'COMMA') : 'N/A'}"></div>
-                                <div class="text-xs font-bold text-pillone-dark" th:text="${p.precioVenta != null ? 'Venta: $' + #numbers.formatDecimal(p.precioVenta, 0, 'POINT', 2, 'COMMA') : 'N/A'}"></div>
-                            </td>
-                            <td class="px-4 py-3.5 text-center">
-                                <span class="font-bold px-2 py-1 rounded text-xs"
-                                      th:classappend="${p.stockTotal != null && p.stockTotal <= p.stockMinimo ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-slate-100 text-slate-700'}"
-                                      th:text="${p.stockTotal != null ? p.stockTotal : 0}">
-                                </span>
-                            </td>
-                            <td class="px-4 py-3.5 text-center">
-                                <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold"
-                                      th:classappend="${p.estado == 'ACTIVO' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}"
-                                      th:text="${p.estado}">ACTIVO</span>
-                            </td>
-                            <td class="px-4 py-3.5 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <!-- Botón Editar -->
-                                    <a th:href="@{/view/productos/edit/{id}(id=${p.idProducto})}"
-                                       class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-pillone-accent transition shadow-xs" title="Editar registro">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </a>
-                                    <!-- Botón Eliminar -->
-                                    <form th:action="@{'/view/productos/delete/' + ${p.idProducto}}" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este producto del sistema?');" class="inline-flex">
-                                        <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-rose-600 transition shadow-xs bg-transparent border-0 cursor-pointer" title="Eliminar registro">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
+                                <div class="text-[10px]">
+                                    <b>C:</b>
+                                    <span th:text="${p.precioCompra != null ? '$' + #numbers.formatDecimal(p.precioCompra,0,'POINT',2,'COMMA') : 'N/A'}"></span>
+                                    |
+                                    <b>V:</b>
+                                    <span th:text="${p.precioVenta != null ? '$' + #numbers.formatDecimal(p.precioVenta,0,'POINT',2,'COMMA') : 'N/A'}"></span>
+                                </div>
+                                <div class="text-[10px] text-slate-400"
+                                     th:if="${p.unidadesPorEmpaque != null && p.unidadesPorEmpaque > 1}"
+                                     th:text="${'Empaque (' + p.unidadesPorEmpaque + ' un): Venta $' + (p.precioVentaEmpaque != null ? #numbers.formatDecimal(p.precioVentaEmpaque,0,'POINT',2,'COMMA') : '0')}">
                                 </div>
                             </td>
-                        </tr>
 
-                        <tr id="sin-registros" class="hidden">
-                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">
-                                <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                                No se encontraron registros de productos coincidentes.
+                            <td class="px-4 py-3.5 text-center">
+                                <span class="font-bold px-2 py-1 rounded bg-slate-100"
+                                      th:text="${p.stockTotal != null ? p.stockTotal : 0}"></span>
+                                <div class="text-[10px] text-slate-400"
+                                     th:text="${'Mín: ' + (p.stockMinimo != null ? p.stockMinimo : 0)}"></div>
+                            </td>
+
+                            <td class="px-4 py-3.5 text-center">
+                                <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                      th:classappend="${p.estado == 'ACTIVO' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}"
+                                      th:text="${p.estado}">ACTIVO</span>
+                            </td>
+
+                            <td class="px-4 py-3.5 text-center">
+                                <div class="flex items-center justify-center gap-1.5">
+
+                                    <button type="button"
+                                            th:onclick="abrirModalDetalle(
+                                                [[${p.codigoInterno}]], [[${p.codigoBarras}]], [[${p.nombreComercial}]],
+                                                [[${p.nombreGenerico}]], [[${p.descripcion}]], [[${p.presentacion}]],
+                                                [[${p.concentracion}]], [[${p.laboratorio}]], [[${p.registroInvima}]],
+                                                [[${p.idCategoria}]], [[${p.idProveedor}]], [[${p.precioCompra}]],
+                                                [[${p.precioVenta}]], [[${p.unidadesPorEmpaque}]], [[${p.sellosPorCaja}]],
+                                                [[${p.unidadesPorSello}]], [[${p.precioCompraEmpaque}]], [[${p.precioVentaEmpaque}]],
+                                                [[${p.stockTotal}]], [[${p.stockMinimo}]], [[${p.ubicacionEstante}]],
+                                                [[${p.requiereFormula}]], [[${p.esVentaLibre}]], [[${p.esControlado}]],
+                                                [[${p.requiereRefrigeracion}]], [[${p.restriccionesVenta}]], [[${p.estado}]]
+                                            )"
+                                            class="p-1.5 bg-slate-50 rounded hover:text-pillone-dark"
+                                            title="Ver detalle">
+                                        👁
+                                    </button>
+
+                                    <a th:href="@{/view/productos/edit/{id}(id=${p.idProducto})}"
+                                       class="p-1.5 bg-slate-50 rounded hover:text-pillone-accent"
+                                       title="Editar">✏️</a>
+
+                                    <form th:action="@{/view/productos/delete/{id}(id=${p.idProducto})}"
+                                          method="post"
+                                          class="inline"
+                                          onsubmit="return confirm('¿Está seguro de eliminar este producto?');">
+                                        <button type="submit"
+                                                class="p-1.5 bg-slate-50 rounded hover:text-rose-600"
+                                                title="Eliminar">🗑</button>
+                                    </form>
+
+                                </div>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-
-                <!-- PAGINACIÓN -->
-                <div id="paginacion-container" class="flex flex-col sm:flex-row items-center justify-between px-4 py-3 bg-slate-50/80 border-t border-slate-200 gap-3">
-                    <span id="info-paginacion" class="text-slate-500 font-medium">Mostrando registros</span>
-                    <div class="flex items-center gap-1.5">
-                        <button id="btn-anterior" onclick="cambiarPagina(-1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition font-medium shadow-xs">Anterior</button>
-                        <span id="indicador-pagina" class="px-3 py-1 font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg shadow-xs">Página 1 de 1</span>
-                        <button id="btn-siguiente" onclick="cambiarPagina(1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition font-medium shadow-xs">Siguiente</button>
-                    </div>
-                </div>
             </section>
         </main>
 
-        <footer th:replace="fragments/layout :: footer"></footer>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
     </div>
 </div>
 
-<div th:replace="fragments/layout :: scripts"></div>
+<!-- MODAL -->
+<div id="modal-detalle" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-xl shadow-xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+
+        <div class="bg-pillone-dark text-white px-6 py-4 flex items-center justify-between">
+            <h3 class="font-bold text-sm uppercase">Detalle Completo del Producto</h3>
+            <button onclick="cerrarModalDetalle()" class="text-slate-300 hover:text-white">✕</button>
+        </div>
+
+        <div class="p-6 overflow-y-auto space-y-4 text-xs">
+
+            <div>
+                <h4 class="font-bold text-pillone-accent uppercase mb-2 border-b pb-1">1. Información General</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-lg border">
+                    <div><b class="text-slate-500">Cód. Interno:</b> <span id="m-codigoInterno"></span></div>
+                    <div><b class="text-slate-500">Cód. Barras:</b> <span id="m-codigoBarras"></span></div>
+                    <div><b class="text-slate-500">Estado:</b> <span id="m-estado"></span></div>
+                    <div class="sm:col-span-2"><b class="text-slate-500">Nombre Comercial:</b> <span id="m-nombreComercial"></span></div>
+                    <div><b class="text-slate-500">Nombre Genérico:</b> <span id="m-nombreGenerico"></span></div>
+                    <div class="sm:col-span-3"><b class="text-slate-500">Descripción:</b> <span id="m-descripcion"></span></div>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-pillone-accent uppercase mb-2 border-b pb-1">2. Especificaciones Farmacéuticas</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-lg border">
+                    <div><b class="text-slate-500">Laboratorio:</b> <span id="m-laboratorio"></span></div>
+                    <div><b class="text-slate-500">Presentación:</b> <span id="m-presentacion"></span></div>
+                    <div><b class="text-slate-500">Concentración:</b> <span id="m-concentracion"></span></div>
+                    <div><b class="text-slate-500">Reg. Invima:</b> <span id="m-registroInvima"></span></div>
+
+                    <div>
+                        <b class="text-slate-500">Categoría:</b>
+                        <span id="m-categoria" class="font-bold text-pillone-dark"></span>
+                    </div>
+
+                    <div>
+                        <b class="text-slate-500">Proveedor:</b>
+                        <span id="m-proveedor" class="font-bold text-pillone-dark"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-pillone-accent uppercase mb-2 border-b pb-1">3. Costos, Precios y Empaque</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-lg border">
+                    <div><b>Precio Compra:</b> <span id="m-precioCompra"></span></div>
+                    <div><b>Precio Venta:</b> <span id="m-precioVenta"></span></div>
+                    <div><b>Unidades Empaque:</b> <span id="m-unidadesPorEmpaque"></span></div>
+                    <div><b>Sellos por Caja:</b> <span id="m-sellosPorCaja"></span></div>
+                    <div><b>Unidades por Sello:</b> <span id="m-unidadesPorSello"></span></div>
+                    <div><b>Compra Empaque:</b> <span id="m-precioCompraEmpaque"></span></div>
+                    <div><b>Venta Empaque:</b> <span id="m-precioVentaEmpaque"></span></div>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-pillone-accent uppercase mb-2 border-b pb-1">4. Inventario y Restricciones</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-lg border">
+                    <div><b>Stock Total:</b> <span id="m-stockTotal"></span></div>
+                    <div><b>Stock Mínimo:</b> <span id="m-stockMinimo"></span></div>
+                    <div><b>Ubicación:</b> <span id="m-ubicacionEstante"></span></div>
+                    <div><b>¿Requiere Fórmula?:</b> <span id="m-requiereFormula"></span></div>
+                    <div><b>¿Venta Libre?:</b> <span id="m-esVentaLibre"></span></div>
+                    <div><b>¿Controlado?:</b> <span id="m-esControlado"></span></div>
+                    <div><b>¿Refrigeración?:</b> <span id="m-requiereRefrigeracion"></span></div>
+                    <div class="sm:col-span-3"><b>Restricciones:</b> <span id="m-restriccionesVenta"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-3 border-t flex justify-end">
+            <button onclick="cerrarModalDetalle()" class="px-4 py-2 bg-pillone-dark text-white rounded-lg font-bold">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MAPAS: ID -> NOMBRE -->
+<script th:inline="javascript">
+    const categoriasMap = {};
+    /*[# th:each="cat : ${categorias}"]*/
+    categoriasMap[String(/*[[${cat.id_categoria}]]*/ '')] = /*[[${cat.nombre}]]*/ '';
+    /*[/]*/
+
+    const proveedoresMap = {};
+    /*[# th:each="prov : ${proveedores}"]*/
+    proveedoresMap[String(/*[[${prov.id_proveedor}]]*/ '')] = /*[[${prov.razon_social}]]*/ '';
+    /*[/]*/
+</script>
 
 <script>
-    const registrosPorPagina = 8;
-    let paginaActual = 1;
-    let filasOriginales = [];
-    let filasFiltradas = [];
-
-    document.addEventListener("DOMContentLoaded", function() {
-        filasOriginales = Array.from(document.querySelectorAll(".fila-producto"));
-        filasFiltradas = [...filasOriginales];
-
-        document.getElementById("contador-total").innerText = filasOriginales.length;
-
-        if (filasOriginales.length === 0) {
-            document.getElementById("sin-registros").classList.remove("hidden");
-            document.getElementById("paginacion-container").style.display = "none";
-            return;
-        }
-
-        actualizarTabla();
-    });
+    function toggleSidebar() {
+        document.querySelector('aside').classList.toggle('-translate-x-full');
+        document.getElementById('overlay').classList.toggle('hidden');
+    }
 
     function filtrarTabla() {
-        const textoBusqueda = document.getElementById("buscador-tabla").value.toLowerCase().trim();
+        const filtro = document.getElementById('buscador-tabla').value.toLowerCase();
+        let visibles = 0;
 
-        if (textoBusqueda === "") {
-            filasFiltradas = [...filasOriginales];
-        } else {
-            filasFiltradas = filasOriginales.filter(fila => {
-                const contenidoFila = fila.innerText.toLowerCase();
-                return contenidoFila.includes(textoBusqueda);
-            });
-        }
+        document.querySelectorAll('.fila-producto').forEach(tr => {
+            const mostrar = tr.textContent.toLowerCase().includes(filtro);
+            tr.style.display = mostrar ? '' : 'none';
+            if (mostrar) visibles++;
+        });
 
-        paginaActual = 1;
-        actualizarTabla();
+        document.getElementById('contador-total').textContent = visibles;
     }
 
-    function actualizarTabla() {
-        const sinRegistros = document.getElementById("sin-registros");
-        const paginacionContainer = document.getElementById("paginacion-container");
+    function abrirModalDetalle(
+        codigoInterno, codigoBarras, nombreComercial, nombreGenerico, descripcion,
+        presentacion, concentracion, laboratorio, registroInvima, idCategoria, idProveedor,
+        precioCompra, precioVenta, unidadesPorEmpaque, sellosPorCaja, unidadesPorSello,
+        precioCompraEmpaque, precioVentaEmpaque, stockTotal, stockMinimo, ubicacionEstante,
+        requiereFormula, esVentaLibre, esControlado, requiereRefrigeracion, restriccionesVenta, estado
+    ) {
+        setTexto('m-codigoInterno', codigoInterno);
+        setTexto('m-codigoBarras', codigoBarras);
+        setTexto('m-nombreComercial', nombreComercial);
+        setTexto('m-nombreGenerico', nombreGenerico);
+        setTexto('m-descripcion', descripcion, 'Sin descripción');
+        setTexto('m-presentacion', presentacion);
+        setTexto('m-concentracion', concentracion);
+        setTexto('m-laboratorio', laboratorio);
+        setTexto('m-registroInvima', registroInvima);
 
-        filasOriginales.forEach(f => f.style.display = "none");
+        // AQUÍ SE CONVIERTEN LOS IDS EN NOMBRES
+        setTexto('m-categoria', categoriasMap[String(idCategoria)], 'Sin categoría');
+        setTexto('m-proveedor', proveedoresMap[String(idProveedor)], 'Sin proveedor');
 
-        if (filasFiltradas.length === 0) {
-            sinRegistros.classList.remove("hidden");
-            paginacionContainer.style.display = "none";
-            return;
-        } else {
-            sinRegistros.classList.add("hidden");
-            paginacionContainer.style.display = "flex";
-        }
+        setTexto('m-precioCompra', formatoDinero(precioCompra));
+        setTexto('m-precioVenta', formatoDinero(precioVenta));
+        setTexto('m-unidadesPorEmpaque', unidadesPorEmpaque, '1');
+        setTexto('m-sellosPorCaja', sellosPorCaja, '1');
+        setTexto('m-unidadesPorSello', unidadesPorSello, '1');
+        setTexto('m-precioCompraEmpaque', formatoDinero(precioCompraEmpaque));
+        setTexto('m-precioVentaEmpaque', formatoDinero(precioVentaEmpaque));
+        setTexto('m-stockTotal', stockTotal, '0');
+        setTexto('m-stockMinimo', stockMinimo, '0');
+        setTexto('m-ubicacionEstante', ubicacionEstante);
+        setTexto('m-restriccionesVenta', restriccionesVenta, 'Ninguna');
 
-        const totalPaginas = Math.ceil(filasFiltradas.length / registrosPorPagina) || 1;
-        if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+        setBooleanBadge('m-requiereFormula', requiereFormula);
+        setBooleanBadge('m-esVentaLibre', esVentaLibre);
+        setBooleanBadge('m-esControlado', esControlado);
+        setBooleanBadge('m-requiereRefrigeracion', requiereRefrigeracion);
 
-        const inicio = (paginaActual - 1) * registrosPorPagina;
-        const fin = inicio + registrosPorPagina;
+        const estadoEl = document.getElementById('m-estado');
+        estadoEl.textContent = estado || 'ACTIVO';
+        estadoEl.className = estado === 'ACTIVO'
+            ? 'font-bold text-emerald-700'
+            : 'font-bold text-slate-600';
 
-        for (let i = inicio; i < fin && i < filasFiltradas.length; i++) {
-            filasFiltradas[i].style.display = "table-row";
-        }
-
-        document.getElementById("indicador-pagina").innerText = `Página ${paginaActual} de ${totalPaginas}`;
-        document.getElementById("info-paginacion").innerText = `Mostrando ${Math.min(fin, filasFiltradas.length)} de ${filasFiltradas.length} productos filtrados`;
-
-        document.getElementById("btn-anterior").disabled = paginaActual === 1;
-        document.getElementById("btn-siguiente").disabled = paginaActual >= totalPaginas;
-
-        if (totalPaginas <= 1) {
-            paginacionContainer.style.display = "none";
-        }
+        document.getElementById('modal-detalle').classList.remove('hidden');
     }
 
-    function cambiarPagina(direccion) {
-        const totalPaginas = Math.ceil(filasFiltradas.length / registrosPorPagina);
-        const nuevaPagina = paginaActual + direccion;
-        if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
-            paginaActual = nuevaPagina;
-            actualizarTabla();
-        }
+    function setTexto(id, valor, defecto = 'N/A') {
+        document.getElementById(id).textContent =
+            valor !== null && valor !== undefined && valor !== '' ? valor : defecto;
+    }
+
+    function formatoDinero(valor) {
+        return valor !== null && valor !== undefined
+            ? '$' + Number(valor).toLocaleString('es-CO', { minimumFractionDigits: 2 })
+            : 'N/A';
+    }
+
+    function setBooleanBadge(id, value) {
+        const el = document.getElementById(id);
+        const si = value === true || value === 'true';
+        el.textContent = si ? 'SÍ' : 'NO';
+        el.className = si ? 'font-bold text-rose-700' : 'font-bold text-slate-600';
+    }
+
+    function cerrarModalDetalle() {
+        document.getElementById('modal-detalle').classList.add('hidden');
     }
 </script>
 
-<script th:src="@{/js/script.js}" defer></script>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 </body>
 </html>

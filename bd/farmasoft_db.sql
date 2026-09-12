@@ -1,5 +1,5 @@
 -- ============================================================
--- BASE DE DATOS: FarmaSoft Plus (Colombia)
+-- BASE DE DATOS: FarmaSoft Plus (Colombia) - Actualizada
 -- Compatibilidad: MySQL 8.0+ / MariaDB / HeidiSQL
 -- ============================================================
 
@@ -183,7 +183,7 @@ INSERT INTO categorias (id_categoria, nombre, descripcion) VALUES
 (7, 'Dispositivos Médicos y Primeros Auxilios', 'Termómetros, jeringas, curas, gasas y tensiómetros');
 
 -- ------------------------------------------------------------
--- 6. TABLA PRODUCTOS
+-- 6. TABLA PRODUCTOS (Actualizada con jerarquía de caja, sellos y unidades)
 -- ------------------------------------------------------------
 CREATE TABLE productos (
     id_producto INT AUTO_INCREMENT PRIMARY KEY,
@@ -200,6 +200,11 @@ CREATE TABLE productos (
     id_proveedor INT NOT NULL,
     precio_compra DECIMAL(12,2) NOT NULL,
     precio_venta DECIMAL(12,2) NOT NULL,
+    unidades_por_empaque INT DEFAULT 1 COMMENT 'Cantidad total de unidades que trae la presentación mayor',
+    sellos_por_caja INT DEFAULT 1 COMMENT 'Cantidad de sellos o blísters que trae la caja principal',
+    unidades_por_sello INT DEFAULT 1 COMMENT 'Cantidad de unidades o pastillas que trae cada sello o blíster',
+    precio_compra_empaque DECIMAL(12,2) NULL COMMENT 'Precio total de compra del empaque completo',
+    precio_venta_empaque DECIMAL(12,2) NULL COMMENT 'Precio total de venta del empaque completo',
     stock_total INT DEFAULT 0,
     stock_minimo INT DEFAULT 10,
     ubicacion_estante VARCHAR(50),
@@ -213,13 +218,13 @@ CREATE TABLE productos (
     FOREIGN KEY (id_proveedor) REFERENCES proveedores(id_proveedor)
 ) ENGINE=InnoDB;
 
-INSERT INTO productos (id_producto, codigo_interno, codigo_barras, nombre_comercial, nombre_generico, descripcion, presentacion, concentracion, laboratorio, registro_invima, id_categoria, id_proveedor, precio_compra, precio_venta, stock_total, stock_minimo, ubicacion_estante, requiere_formula, es_venta_libre, es_controlado, requiere_refrigeracion) VALUES
-(1, 'PROD-001', '770200100101', 'Dolex Forte', 'Acetaminofén + Cafeína', 'Analgésico y antipirético para dolores intensos', 'Caja x 12 Tabletas', '500mg / 65mg', 'GSK / TQ', 'INVIMA 2018M-0001234', 1, 3, 4500.00, 8500.00, 150, 20, 'Estante A1', FALSE, TRUE, FALSE, FALSE),
-(2, 'PROD-002', '770200100102', 'Amoxicilina Genfar', 'Amoxicilina', 'Antibiótico bactericida de amplio espectro', 'Caja x 50 Cápsulas', '500 mg', 'Genfar', 'INVIMA 2020M-0015678', 2, 2, 12000.00, 22000.00, 80, 15, 'Estante B2 (Restringido)', TRUE, FALSE, FALSE, FALSE),
-(3, 'PROD-003', '770200100103', 'Apronax', 'Naproxeno Sódico', 'Antiinflamatorio no esteroideo de alivio prolongado', 'Caja x 10 Tabletas', '550 mg', 'Bayer', 'INVIMA 2019M-0009876', 1, 4, 15000.00, 26000.00, 45, 10, 'Estante A2', FALSE, TRUE, FALSE, FALSE),
-(4, 'PROD-004', '770200100104', 'Loratadina Procaps', 'Loratadina', 'Antihistamínico no sedante', 'Caja x 10 Tabletas', '10 mg', 'Procaps', 'INVIMA 2021M-0011223', 3, 1, 3000.00, 7000.00, 120, 15, 'Estante C1', FALSE, TRUE, FALSE, FALSE),
-(5, 'PROD-005', '770200100105', 'Bloqueador Umbrela Urban', 'Protector Solar FPS 50+', 'Protección dermatológica contra rayos UV y luz azul', 'Frasco x 50 ml', 'FPS 50+', 'Medihealth / TQ', 'NSOC12345-22CO', 6, 3, 38000.00, 62000.00, 25, 5, 'Vitrina Dermocosmética', FALSE, TRUE, FALSE, FALSE),
-(6, 'PROD-006', '770200100106', 'Insulina Lantus', 'Insulina Glargina', 'Insulina de acción prolongada', 'Caja x 5 Plumas soloSTAR 3ml', '100 UI/ml', 'Sanofi', 'INVIMA 2017M-0004512', 2, 1, 110000.00, 165000.00, 12, 5, 'Nevera Principal (2-8°C)', TRUE, FALSE, FALSE, TRUE);
+INSERT INTO productos (id_producto, codigo_interno, codigo_barras, nombre_comercial, nombre_generico, descripcion, presentacion, concentracion, laboratorio, registro_invima, id_categoria, id_proveedor, precio_compra, precio_venta, unidades_por_empaque, sellos_por_caja, unidades_por_sello, precio_compra_empaque, precio_venta_empaque, stock_total, stock_minimo, ubicacion_estante, requiere_formula, es_venta_libre, es_controlado, requiere_refrigeracion) VALUES
+(1, 'PROD-001', '770200100101', 'Dolex Forte', 'Acetaminofén + Cafeína', 'Analgésico y antipirético para dolores intensos', 'Caja x 12 Tabletas', '500mg / 65mg', 'GSK / TQ', 'INVIMA 2018M-0001234', 1, 3, 4500.00, 8500.00, 12, 1, 12, 50000.00, 95000.00, 150, 20, 'Estante A1', FALSE, TRUE, FALSE, FALSE),
+(2, 'PROD-002', '770200100102', 'Amoxicilina Genfar', 'Amoxicilina', 'Antibiótico bactericida de amplio espectro', 'Caja x 50 Cápsulas', '500 mg', 'Genfar', 'INVIMA 2020M-0015678', 2, 2, 12000.00, 22000.00, 50, 1, 50, 550000.00, 1000000.00, 80, 15, 'Estante B2 (Restringido)', TRUE, FALSE, FALSE, FALSE),
+(3, 'PROD-003', '770200100103', 'Apronax', 'Naproxeno Sódico', 'Antiinflamatorio no esteroideo de alivio prolongado', 'Caja x 10 Tabletas', '550 mg', 'Bayer', 'INVIMA 2019M-0009876', 1, 4, 15000.00, 26000.00, 10, 1, 10, 140000.00, 240000.00, 45, 10, 'Estante A2', FALSE, TRUE, FALSE, FALSE),
+(4, 'PROD-004', '770200100104', 'Loratadina Procaps', 'Loratadina', 'Antihistamínico no sedante', 'Caja x 10 Tabletas', '10 mg', 'Procaps', 'INVIMA 2021M-0011223', 3, 1, 3000.00, 7000.00, 10, 1, 10, 28000.00, 65000.00, 120, 15, 'Estante C1', FALSE, TRUE, FALSE, FALSE),
+(5, 'PROD-005', '770200100105', 'Bloqueador Umbrela Urban', 'Protector Solar FPS 50+', 'Protección dermatológica contra rayos UV y luz azul', 'Frasco x 50 ml', 'FPS 50+', 'Medihealth / TQ', 'NSOC12345-22CO', 6, 3, 38000.00, 62000.00, 1, 1, 1, 38000.00, 62000.00, 25, 5, 'Vitrina Dermocosmética', FALSE, TRUE, FALSE, FALSE),
+(6, 'PROD-006', '770200100106', 'Insulina Lantus', 'Insulina Glargina', 'Insulina de acción prolongada', 'Caja x 5 Plumas soloSTAR 3ml', '100 UI/ml', 'Sanofi', 'INVIMA 2017M-0004512', 2, 1, 110000.00, 165000.00, 5, 1, 5, 520000.00, 800000.00, 12, 5, 'Nevera Principal (2-8°C)', TRUE, FALSE, FALSE, TRUE);
 
 -- ------------------------------------------------------------
 -- 7. TABLA LOTES Y CONTROL DE VENCIMIENTOS
@@ -382,7 +387,7 @@ CREATE TABLE movimientos_inventario (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 ) ENGINE=InnoDB;
 
-INSERT INTO movimientos_inventario (id_sucursal, tipo_movimiento, id_producto, id_lote, cantidad, existence_anterior, nueva_existencia, id_usuario, motivo) VALUES
+INSERT INTO movimientos_inventario (id_sucursal, tipo_movimiento, id_producto, id_lote, cantidad, existencia_anterior, nueva_existencia, id_usuario, motivo) VALUES
 (1, 'ENTRADA_COMPRA', 1, 1, 100, 0, 100, 1, 'Carga inicial por compra FAC-TQ-90812'),
 (1, 'SALIDA_VENTA', 1, 1, 1, 100, 99, 4, 'Venta según Factura FARM-00001');
 

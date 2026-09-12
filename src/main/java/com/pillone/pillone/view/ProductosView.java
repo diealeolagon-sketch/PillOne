@@ -28,42 +28,41 @@ public class ProductosView {
     @GetMapping("/view/productos")
     public String lista(Model model) {
         model.addAttribute("productos", productosRepository.findAll());
+        model.addAttribute("categorias", categoriasRepository.findAll());
+        model.addAttribute("proveedores", proveedoresRepository.findAll());
         return "productos/productos";
     }
 
     // FORMULARIO CREAR
     @GetMapping("/view/productos/form")
     public String form(Model model) {
-        Productos producto = new Productos();
-        model.addAttribute("producto", producto);
+        model.addAttribute("producto", new Productos());
         model.addAttribute("categorias", categoriasRepository.findAll());
         model.addAttribute("proveedores", proveedoresRepository.findAll());
         return "productos/productosForm";
     }
 
-    // GUARDAR (CREAR O ACTUALIZAR)
+    // GUARDAR
     @PostMapping("/view/productos/save")
-    public String save(
-            @Valid @ModelAttribute Productos producto,
-            BindingResult result,
-            Model model,
-            RedirectAttributes ra) {
+    public String save(@Valid @ModelAttribute Productos producto,
+                       BindingResult result,
+                       Model model,
+                       RedirectAttributes ra) {
 
         if (result.hasErrors()) {
             model.addAttribute("error", "Hay campos obligatorios vacíos o incorrectos.");
-            model.addAttribute("categorias", categoriasRepository.findAll());
-            model.addAttribute("proveedores", proveedoresRepository.findAll());
+            cargarListas(model);
             return "productos/productosForm";
         }
 
-        // Validación opcional si deseas verificar código interno único al crear
         if (producto.getIdProducto() == null && producto.getCodigoInterno() != null) {
             boolean existe = productosRepository.findAll().stream()
-                    .anyMatch(p -> p.getCodigoInterno().equals(producto.getCodigoInterno()));
+                    .anyMatch(p -> p.getCodigoInterno() != null &&
+                            p.getCodigoInterno().equals(producto.getCodigoInterno()));
+
             if (existe) {
                 model.addAttribute("error", "Ese código interno ya está registrado.");
-                model.addAttribute("categorias", categoriasRepository.findAll());
-                model.addAttribute("proveedores", proveedoresRepository.findAll());
+                cargarListas(model);
                 return "productos/productosForm";
             }
         }
@@ -75,21 +74,25 @@ public class ProductosView {
 
     // EDITAR
     @GetMapping("/view/productos/edit/{id}")
-    public String edit(@PathVariable Integer id, Model model) {
+    public String edit(@PathVariable Long id, Model model) {
         Productos producto = productosRepository.findById(id).orElse(null);
         if (producto == null) return "redirect:/view/productos";
 
         model.addAttribute("producto", producto);
-        model.addAttribute("categorias", categoriasRepository.findAll());
-        model.addAttribute("proveedores", proveedoresRepository.findAll());
+        cargarListas(model);
         return "productos/productosForm";
     }
 
     // ELIMINAR
     @PostMapping("/view/productos/delete/{id}")
-    public String delete(@PathVariable Integer id, RedirectAttributes ra) {
+    public String delete(@PathVariable Long id, RedirectAttributes ra) {
         productosRepository.deleteById(id);
         ra.addFlashAttribute("mensaje", "Producto eliminado");
         return "redirect:/view/productos";
+    }
+
+    private void cargarListas(Model model) {
+        model.addAttribute("categorias", categoriasRepository.findAll());
+        model.addAttribute("proveedores", proveedoresRepository.findAll());
     }
 }

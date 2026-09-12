@@ -20,23 +20,48 @@ public class ProductosController {
     }
 
     @GetMapping("/{id}")
-    public Productos getById(@PathVariable Integer id) {
+    public Productos getById(@PathVariable Long id) {
         return productosRepository.findById(id).orElse(null);
     }
 
     @PostMapping
     public Productos create(@RequestBody Productos producto) {
+        validarYCalcularEmpaque(producto);
         return productosRepository.save(producto);
     }
 
     @PutMapping("/{id}")
-    public Productos update(@PathVariable Integer id, @RequestBody Productos producto) {
-        producto.setIdProducto(id);
-        return productosRepository.save(producto);
+    public Productos update(@PathVariable Long id, @RequestBody Productos producto) {
+        return productosRepository.findById(id).map(productoExistente -> {
+            producto.setIdProducto(id);
+            validarYCalcularEmpaque(producto);
+            return productosRepository.save(producto);
+        }).orElseGet(() -> {
+            producto.setIdProducto(id);
+            validarYCalcularEmpaque(producto);
+            return productosRepository.save(producto);
+        });
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Long id) {
         productosRepository.deleteById(id);
+    }
+
+    /**
+     * Método auxiliar para validar y calcular automáticamente las unidades por empaque
+     * basándose en la multiplicación de los sellos por caja y las unidades por sello.
+     */
+    private void validarYCalcularEmpaque(Productos producto) {
+        if (producto.getSellosPorCaja() == null || producto.getSellosPorCaja() <= 0) {
+            producto.setSellosPorCaja(1);
+        }
+        if (producto.getUnidadesPorSello() == null || producto.getUnidadesPorSello() <= 0) {
+            producto.setUnidadesPorSello(1);
+        }
+
+        // Cálculo automático del total de unidades por caja/empaque
+        int totalUnidades = producto.getSellosPorCaja() * producto.getUnidadesPorSello();
+        producto.setUnidadesPorEmpaque(totalUnidades);
     }
 }
