@@ -4,9 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PillOne - Gestión de Producto</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="icon"
+          type="image/png"
+          th:href="@{/img/img.png}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
     <th:block th:replace="fragments/layout :: styles"></th:block>
 
     <script>
@@ -50,11 +57,9 @@
 
             <!-- ENCABEZADO -->
             <section class="mb-5">
-
                 <div class="flex items-center justify-between gap-4">
 
                     <div>
-
                         <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight"
                             th:text="${producto.idProducto != null ? 'Editar Producto' : 'Nuevo Producto'}">
                             Gestión de Producto
@@ -63,7 +68,6 @@
                         <p class="text-xs text-slate-500 mt-1">
                             Registre la ficha general del producto. El inventario real se administra por lotes.
                         </p>
-
                     </div>
 
                     <a th:href="@{/view/productos}"
@@ -72,14 +76,15 @@
                     </a>
 
                 </div>
-
             </section>
+
 
             <!-- ERROR -->
             <div th:if="${error}"
                  class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-medium"
                  th:text="${error}">
             </div>
+
 
             <!-- FORMULARIO -->
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -93,6 +98,7 @@
                     <input type="hidden"
                            th:field="*{idProducto}">
 
+
                     <!-- 1. IDENTIFICACIÓN -->
                     <div>
 
@@ -103,7 +109,6 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Código Interno *
                                 </label>
@@ -113,11 +118,9 @@
                                        required
                                        placeholder="Ej. PROD-001"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Código de Barras *
                                 </label>
@@ -127,11 +130,9 @@
                                        required
                                        placeholder="Ej. 770123456789"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Estado
                                 </label>
@@ -148,12 +149,12 @@
                                     </option>
 
                                 </select>
-
                             </div>
 
                         </div>
 
                     </div>
+
 
                     <!-- 2. INFORMACIÓN -->
                     <div>
@@ -165,7 +166,6 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
                             <div class="sm:col-span-2">
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Nombre Comercial *
                                 </label>
@@ -175,11 +175,9 @@
                                        required
                                        placeholder="Ej. Dolex Fast"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Nombre Genérico
                                 </label>
@@ -188,11 +186,9 @@
                                        th:field="*{nombreGenerico}"
                                        placeholder="Ej. Acetaminofén"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Laboratorio
                                 </label>
@@ -201,11 +197,9 @@
                                        th:field="*{laboratorio}"
                                        placeholder="Ej. GSK"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Presentación
                                 </label>
@@ -214,11 +208,9 @@
                                        th:field="*{presentacion}"
                                        placeholder="Ej. Caja x 100 Tabletas"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Concentración
                                 </label>
@@ -227,11 +219,9 @@
                                        th:field="*{concentracion}"
                                        placeholder="Ej. 500mg"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Registro Invima *
                                 </label>
@@ -241,12 +231,11 @@
                                        required
                                        placeholder="Ej. 2020M-0001234"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
-                            <!-- CATEGORÍA CORREGIDA -->
-                            <div>
 
+                            <!-- CATEGORÍA -->
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Categoría *
                                 </label>
@@ -265,22 +254,21 @@
                                     </option>
 
                                 </select>
-
                             </div>
 
-                            <!-- PROVEEDOR -->
-                            <div>
 
+                            <!-- PROVEEDOR HABITUAL -->
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
-                                    Proveedor *
+                                    Proveedor habitual
+                                    <span class="font-normal text-slate-400">(opcional)</span>
                                 </label>
 
                                 <select th:field="*{idProveedor}"
-                                        required
                                         class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
 
                                     <option value="">
-                                        Seleccione un proveedor
+                                        Sin proveedor habitual asignado
                                     </option>
 
                                     <option th:each="prov : ${proveedores}"
@@ -290,11 +278,15 @@
 
                                 </select>
 
+                                <p class="mt-1.5 text-[10px] leading-relaxed text-slate-500">
+                                    Si todavía no conoces el proveedor, déjalo vacío. Al registrar la primera compra de este producto,
+                                    el proveedor de esa compra se asignará automáticamente como habitual. Después puedes cambiarlo manualmente aquí.
+                                </p>
                             </div>
+
 
                             <!-- DESCRIPCIÓN -->
                             <div class="sm:col-span-3">
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Descripción
                                 </label>
@@ -304,12 +296,12 @@
                                           placeholder="Detalles adicionales..."
                                           class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
                                 </textarea>
-
                             </div>
 
                         </div>
 
                     </div>
+
 
                     <!-- 3. PRECIOS Y EMPAQUE -->
                     <div>
@@ -320,8 +312,8 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
+                            <!-- PRECIO COMPRA UNIDAD -->
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Precio Compra (Unidad) *
                                 </label>
@@ -331,12 +323,13 @@
                                        step="any"
                                        th:field="*{precioCompra}"
                                        required
+                                       placeholder="Ej. 500"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
-                            <div>
 
+                            <!-- PRECIO VENTA UNIDAD -->
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Precio Venta (Unidad) *
                                 </label>
@@ -346,14 +339,34 @@
                                        step="any"
                                        th:field="*{precioVenta}"
                                        required
+                                       placeholder="Ej. 3500"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
-                            <div>
 
+                            <!-- PRECIO VENTA TABLETA -->
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
-                                    Sellos por Caja
+                                    Precio Venta Tableta
+                                </label>
+
+                                <input type="number"
+                                       min="0"
+                                       step="any"
+                                       th:field="*{precioVentaTableta}"
+                                       placeholder="Ej. 800"
+                                       class="w-full px-3 py-2 rounded-lg border border-pillone-accent/40 bg-pillone-accent/5 outline-none focus:border-pillone-accent">
+
+                                <p class="text-[10px] text-slate-400 mt-1">
+                                    Opcional. Déjelo vacío si este producto no se vende por tableta.
+                                </p>
+                            </div>
+
+
+                            <!-- SELLOS POR CAJA -->
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Sellos / Blíster por Caja
                                 </label>
 
                                 <input type="number"
@@ -361,14 +374,15 @@
                                        th:field="*{sellosPorCaja}"
                                        id="sellosPorCaja"
                                        oninput="calcularEmpaque()"
+                                       placeholder="Ej. 10"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
-                            <div>
 
+                            <!-- UNIDADES POR SELLO -->
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
-                                    Unidades por Sello
+                                    Tabletas / Unidades por Sello
                                 </label>
 
                                 <input type="number"
@@ -376,12 +390,13 @@
                                        th:field="*{unidadesPorSello}"
                                        id="unidadesPorSello"
                                        oninput="calcularEmpaque()"
+                                       placeholder="Ej. 10"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
-                            <div>
 
+                            <!-- UNIDADES POR CAJA -->
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Unidades por Caja
                                 </label>
@@ -395,11 +410,11 @@
                                 <p class="text-[10px] text-slate-400 mt-1">
                                     Se calcula automáticamente: sellos × unidades por sello.
                                 </p>
-
                             </div>
 
-                            <div>
 
+                            <!-- PRECIO COMPRA CAJA -->
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Precio Compra Caja
                                 </label>
@@ -408,12 +423,13 @@
                                        min="0"
                                        step="any"
                                        th:field="*{precioCompraEmpaque}"
+                                       placeholder="Ej. 50000"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
-                            <div>
 
+                            <!-- PRECIO VENTA CAJA -->
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Precio Venta Caja
                                 </label>
@@ -422,13 +438,14 @@
                                        min="0"
                                        step="any"
                                        th:field="*{precioVentaEmpaque}"
+                                       placeholder="Ej. 65000"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
                         </div>
 
                     </div>
+
 
                     <!-- 4. INVENTARIO -->
                     <div>
@@ -441,7 +458,6 @@
 
                             <!-- STOCK SOLO LECTURA -->
                             <div>
-
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Stock Total
                                 </label>
@@ -454,11 +470,10 @@
                                 <p class="text-[10px] text-slate-400 mt-1">
                                     Se calcula automáticamente sumando el stock disponible de los lotes.
                                 </p>
-
                             </div>
 
-                            <div>
 
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Stock Mínimo
                                 </label>
@@ -467,11 +482,10 @@
                                        min="0"
                                        th:field="*{stockMinimo}"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
-                            <div>
 
+                            <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
                                     Ubicación en Estante
                                 </label>
@@ -480,10 +494,10 @@
                                        th:field="*{ubicacionEstante}"
                                        placeholder="Ej. Estante 3 - Nivel 2"
                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
-
                             </div>
 
                         </div>
+
 
                         <!-- RESTRICCIONES -->
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4">
@@ -500,6 +514,7 @@
 
                             </label>
 
+
                             <label class="flex items-center gap-2 cursor-pointer">
 
                                 <input type="checkbox"
@@ -512,6 +527,7 @@
 
                             </label>
 
+
                             <label class="flex items-center gap-2 cursor-pointer">
 
                                 <input type="checkbox"
@@ -523,6 +539,7 @@
                                 </span>
 
                             </label>
+
 
                             <label class="flex items-center gap-2 cursor-pointer">
 
@@ -538,6 +555,7 @@
 
                         </div>
 
+
                         <div>
 
                             <label class="block font-semibold text-slate-700 mb-1">
@@ -552,6 +570,7 @@
                         </div>
 
                     </div>
+
 
                     <!-- MENSAJE LOTES -->
                     <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800">
@@ -570,6 +589,7 @@
                         </p>
 
                     </div>
+
 
                     <!-- BOTONES -->
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
@@ -601,6 +621,7 @@
     </div>
 
 </div>
+
 
 <script>
     function toggleSidebar(){

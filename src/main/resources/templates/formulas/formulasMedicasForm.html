@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Fórmula Médica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+    <script>
+        tailwind.config={theme:{extend:{colors:{pillone:{bg:'#F7F7FF',dark:'#07004D',darker:'#04002C',accent:'#208AAE',text:'#1D1E18'}},fontFamily:{sans:['Poppins','sans-serif']}}}}
+    </script>
+</head>
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
+
+<header th:replace="fragments/layout :: topbar('Fórmula Médica')"></header>
+
+<div class="flex flex-1 relative">
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden"></div>
+    <aside th:replace="fragments/layout :: sidebar('clientes')"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto w-full">
+
+            <section class="mb-5">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase"
+                            th:text="${formulaMedica.idFormula != null ? 'Editar Fórmula Médica' : 'Nueva Fórmula Médica'}">
+                            Nueva Fórmula Médica
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Registre la fórmula y asocie el medicamento autorizado.
+                        </p>
+                    </div>
+
+                    <a th:if="${retorno == 'ventas'}"
+                       th:href="@{/view/ventas/form(cliente=${formulaMedica.idCliente})}"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50">
+                        ← Volver a la venta
+                    </a>
+
+                    <a th:unless="${retorno == 'ventas'}"
+                       th:href="@{/view/clientes}"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50">
+                        ← Volver a clientes
+                    </a>
+                </div>
+            </section>
+
+            <div th:if="${error}"
+                 class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-semibold"
+                 th:text="${error}">
+            </div>
+
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <form th:action="@{/view/formulas/save}"
+                      th:object="${formulaMedica}"
+                      method="post"
+                      enctype="multipart/form-data"
+                      class="p-6 space-y-6">
+
+                    <input type="hidden" th:field="*{idFormula}">
+                    <input type="hidden" name="retorno" th:value="${retorno}">
+
+                    <div>
+                        <h2 class="font-bold text-pillone-dark text-sm mb-4">Paciente</h2>
+
+                        <label class="block font-semibold text-slate-700 mb-1">
+                            Cliente <span class="text-red-500">*</span>
+                        </label>
+
+                        <select th:field="*{idCliente}"
+                                required
+                                class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            <option value="">Seleccione un cliente</option>
+                            <option th:each="cliente : ${clientes}"
+                                    th:value="${cliente.id_cliente}"
+                                    th:text="${cliente.nombreCompleto + ' - ' + cliente.numeroDocumento}">
+                            </option>
+                        </select>
+
+                        <p th:if="${retorno == 'ventas'}"
+                           class="mt-2 text-[10px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg p-2.5">
+                            Esta fórmula se está creando desde una venta. Al guardarla volverás al punto de venta.
+                        </p>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-6">
+                        <h2 class="font-bold text-pillone-dark text-sm mb-4">Datos de la prescripción</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Médico <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                       th:field="*{nombreMedico}"
+                                       required
+                                       placeholder="Nombre completo del médico"
+                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Tarjeta profesional <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                       th:field="*{tarjetaProfesional}"
+                                       required
+                                       placeholder="Ej. RM-12345"
+                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Entidad de salud</label>
+                                <input type="text"
+                                       th:field="*{entidadSalud}"
+                                       placeholder="EPS, IPS, clínica..."
+                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Fecha de expedición <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date"
+                                       th:field="*{fechaExpedicion}"
+                                       required
+                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Vigencia</label>
+                                <div class="relative">
+                                    <input type="number"
+                                           th:field="*{vigenciaDias}"
+                                           min="1"
+                                           required
+                                           class="w-full px-3 py-2.5 pr-16 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">días</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-6">
+                        <div class="mb-4">
+                            <h2 class="font-bold text-pillone-dark text-sm">Medicamento autorizado</h2>
+                            <p class="text-[10px] text-slate-400 mt-1">
+                                La venta solo aceptará esta fórmula para medicamentos incluidos aquí.
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Producto
+                                    <span th:if="${formulaMedica.idFormula == null}" class="text-red-500">*</span>
+                                </label>
+
+                                <select name="idProducto"
+                                        th:attr="required=${formulaMedica.idFormula == null ? 'required' : null}"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                    <option value="">Seleccione medicamento</option>
+                                    <option th:each="producto : ${productos}"
+                                            th:value="${producto.idProducto}"
+                                            th:selected="${productoPreseleccionado != null && producto.idProducto == productoPreseleccionado}"
+                                            th:text="${producto.nombreComercial + (producto.concentracion != null ? ' · ' + producto.concentracion : '')}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Dosis</label>
+                                <input type="text"
+                                       name="dosis"
+                                       placeholder="Ej. 1 cápsula de 500 mg"
+                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Frecuencia</label>
+                                <input type="text"
+                                       name="frecuencia"
+                                       placeholder="Ej. Cada 8 horas"
+                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Duración del tratamiento</label>
+                                <input type="text"
+                                       name="duracionTratamiento"
+                                       placeholder="Ej. 7 días"
+                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-6">
+                        <h2 class="font-bold text-pillone-dark text-sm mb-4">Foto o PDF de la fórmula</h2>
+
+                        <label for="archivo"
+                               class="block border-2 border-dashed border-slate-200 rounded-xl p-7 text-center cursor-pointer hover:border-pillone-accent hover:bg-blue-50/30 transition">
+                            <div class="w-12 h-12 mx-auto rounded-xl bg-pillone-accent/10 text-pillone-accent flex items-center justify-center mb-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5"></path>
+                                </svg>
+                            </div>
+                            <div class="font-bold text-pillone-dark">Seleccionar foto o PDF</div>
+                            <div class="text-[10px] text-slate-400 mt-1">JPG, JPEG, PNG, WEBP o PDF</div>
+                            <input id="archivo"
+                                   name="archivo"
+                                   type="file"
+                                   accept="image/jpeg,image/png,image/webp,application/pdf"
+                                   class="hidden"
+                                   onchange="mostrarArchivo(this)">
+                        </label>
+
+                        <div id="nombre-archivo" class="text-pillone-accent font-semibold mt-2"></div>
+
+                        <div th:if="${formulaMedica.archivoAdjuntoUrl != null && !formulaMedica.archivoAdjuntoUrl.isEmpty()}"
+                             class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="font-semibold text-slate-700 mb-2">Archivo guardado actualmente</div>
+                            <a th:href="${formulaMedica.archivoAdjuntoUrl}"
+                               target="_blank"
+                               class="inline-flex px-3 py-2 rounded-lg bg-white border border-slate-200 text-pillone-accent font-bold">
+                                Ver archivo
+                            </a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Observaciones</label>
+                        <textarea th:field="*{observaciones}"
+                                  rows="4"
+                                  placeholder="Indicaciones u observaciones adicionales..."
+                                  class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                        <a th:if="${retorno == 'ventas'}"
+                           th:href="@{/view/ventas/form(cliente=${formulaMedica.idCliente})}"
+                           class="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100">
+                            Cancelar
+                        </a>
+
+                        <a th:unless="${retorno == 'ventas'}"
+                           th:href="@{/view/clientes}"
+                           class="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span th:text="${formulaMedica.idFormula != null ? 'Guardar cambios' : 'Guardar fórmula'}">
+                                Guardar fórmula
+                            </span>
+                        </button>
+                    </div>
+
+                </form>
+            </section>
+
+        </main>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+
+<script>
+    function mostrarArchivo(input){
+        const texto=document.getElementById('nombre-archivo');
+        texto.textContent=input.files&&input.files.length
+            ? 'Archivo seleccionado: '+input.files[0].name
+            : '';
+    }
+</script>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

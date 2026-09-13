@@ -1,7 +1,10 @@
-//by Jacob Mafla
 package com.pillone.pillone.view;
 
+import com.pillone.pillone.model.Compras;
+import com.pillone.pillone.model.Productos;
 import com.pillone.pillone.model.Proveedores;
+import com.pillone.pillone.repository.ComprasRepository;
+import com.pillone.pillone.repository.ProductosRepository;
 import com.pillone.pillone.repository.ProveedoresRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,50 +14,213 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+import java.util.Objects;
+
 @Controller
 public class ProveedoresView {
 
     @Autowired
-    private ProveedoresRepository repo;
+    private ProveedoresRepository proveedoresRepository;
 
-    // LISTAR
+    @Autowired
+    private ProductosRepository productosRepository;
+
+    @Autowired
+    private ComprasRepository comprasRepository;
+
     @GetMapping("/view/proveedores")
     public String lista(Model model) {
-        model.addAttribute("proveedores", repo.findAll());
+        model.addAttribute(
+                "proveedores",
+                proveedoresRepository.findAll()
+        );
+
         return "proveedores/proveedores";
     }
 
-    // FORMULARIO (Crear)
     @GetMapping("/view/proveedores/form")
     public String form(Model model) {
-        model.addAttribute("proveedor", new Proveedores());
+        Proveedores proveedor = new Proveedores();
+
+        proveedor.setEstado(
+                Proveedores.EstadoProveedor.ACTIVO
+        );
+
+        model.addAttribute(
+                "proveedor",
+                proveedor
+        );
+
         return "proveedores/proveedoresForm";
     }
 
-    // GUARDAR
     @PostMapping("/view/proveedores/save")
-    public String save(@Valid @ModelAttribute Proveedores proveedor, BindingResult result, RedirectAttributes ra) {
+    public String save(
+            @Valid @ModelAttribute("proveedor") Proveedores proveedor,
+            BindingResult result,
+            Model model,
+            RedirectAttributes ra
+    ) {
         if (result.hasErrors()) {
-            ra.addFlashAttribute("error", "Verifica los campos obligatorios.");
-            return "redirect:/view/proveedores/form";
+            model.addAttribute(
+                    "error",
+                    "Verifique los campos obligatorios."
+            );
+
+            return "proveedores/proveedoresForm";
         }
-        repo.save(proveedor);
-        ra.addFlashAttribute("mensaje", "Proveedor guardado correctamente");
+
+        boolean nuevo =
+                proveedor.getId_proveedor() == null;
+
+        proveedoresRepository.save(
+                proveedor
+        );
+
+        ra.addFlashAttribute(
+                "mensaje",
+                nuevo
+                        ? "Proveedor registrado correctamente."
+                        : "Proveedor guardado correctamente."
+        );
+
         return "redirect:/view/proveedores";
     }
 
-    // EDITAR
-    @GetMapping("/view/proveedores/edit/{id}")
-    public String edit(@PathVariable Integer id, Model model) {
-        model.addAttribute("proveedor", repo.findById(id).orElse(new Proveedores()));
-        return "proveedores/proveedoresForm";
+    /*
+     * FICHA DEL PROVEEDOR.
+     * Esta pantalla es únicamente de consulta.
+     *
+     * Desde aquí:
+     * - se ven los datos del proveedor
+     * - se ven los productos asociados
+     * - se ve el historial de pedidos
+     *
+     * NO se editan pedidos desde esta pantalla.
+     */
+    @GetMapping("/view/proveedores/ver/{id}")
+    public String ver(
+            @PathVariable Integer id,
+            Model model,
+            RedirectAttributes ra
+    ) {
+        Proveedores proveedor =
+                proveedoresRepository
+                        .findById(id)
+                        .orElse(null);
+
+        if (proveedor == null) {
+            ra.addFlashAttribute(
+                    "error",
+                    "El proveedor no existe."
+            );
+
+            return "redirect:/view/proveedores";
+        }
+
+        List<Productos> productos =
+                productosRepository
+                        .findAll()
+                        .stream()
+                        .filter(
+                                producto ->
+                                        Objects.equals(
+                                                producto.getIdProveedor(),
+                                                id
+                                        )
+                        )
+                        .toList();
+
+        List<Compras> compras =
+                comprasRepository
+                        .findByIdProveedorOrderByFechaCompraDesc(
+                                id
+                        );
+
+        model.addAttribute(
+                "proveedor",
+                proveedor
+        );
+
+        model.addAttribute(
+                "productosProveedor",
+                productos
+        );
+
+        model.addAttribute(
+                "comprasProveedor",
+                compras
+        );
+
+        return "proveedores/proveedorDetalle";
     }
 
-    // ELIMINAR
-    @PostMapping("/view/proveedores/delete/{id}")
-    public String delete(@PathVariable Integer id, RedirectAttributes ra) {
-        repo.deleteById(id);
-        ra.addFlashAttribute("mensaje", "Proveedor eliminado");
+    /*
+     * Ya no usamos la edición del proveedor
+     * desde el directorio.
+     *
+     * La ruta se deja únicamente por compatibilidad
+     * por si algún enlace antiguo intenta entrar.
+     * Redirige a la ficha de consulta.
+     */
+    @GetMapping("/view/proveedores/edit/{id}")
+    public String edit(
+            @PathVariable Integer id
+    ) {
+        return "redirect:/view/proveedores/ver/" + id;
+    }
+
+    /*
+     * En lugar de eliminar proveedores con historial,
+     * manejamos ACTIVO / INACTIVO.
+     */
+    @PostMapping("/view/proveedores/cambiar-estado/{id}")
+    public String cambiarEstado(
+            @PathVariable Integer id,
+            RedirectAttributes ra
+    ) {
+        Proveedores proveedor =
+                proveedoresRepository
+                        .findById(id)
+                        .orElse(null);
+
+        if (proveedor == null) {
+            ra.addFlashAttribute(
+                    "error",
+                    "El proveedor no existe."
+            );
+
+            return "redirect:/view/proveedores";
+        }
+
+        if (
+                proveedor.getEstado()
+                        == Proveedores.EstadoProveedor.ACTIVO
+        ) {
+            proveedor.setEstado(
+                    Proveedores.EstadoProveedor.INACTIVO
+            );
+
+            ra.addFlashAttribute(
+                    "mensaje",
+                    "Proveedor inactivado correctamente."
+            );
+        } else {
+            proveedor.setEstado(
+                    Proveedores.EstadoProveedor.ACTIVO
+            );
+
+            ra.addFlashAttribute(
+                    "mensaje",
+                    "Proveedor activado correctamente."
+            );
+        }
+
+        proveedoresRepository.save(
+                proveedor
+        );
+
         return "redirect:/view/proveedores";
     }
 }

@@ -1,153 +1,508 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head}">
+
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PillOne - Directorio de Proveedores</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://tailwindcss.com"></script>
+    <title>PillOne - Proveedores</title>
 
-    <!-- Google Fonts: Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+    <link rel="icon"
+          type="image/png"
+          th:href="@{/img/img.png}">
 
-    <!-- Configuración personalizada de Tailwind -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        pillone: {
-                            bg: '#F7F7FF',
-                            dark: '#07004D',
-                            darker: '#04002C',
-                            accent: '#208AAE',
-                            text: '#1D1E18'
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
                         }
                     },
-                    fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col selection:bg-pillone-accent selection:text-white">
 
-<!-- HEADER / TOPBAR -->
-<header th:replace="~{fragments/layout :: topbar('Proveedores')}"></header>
-<!-- CONTENEDOR CENTRAL -->
-<div class="flex flex-1 relative min-h-[calc(100vh-4rem)]">
+<body class="bg-pillone-bg font-sans text-pillone-text min-h-screen flex flex-col text-xs">
 
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden transition-all duration-300"></div>
+<header th:replace="fragments/layout :: topbar('Proveedores')"></header>
 
-    <!-- SIDEBAR -->
-    <aside th:replace="~{fragments/layout :: sidebar('proveedores')}"></aside>
-    <!-- AREA PRINCIPAL -->
-    <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
-        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+<div class="flex flex-1 relative">
 
-            <!-- Mensajes de éxito o alerta -->
-            <div th:if="${mensaje}" class="mb-4 p-4 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl" th:text="${mensaje}"></div>
-            <div th:if="${error}" class="mb-4 p-4 text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 rounded-xl" th:text="${error}"></div>
+    <div id="overlay"
+         onclick="toggleSidebar()"
+         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+    </div>
 
-            <!-- Cabecera de la sección -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-pillone-dark uppercase tracking-wide">DIRECTORIO DE PROVEEDORES</h1>
-                    <p class="text-xs sm:text-sm text-slate-500">Administre la información de los proveedores y tipos de productos centralizados.</p>
-                </div>
-                <div>
-                    <a th:href="@{/view/proveedores/form}" class="bg-pillone-accent text-white px-4 py-2 rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity">
-                        + Nuevo Proveedor
-                    </a>
-                </div>
+    <aside th:replace="fragments/layout :: sidebar('proveedores')"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+
+            <!-- MENSAJES -->
+            <div th:if="${mensaje}"
+                 class="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold"
+                 th:text="${mensaje}">
             </div>
 
-            <!-- Contenedor Principal Estilo Tarjeta -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div th:if="${error}"
+                 class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 font-semibold"
+                 th:text="${error}">
+            </div>
 
-                <!-- Barra de Búsqueda y Conteo de Registros -->
-                <div class="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div class="relative w-full sm:w-96">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        </span>
-                        <input type="text" placeholder="Buscar proveedor por razón social, NIT..." class="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+            <!-- ENCABEZADO -->
+            <section class="mb-5">
+
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+
+                    <div>
+
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase">
+                            Directorio de Proveedores
+                        </h1>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Consulte proveedores, revise su historial y genere nuevos pedidos.
+                        </p>
+
                     </div>
-                    <div class="text-xs sm:text-sm font-medium text-slate-600">
-                        Total registros: <span class="font-bold text-pillone-dark" th:text="${#lists.size(proveedores)}">0</span>
+
+                    <div class="flex flex-wrap gap-2">
+
+                        <a th:href="@{/view/compras}"
+                           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-pillone-accent text-pillone-accent font-bold hover:bg-pillone-accent/5 transition">
+
+                            <svg class="w-4 h-4"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M6 7h12M6 12h12M6 17h8">
+                                </path>
+
+                                <rect x="3"
+                                      y="3"
+                                      width="18"
+                                      height="18"
+                                      rx="2">
+                                </rect>
+
+                            </svg>
+
+                            Ver Pedidos
+
+                        </a>
+
+                        <a th:href="@{/view/proveedores/form}"
+                           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
+
+                            <svg class="w-4 h-4"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      d="M12 5v14M5 12h14">
+                                </path>
+
+                            </svg>
+
+                            Nuevo Proveedor
+
+                        </a>
+
                     </div>
+
                 </div>
 
-                <!-- Tabla de Proveedores Dinámica conectada a la BD -->
+            </section>
+
+            <!-- INFORMACIÓN -->
+            <section class="mb-4 p-4 rounded-xl border border-blue-100 bg-blue-50">
+
+                <div class="flex items-start gap-3">
+
+                    <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-pillone-accent shrink-0">
+
+                        <svg class="w-4 h-4"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             viewBox="0 0 24 24">
+
+                            <circle cx="12"
+                                    cy="12"
+                                    r="9">
+                            </circle>
+
+                            <path stroke-linecap="round"
+                                  d="M12 11v5">
+                            </path>
+
+                            <path stroke-linecap="round"
+                                  d="M12 8h.01">
+                            </path>
+
+                        </svg>
+
+                    </div>
+
+                    <div>
+
+                        <div class="font-bold text-pillone-dark">
+                            Gestión de proveedores
+                        </div>
+
+                        <p class="text-[10px] text-slate-500 mt-0.5">
+                            Desde aquí puede consultar la ficha y el historial de cada proveedor.
+                            La modificación de pedidos se realiza únicamente desde Compras y dentro del plazo permitido.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- TABLA -->
+            <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+                    <div class="relative w-full sm:w-96">
+
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             viewBox="0 0 24 24">
+
+                            <circle cx="11"
+                                    cy="11"
+                                    r="7">
+                            </circle>
+
+                            <path stroke-linecap="round"
+                                  d="M20 20l-3.5-3.5">
+                            </path>
+
+                        </svg>
+
+                        <input type="text"
+                               id="buscar"
+                               oninput="filtrar()"
+                               placeholder="Buscar razón social, NIT, contacto..."
+                               class="w-full pl-9 pr-4 py-2 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-pillone-accent">
+
+                    </div>
+
+                    <div class="text-slate-500">
+
+                        Total:
+                        <strong id="contador"
+                                th:text="${#lists.size(proveedores)}"
+                                class="text-pillone-dark">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="bg-pillone-dark text-white text-xs uppercase tracking-wider">
-                        <tr>
-                            <th class="p-4">NIT</th>
-                            <th class="p-4">Razón Social</th>
-                            <th class="p-4">Teléfono</th>
-                            <th class="p-4">Tipo Productos</th>
-                            <th class="p-4">Estado</th>
-                            <th class="p-4 text-center">Acciones</th>
+
+                    <table class="w-full text-left">
+
+                        <thead>
+
+                        <tr class="bg-pillone-dark text-white text-[10px] uppercase">
+
+                            <th class="px-4 py-3">
+                                Proveedor
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Contacto
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Productos
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Estado
+                            </th>
+
+                            <th class="px-4 py-3 text-center">
+                                Acciones
+                            </th>
+
                         </tr>
+
                         </thead>
+
                         <tbody class="divide-y divide-slate-100">
 
-                        <!-- Si no hay proveedores registrados -->
                         <tr th:if="${#lists.isEmpty(proveedores)}">
-                            <td colspan="6" class="p-6 text-center text-slate-400 text-xs">No hay proveedores registrados en la base de datos.</td>
+
+                            <td colspan="5"
+                                class="p-8 text-center text-slate-400">
+
+                                No hay proveedores registrados.
+
+                            </td>
+
                         </tr>
 
-                        <!-- Bucle dinámico que recorre la base de datos -->
-                        <tr th:each="p : ${proveedores}" class="hover:bg-slate-50/80 transition-colors duration-150">
-                            <td class="p-4">
-                                <span class="inline-flex px-2.5 py-1 text-xs font-semibold bg-sky-50 text-sky-700 rounded-md border border-sky-100" th:text="${p.nit}">NIT</span>
-                            </td>
-                            <td class="p-4 font-medium text-slate-900" th:text="${p.razon_social}">Razón Social</td>
-                            <td class="p-4 text-slate-600" th:text="${p.telefono}">Teléfono</td>
-                            <td class="p-4 text-slate-600" th:text="${p.tipo_productos}">Tipo Productos</td>
-                            <td class="p-4">
-                                <span class="inline-flex px-2.5 py-1 text-[10px] font-semibold rounded-full"
-                                      th:classappend="${p.estado.name() == 'ACTIVO'} ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'"
-                                      th:text="${p.estado}">ACTIVO</span>
-                            </td>
-                            <td class="p-4 text-center">
-                                <div class="inline-flex items-center justify-center gap-2">
-                                    <!-- Botón Editar -->
-                                    <a th:href="@{/view/proveedores/edit/{id}(id=${p.id_proveedor})}" class="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors duration-200" title="Editar">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                    </a>
-                                    <!-- Botón Eliminar -->
-                                    <form th:action="@{/view/proveedores/delete/{id}(id=${p.id_proveedor})}" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este proveedor?');" class="inline">
-                                        <button type="submit" class="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors duration-200 cursor-pointer" title="Eliminar">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        </button>
-                                    </form>
+                        <tr th:each="p : ${proveedores}"
+                            class="fila-proveedor hover:bg-slate-50 transition">
+
+                            <!-- PROVEEDOR -->
+                            <td class="px-4 py-3">
+
+                                <div class="font-bold text-slate-800"
+                                     th:text="${p.razon_social}">
                                 </div>
+
+                                <div class="text-[10px] text-pillone-accent"
+                                     th:text="${'NIT: ' + p.nit}">
+                                </div>
+
+                                <div class="text-[10px] text-slate-400"
+                                     th:text="${p.direccion}">
+                                </div>
+
                             </td>
+
+                            <!-- CONTACTO -->
+                            <td class="px-4 py-3">
+
+                                <div class="font-semibold"
+                                     th:text="${p.nombre_contacto}">
+                                </div>
+
+                                <div class="text-[10px] text-slate-500"
+                                     th:text="${p.telefono}">
+                                </div>
+
+                                <div class="text-[10px] text-slate-400"
+                                     th:text="${p.correo}">
+                                </div>
+
+                            </td>
+
+                            <!-- PRODUCTOS -->
+                            <td class="px-4 py-3">
+
+                                <span th:text="${p.tipo_productos}">
+                                </span>
+
+                            </td>
+
+                            <!-- ESTADO -->
+                            <td class="px-4 py-3">
+
+                                <span class="inline-flex px-2 py-1 rounded-full text-[10px] font-bold"
+                                      th:classappend="${p.estado.name() == 'ACTIVO' ? ' bg-emerald-100 text-emerald-700' : ' bg-slate-100 text-slate-600'}"
+                                      th:text="${p.estado}">
+                                </span>
+
+                            </td>
+
+                            <!-- ACCIONES -->
+                            <td class="px-4 py-3">
+
+                                <div class="flex items-center justify-center gap-2 flex-wrap">
+
+                                    <!-- VER -->
+                                    <a th:href="@{/view/proveedores/ver/{id}(id=${p.id_proveedor})}"
+                                       class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-50 text-slate-600 hover:bg-pillone-dark hover:text-white transition"
+                                       title="Ver ficha del proveedor">
+
+                                        <svg class="w-4 h-4"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             viewBox="0 0 24 24">
+
+                                            <path stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6S2.5 12 2.5 12z">
+                                            </path>
+
+                                            <circle cx="12"
+                                                    cy="12"
+                                                    r="2.5">
+                                            </circle>
+
+                                        </svg>
+
+                                        Ver
+
+                                    </a>
+
+                                    <!-- NUEVO PEDIDO -->
+                                    <a th:if="${p.estado.name() == 'ACTIVO'}"
+                                       th:href="@{/view/compras/form(proveedor=${p.id_proveedor})}"
+                                       class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-pillone-accent/10 text-pillone-accent font-bold hover:bg-pillone-accent hover:text-white transition"
+                                       title="Nuevo pedido">
+
+                                        <svg class="w-4 h-4"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             viewBox="0 0 24 24">
+
+                                            <path stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  d="M3 3h2l2.4 10.5a2 2 0 002 1.5h7.7a2 2 0 002-1.5L21 7H6">
+                                            </path>
+
+                                            <circle cx="10"
+                                                    cy="19"
+                                                    r="1">
+                                            </circle>
+
+                                            <circle cx="18"
+                                                    cy="19"
+                                                    r="1">
+                                            </circle>
+
+                                        </svg>
+
+                                        Pedido
+
+                                    </a>
+
+                                    <!-- INACTIVAR -->
+                                    <form th:if="${p.estado.name() == 'ACTIVO'}"
+                                          th:action="@{/view/proveedores/cambiar-estado/{id}(id=${p.id_proveedor})}"
+                                          method="post"
+                                          class="inline"
+                                          onsubmit="return confirm('¿Inactivar este proveedor? No podrá crear nuevos pedidos mientras esté inactivo.');">
+
+                                        <button type="submit"
+                                                class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition"
+                                                title="Inactivar proveedor">
+
+                                            <svg class="w-4 h-4"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8"
+                                                 viewBox="0 0 24 24">
+
+                                                <circle cx="12"
+                                                        cy="12"
+                                                        r="9">
+                                                </circle>
+
+                                                <path stroke-linecap="round"
+                                                      d="M8 12h8">
+                                                </path>
+
+                                            </svg>
+
+                                        </button>
+
+                                    </form>
+
+                                    <!-- ACTIVAR -->
+                                    <form th:if="${p.estado.name() == 'INACTIVO'}"
+                                          th:action="@{/view/proveedores/cambiar-estado/{id}(id=${p.id_proveedor})}"
+                                          method="post"
+                                          class="inline"
+                                          onsubmit="return confirm('¿Activar nuevamente este proveedor?');">
+
+                                        <button type="submit"
+                                                class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition"
+                                                title="Activar proveedor">
+
+                                            <svg class="w-4 h-4"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8"
+                                                 viewBox="0 0 24 24">
+
+                                                <circle cx="12"
+                                                        cy="12"
+                                                        r="9">
+                                                </circle>
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M8 12l2.5 2.5L16 9">
+                                                </path>
+
+                                            </svg>
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
                         </tr>
 
                         </tbody>
+
                     </table>
+
                 </div>
-            </div>
+
+            </section>
 
         </main>
 
-        <!-- FOOTER -->
         <footer th:replace="~{fragments/layout :: footer}"></footer>
+
     </div>
+
 </div>
 
-<!-- SCRIPTS GLOBALES -->
+<script>
+    function filtrar(){
+        const filtro=document.getElementById('buscar').value.trim().toLowerCase();
+        let visibles=0;
+
+        document.querySelectorAll('.fila-proveedor').forEach(function(fila){
+            const mostrar=fila.textContent.toLowerCase().includes(filtro);
+            fila.style.display=mostrar ? '' : 'none';
+
+            if(mostrar){
+                visibles++;
+            }
+        });
+
+        document.getElementById('contador').textContent=visibles;
+    }
+</script>
+
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
 </body>
 </html>

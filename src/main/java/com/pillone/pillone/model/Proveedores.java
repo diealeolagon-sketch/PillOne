@@ -1,4 +1,3 @@
-//by Jacob Mafla
 package com.pillone.pillone.model;
 
 import jakarta.persistence.*;
@@ -6,118 +5,121 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "proveedores")
+@Table(name="proveedores")
 public class Proveedores {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="id_proveedor")
     private Integer id_proveedor;
 
-    @NotBlank(message = "la razon social es obligatoria")
+    @NotBlank(message="La razón social es obligatoria")
+    @Column(name="razon_social",nullable=false)
     private String razon_social;
 
-    @NotBlank(message = "el nit es obligatorio")
+    @NotBlank(message="El NIT es obligatorio")
+    @Column(name="nit",nullable=false,unique=true)
     private String nit;
 
-    @NotBlank(message = "la direccion es obligatoria")
+    @NotBlank(message="La dirección es obligatoria")
+    @Column(name="direccion",nullable=false)
     private String direccion;
 
-    @NotBlank(message = "el telefono es obligatorio")
+    @NotBlank(message="El teléfono es obligatorio")
+    @Column(name="telefono",nullable=false)
     private String telefono;
 
-    @NotBlank(message = "el correo es obligatorio")
+    @NotBlank(message="El correo es obligatorio")
+    @Column(name="correo",nullable=false)
     private String correo;
 
-    @NotBlank(message = "el nombre_contacto es obligatorio")
+    @NotBlank(message="El nombre de contacto es obligatorio")
+    @Column(name="nombre_contacto",nullable=false)
     private String nombre_contacto;
 
-    @NotBlank(message = "los tipo_productos son obligatorios")
+    @NotBlank(message="El tipo de productos es obligatorio")
+    @Column(name="tipo_productos",nullable=false)
     private String tipo_productos;
 
-    @NotNull(message = "el estado es obligatorio")
+    @NotNull(message="El estado es obligatorio")
     @Enumerated(EnumType.STRING)
-    private EstadoProveedor estado;
+    @Column(name="estado",nullable=false)
+    private EstadoProveedor estado=EstadoProveedor.ACTIVO;
 
-    public void setId_provedor(Integer id) {
-    }
-
-    // --- ENUM ---
-    public enum EstadoProveedor {
+    public enum EstadoProveedor{
         ACTIVO,
         INACTIVO
     }
 
-    // --- GETTERS Y SETTERS ---
-
-    public Integer getId_proveedor() {
+    public Integer getId_proveedor(){
         return id_proveedor;
     }
 
-    public void setId_proveedor(Integer id_proveedor) {
-        this.id_proveedor = id_proveedor;
+    public void setId_proveedor(Integer id_proveedor){
+        this.id_proveedor=id_proveedor;
     }
 
-    public String getRazon_social() {
+    public String getRazon_social(){
         return razon_social;
     }
 
-    public void setRazon_social(String razon_social) {
-        this.razon_social = razon_social;
+    public void setRazon_social(String razon_social){
+        this.razon_social=razon_social;
     }
 
-    public String getNit() {
+    public String getNit(){
         return nit;
     }
 
-    public void setNit(String nit) {
-        this.nit = nit;
+    public void setNit(String nit){
+        this.nit=nit;
     }
 
-    public String getDireccion() {
+    public String getDireccion(){
         return direccion;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setDireccion(String direccion){
+        this.direccion=direccion;
     }
 
-    public String getTelefono() {
+    public String getTelefono(){
         return telefono;
     }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public void setTelefono(String telefono){
+        this.telefono=telefono;
     }
 
-    public String getCorreo() {
+    public String getCorreo(){
         return correo;
     }
 
-    public void setCorreo(String correo) {
-        this.correo = correo;
+    public void setCorreo(String correo){
+        this.correo=correo;
     }
 
-    public String getNombre_contacto() {
+    public String getNombre_contacto(){
         return nombre_contacto;
     }
 
-    public void setNombre_contacto(String nombre_contacto) {
-        this.nombre_contacto = nombre_contacto;
+    public void setNombre_contacto(String nombre_contacto){
+        this.nombre_contacto=nombre_contacto;
     }
 
-    public String getTipo_productos() {
+    public String getTipo_productos(){
         return tipo_productos;
     }
 
-    public void setTipo_productos(String tipo_productos) {
-        this.tipo_productos = tipo_productos;
+    public void setTipo_productos(String tipo_productos){
+        this.tipo_productos=tipo_productos;
     }
 
-    public EstadoProveedor getEstado() {
+    public EstadoProveedor getEstado(){
         return estado;
     }
 
-    public void setEstado(EstadoProveedor estado) {
-        this.estado = estado;
+    public void setEstado(EstadoProveedor estado){
+        this.estado=estado;
     }
 }

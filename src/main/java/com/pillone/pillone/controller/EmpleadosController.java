@@ -2,7 +2,6 @@ package com.pillone.pillone.controller;
 
 import com.pillone.pillone.model.Empleados;
 import com.pillone.pillone.repository.EmpleadosRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,33 +10,25 @@ import java.util.List;
 @RequestMapping("/api/empleados")
 public class EmpleadosController {
 
-    @Autowired
-    private EmpleadosRepository empleadosRepository;
+    private final EmpleadosRepository empleadosRepository;
+
+    public EmpleadosController(
+            EmpleadosRepository empleadosRepository
+    ){
+        this.empleadosRepository=empleadosRepository;
+    }
 
     @GetMapping
-    public List<Empleados> getAll() {
+    public List<Empleados> getAll(){
         return empleadosRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public Empleados getById(@PathVariable Long id) {
-        return empleadosRepository.findById(id).orElse(null);
-    }
-
-    // Cambiado de "/form" a raíz o un endpoint de API para evitar choques con la vista
-    @PostMapping
-    public Empleados create(@RequestBody Empleados empleados) {
-        return empleadosRepository.save(empleados);
-    }
-
-    @PutMapping("/{id}")
-    public Empleados update(@PathVariable Long id, @RequestBody Empleados empleados) {
-        empleados.setId_empleado(id);
-        return empleadosRepository.save(empleados);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        empleadosRepository.deleteById(id);
+    public Empleados getById(
+            @PathVariable Long id
+    ){
+        return empleadosRepository
+                .findById(id)
+                .orElse(null);
     }
 }

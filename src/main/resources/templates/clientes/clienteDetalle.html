@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Ficha del Cliente</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
+    <script>
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
+                        }
+                    },
+                    fontFamily:{sans:['Poppins','sans-serif']}
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
+
+<header th:replace="fragments/layout :: topbar('Ficha del Cliente')"></header>
+
+<div class="flex flex-1 relative">
+
+    <div id="overlay"
+         onclick="toggleSidebar()"
+         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+    </div>
+
+    <aside th:replace="fragments/layout :: sidebar('clientes')"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+
+            <!-- ENCABEZADO -->
+            <section class="mb-5">
+
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+
+                    <div>
+
+                        <a th:href="@{/view/clientes}"
+                           class="inline-flex items-center gap-2 text-slate-500 hover:text-pillone-accent font-semibold mb-2">
+                            ← Volver a clientes
+                        </a>
+
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark"
+                            th:text="${cliente.nombreCompleto}">
+                            Cliente
+                        </h1>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Información general y fórmulas médicas.
+                        </p>
+
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+
+                        <a th:href="@{/view/formulas/form(cliente=${cliente.id_cliente})}"
+                           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
+
+                            <svg class="w-4 h-4"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z">
+                                </path>
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M14 2v6h6M12 12v6M9 15h6">
+                                </path>
+
+                            </svg>
+
+                            Nueva fórmula
+                        </a>
+
+                        <a th:href="@{/view/clientes/edit/{id}(id=${cliente.id_cliente})}"
+                           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50">
+
+                            Editar cliente
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- DATOS CLIENTE -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+
+                <section class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+
+                    <h2 class="font-bold text-pillone-dark text-sm mb-4">
+                        Información del paciente
+                    </h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-slate-400">
+                                Nombre completo
+                            </span>
+                            <span class="font-semibold text-slate-800"
+                                  th:text="${cliente.nombreCompleto}">
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-slate-400">
+                                Documento
+                            </span>
+
+                            <span class="font-semibold"
+                                  th:text="${(cliente.tipoDocumento != null ? cliente.tipoDocumento : '') + ' ' + cliente.numeroDocumento}">
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-slate-400">
+                                Teléfono
+                            </span>
+                            <span th:text="${cliente.telefono != null && !cliente.telefono.isEmpty() ? cliente.telefono : '-'}">
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-slate-400">
+                                Correo
+                            </span>
+                            <span th:text="${cliente.correo != null && !cliente.correo.isEmpty() ? cliente.correo : '-'}">
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-slate-400">
+                                Dirección
+                            </span>
+                            <span th:text="${cliente.direccion != null && !cliente.direccion.isEmpty() ? cliente.direccion : '-'}">
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-slate-400">
+                                EPS
+                            </span>
+                            <span th:text="${cliente.eps != null && !cliente.eps.isEmpty() ? cliente.eps : '-'}">
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="block text-[10px] uppercase font-bold text-slate-400">
+                                Fecha nacimiento
+                            </span>
+
+                            <!-- Tu modelo actualmente maneja esta fecha como String -->
+                            <span th:text="${cliente.fechaNacimiento != null && !cliente.fechaNacimiento.isEmpty() ? cliente.fechaNacimiento : '-'}">
+                            </span>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- ALERGIAS -->
+                <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+
+                    <div class="flex items-center gap-2 mb-3">
+
+                        <div class="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+
+                            <svg class="w-5 h-5"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z">
+                                </path>
+
+                            </svg>
+
+                        </div>
+
+                        <h2 class="font-bold text-pillone-dark">
+                            Alergias
+                        </h2>
+
+                    </div>
+
+                    <p class="text-slate-600 leading-relaxed"
+                       th:text="${cliente.alergias != null && !cliente.alergias.isEmpty() ? cliente.alergias : 'No registra alergias conocidas.'}">
+                    </p>
+
+                </section>
+
+            </div>
+
+            <!-- FORMULAS -->
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+                    <div>
+                        <h2 class="font-extrabold text-pillone-dark text-sm">
+                            Fórmulas médicas
+                        </h2>
+
+                        <p class="text-[10px] text-slate-400 mt-1">
+                            Historial de fórmulas asociadas al paciente.
+                        </p>
+                    </div>
+
+                    <a th:href="@{/view/formulas/form(cliente=${cliente.id_cliente})}"
+                       class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold">
+
+                        <svg class="w-4 h-4"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M12 4v16m8-8H4">
+                            </path>
+
+                        </svg>
+
+                        Nueva fórmula
+                    </a>
+
+                </div>
+
+                <!-- SIN FORMULAS -->
+                <div th:if="${#lists.isEmpty(formulas)}"
+                     class="py-14 px-4 text-center">
+
+                    <div class="w-14 h-14 mx-auto bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 mb-3">
+
+                        <svg class="w-7 h-7"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z">
+                            </path>
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M14 2v6h6">
+                            </path>
+
+                        </svg>
+
+                    </div>
+
+                    <p class="font-semibold text-slate-600">
+                        No hay fórmulas médicas registradas.
+                    </p>
+
+                    <p class="text-slate-400 mt-1 mb-4">
+                        Registra la primera fórmula de este cliente.
+                    </p>
+
+                    <a th:href="@{/view/formulas/form(cliente=${cliente.id_cliente})}"
+                       class="inline-flex px-4 py-2.5 rounded-lg bg-pillone-dark text-white font-bold">
+
+                        Registrar primera fórmula
+                    </a>
+
+                </div>
+
+                <!-- FORMULAS EXISTENTES -->
+                <div th:unless="${#lists.isEmpty(formulas)}"
+                     class="divide-y divide-slate-100">
+
+                    <div th:each="formula : ${formulas}"
+                         class="p-5">
+
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+
+                            <div>
+
+                                <div class="flex flex-wrap items-center gap-2">
+
+                                    <span class="font-extrabold text-pillone-dark"
+                                          th:text="${formula.nombreMedico}">
+                                        Médico
+                                    </span>
+
+                                    <span th:if="${formula.vigente}"
+                                          class="px-2 py-1 rounded-full text-[9px] bg-emerald-50 text-emerald-700 font-bold">
+                                        VIGENTE
+                                    </span>
+
+                                    <span th:unless="${formula.vigente}"
+                                          class="px-2 py-1 rounded-full text-[9px] bg-red-50 text-red-700 font-bold">
+                                        VENCIDA
+                                    </span>
+
+                                </div>
+
+                                <div class="text-slate-500 mt-1"
+                                     th:text="${formula.entidadSalud != null && !formula.entidadSalud.isEmpty() ? formula.entidadSalud : 'Entidad no registrada'}">
+                                </div>
+
+                                <div class="text-[10px] text-slate-400 mt-1">
+
+                                    Expedición:
+
+                                    <span th:text="${formula.fechaExpedicion}">
+                                    </span>
+
+                                    ·
+
+                                    <span th:text="${formula.vigenciaDias != null ? formula.vigenciaDias + ' días' : '30 días'}">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="flex items-center gap-2">
+
+                                <a th:href="@{/view/formulas/detalle/{id}(id=${formula.idFormula})}"
+                                   class="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50">
+
+                                    Ver fórmula
+                                </a>
+
+                                <a th:href="@{/view/formulas/edit/{id}(id=${formula.idFormula})}"
+                                   class="px-3 py-2 rounded-lg bg-pillone-accent/10 text-pillone-accent font-semibold">
+
+                                    Editar
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                        <!-- MEDICAMENTOS -->
+                        <div th:if="${detallesPorFormula.get(formula.idFormula) != null && !detallesPorFormula.get(formula.idFormula).isEmpty()}"
+                             class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                            <div th:each="detalle : ${detallesPorFormula.get(formula.idFormula)}"
+                                 class="rounded-lg border border-slate-100 bg-slate-50 p-3">
+
+                                <div class="font-bold text-slate-800"
+                                     th:text="${productosPorId.get(detalle.idProducto) != null ? productosPorId.get(detalle.idProducto).nombreComercial : 'Producto no encontrado'}">
+                                </div>
+
+                                <div class="text-[10px] text-slate-500 mt-1">
+
+                                    <span th:text="${detalle.dosis}">
+                                    </span>
+
+                                    ·
+
+                                    <span th:text="${detalle.frecuencia}">
+                                    </span>
+
+                                    ·
+
+                                    <span th:text="${detalle.duracionTratamiento}">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </div>
+
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+</body>
+</html>

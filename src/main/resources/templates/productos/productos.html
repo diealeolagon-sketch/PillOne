@@ -1,64 +1,21 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PillOne - Productos</title>
+    <title>PillOne - Consulta de Productos</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="icon"
+          type="image/png"
+          th:href="@{/img/img.png}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
     <th:block th:replace="fragments/layout :: styles"></th:block>
-
-    <script>
-        tailwind.config={
-            theme:{
-                extend:{
-                    colors:{
-                        pillone:{
-                            bg:'#F7F7FF',
-                            dark:'#07004D',
-                            darker:'#04002C',
-                            accent:'#208AAE',
-                            text:'#1D1E18'
-                        }
-                    },
-                    fontFamily:{
-                        sans:['Poppins','sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        .tabla-scroll{
-            max-height:calc(100vh - 310px);
-            min-height:280px;
-            overflow:auto;
-            scrollbar-width:thin;
-            scrollbar-color:#cbd5e1 #f8fafc;
-        }
-
-        .tabla-scroll::-webkit-scrollbar{
-            width:8px;
-            height:8px;
-        }
-
-        .tabla-scroll::-webkit-scrollbar-track{
-            background:#f8fafc;
-        }
-
-        .tabla-scroll::-webkit-scrollbar-thumb{
-            background:#cbd5e1;
-            border-radius:8px;
-        }
-
-        .tabla-scroll thead th{
-            position:sticky;
-            top:0;
-            z-index:20;
-            background:#07004D;
-        }
-    </style>
 </head>
 
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
@@ -76,339 +33,460 @@
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-5 lg:p-6 max-w-7xl mx-auto w-full">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
 
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <!-- ENCABEZADO -->
+            <section class="mb-5">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
 
-                <div>
-                    <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase">
-                        Productos
-                    </h1>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight">
+                            Consulta y Seguimiento de Productos
+                        </h1>
 
-                    <p class="text-xs text-slate-500 mt-1">
-                        Consulta productos, stock disponible e inventario por lotes.
-                    </p>
-                </div>
-
-                <div class="flex flex-wrap gap-2">
-
-                    <a th:href="@{/view/lotes}"
-                       class="px-4 py-2.5 rounded-lg bg-slate-100 text-pillone-dark font-bold border border-slate-200 hover:bg-slate-200 transition">
-                        📦 Ver Lotes
-                    </a>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Consulte productos, precios, información farmacéutica e inventario disponible.
+                        </p>
+                    </div>
 
                     <a th:href="@{/view/productos/form}"
-                       class="px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
-                        + Nuevo Producto
+                       class="inline-flex items-center justify-center gap-2 rounded-lg bg-pillone-accent px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 transition">
+
+                        <svg class="w-4 h-4"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2.5"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+
+                        Nuevo Producto
                     </a>
 
                 </div>
+            </section>
 
-            </div>
 
+            <!-- MENSAJES -->
             <div th:if="${mensaje}"
-                 class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 font-medium"
-                 th:text="${mensaje}">
+                 class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 font-medium">
+                <span th:text="${mensaje}"></span>
             </div>
 
             <div th:if="${error}"
-                 class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-medium"
-                 th:text="${error}">
+                 class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-medium">
+                <span th:text="${error}"></span>
             </div>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
 
-                <!-- FILTROS -->
-                <div class="p-4 border-b border-slate-200">
+            <!-- TABLA -->
+            <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
 
-                    <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+                <div class="p-4 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
 
-                        <div class="relative w-full lg:flex-1 lg:max-w-md">
+                    <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
 
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
-                                🔎
+                        <div class="relative w-full sm:w-80">
+
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+
+                                <svg class="w-4 h-4"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     viewBox="0 0 24 24">
+
+                                    <path stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                                    </path>
+                                </svg>
+
                             </span>
 
-                            <input id="buscador"
-                                   oninput="filtrar()"
-                                   type="text"
-                                   autocomplete="off"
-                                   placeholder="Buscar código, producto, laboratorio..."
-                                   class="w-full pl-9 pr-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            <input type="text"
+                                   id="buscador-tabla"
+                                   oninput="filtrarTabla()"
+                                   placeholder="Buscar código, medicamento, laboratorio..."
+                                   class="w-full pl-9 pr-3.5 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+
                         </div>
 
-                        <!-- SELECT DE CATEGORÍAS -->
-                        <select id="filtroCategoria"
-                                onchange="filtrar()"
-                                class="w-full lg:w-72 px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                        <div class="relative w-full sm:w-64">
 
-                            <option value="">
-                                Todas las categorías
-                            </option>
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
 
-                            <option th:each="cat : ${categorias}"
-                                    th:value="${cat.idCategoria}"
-                                    th:text="${cat.nombre}">
-                            </option>
+                                <svg class="w-4 h-4"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     viewBox="0 0 24 24">
 
-                        </select>
+                                    <path stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M4 6h16M7 12h10M10 18h4">
+                                    </path>
 
-                        <button id="btnLimpiar"
-                                type="button"
-                                onclick="limpiarFiltros()"
-                                class="hidden px-3 py-2.5 rounded-lg bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200 transition">
-                            Limpiar
-                        </button>
+                                </svg>
 
-                        <div class="lg:ml-auto text-slate-500 whitespace-nowrap">
+                            </span>
 
-                            Mostrando:
+                            <select id="filtro-categoria"
+                                    onchange="filtrarTabla()"
+                                    class="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
 
-                            <b id="contadorVisible"
-                               class="text-pillone-dark">
-                                0
-                            </b>
+                                <option value="">Todas las categorías</option>
 
-                            de
+                                <option th:each="cat : ${categorias}"
+                                        th:value="${cat.idCategoria}"
+                                        th:text="${cat.nombre}">
+                                </option>
 
-                            <b th:text="${#lists.size(productos)}"
-                               class="text-pillone-dark">
-                                0
-                            </b>
+                            </select>
 
                         </div>
 
                     </div>
 
-                    <div id="resumenFiltro"
-                         class="hidden mt-3">
-
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-semibold">
-
-                            Categoría:
-
-                            <span id="textoFiltroCategoria"></span>
-
-                            <button type="button"
-                                    onclick="quitarCategoria()"
-                                    class="font-bold ml-1">
-                                ×
-                            </button>
-
+                    <div class="text-xs text-slate-500 font-medium">
+                        Total registros:
+                        <span id="contador-total"
+                              class="font-bold text-pillone-dark"
+                              th:text="${#lists.size(productos)}">
+                            0
                         </span>
-
                     </div>
 
                 </div>
 
-                <!-- TABLA -->
-                <div class="tabla-scroll">
 
-                    <table class="min-w-[1050px] w-full text-xs">
+                <div class="overflow-x-auto">
+
+                    <table class="min-w-full text-xs text-left">
 
                         <thead>
+                        <tr class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
 
-                        <tr class="text-white text-[10px] uppercase">
-
-                            <th class="px-4 py-3 text-left">
-                                Código
+                            <th class="px-4 py-3.5">
+                                Códigos
                             </th>
 
-                            <th class="px-4 py-3 text-left">
+                            <th class="px-4 py-3.5">
                                 Producto
                             </th>
 
-                            <th class="px-4 py-3 text-left">
-                                Empaque
+                            <th class="px-4 py-3.5">
+                                Presentación
                             </th>
 
-                            <th class="px-4 py-3 text-left">
+                            <th class="px-4 py-3.5">
                                 Precios
                             </th>
 
-                            <th class="px-4 py-3 text-center">
+                            <th class="px-4 py-3.5 text-center">
                                 Stock
                             </th>
 
-                            <th class="px-4 py-3 text-left">
-                                Lotes
-                            </th>
-
-                            <th class="px-4 py-3 text-center">
+                            <th class="px-4 py-3.5 text-center">
                                 Estado
                             </th>
 
-                            <th class="px-4 py-3 text-center">
+                            <th class="px-4 py-3.5 text-center">
                                 Acciones
                             </th>
 
                         </tr>
-
                         </thead>
 
-                        <tbody class="divide-y divide-slate-100">
+
+                        <tbody id="tabla-productos"
+                               class="divide-y divide-slate-100">
 
                         <tr th:each="p : ${productos}"
-                            class="fila-producto hover:bg-slate-50 transition"
-                            th:attr="data-categoria=${p.idCategoria}">
+                            th:attr="data-categoria=${p.idCategoria}"
+                            class="fila-producto hover:bg-pillone-bg/40 transition">
 
-                            <!-- CÓDIGO -->
-                            <td class="px-4 py-3 whitespace-nowrap">
+                            <!-- CÓDIGOS -->
+                            <td class="px-4 py-3.5">
 
-                                <div class="font-bold text-pillone-accent"
-                                     th:text="${p.codigoInterno}">
-                                </div>
+                                <span class="font-bold text-pillone-accent px-2 py-1 rounded bg-pillone-accent/5"
+                                      th:text="${p.codigoInterno}">
+                                </span>
 
-                                <div class="text-[10px] text-slate-400"
-                                     th:text="${p.codigoBarras != null ? p.codigoBarras : ''}">
+                                <div class="text-[10px] text-slate-400 mt-1"
+                                     th:text="${'Barra: ' + p.codigoBarras}">
                                 </div>
 
                             </td>
 
-                            <!-- PRODUCTO -->
-                            <td class="px-4 py-3 min-w-[190px]">
 
-                                <div class="font-semibold text-slate-800"
+                            <!-- PRODUCTO -->
+                            <td class="px-4 py-3.5">
+
+                                <div class="font-semibold text-slate-700"
                                      th:text="${p.nombreComercial}">
                                 </div>
 
                                 <div class="text-[10px] text-slate-500"
-                                     th:text="${p.nombreGenerico != null && !p.nombreGenerico.isEmpty() ? p.nombreGenerico : 'Sin genérico'}">
+                                     th:text="${p.nombreGenerico != null && !p.nombreGenerico.isBlank() ? p.nombreGenerico : 'Sin genérico'}">
                                 </div>
 
                                 <div class="text-[10px] text-pillone-accent"
-                                     th:text="${p.laboratorio != null && !p.laboratorio.isEmpty() ? p.laboratorio : 'Sin laboratorio'}">
+                                     th:text="${'Lab: ' + (p.laboratorio != null && !p.laboratorio.isBlank() ? p.laboratorio : 'N/A')}">
+                                </div>
+
+                                <div class="mt-1">
+                                    <span th:if="${p.idProveedor == null}"
+                                          class="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[9px] font-bold border border-amber-100">
+                                        Proveedor habitual pendiente
+                                    </span>
+
+                                    <th:block th:if="${p.idProveedor != null}">
+                                        <span th:each="prov : ${proveedores}"
+                                              th:if="${prov.id_proveedor == p.idProveedor}"
+                                              th:text="${'Habitual: ' + prov.razon_social}"
+                                              class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-100">
+                                        </span>
+                                    </th:block>
                                 </div>
 
                             </td>
 
-                            <!-- EMPAQUE -->
-                            <td class="px-4 py-3 whitespace-nowrap">
 
-                                <div th:text="${(p.sellosPorCaja != null ? p.sellosPorCaja : 1)+' sello(s)/caja'}">
+                            <!-- PRESENTACIÓN -->
+                            <td class="px-4 py-3.5">
+
+                                <div class="font-medium text-slate-700"
+                                     th:text="${p.presentacion != null && !p.presentacion.isBlank() ? p.presentacion : 'N/A'}">
                                 </div>
 
                                 <div class="text-[10px] text-slate-500"
-                                     th:text="${(p.unidadesPorSello != null ? p.unidadesPorSello : 1)+' un./sello · '+(p.unidadesPorEmpaque != null ? p.unidadesPorEmpaque : 1)+' un./caja'}">
-                                </div>
-
-                            </td>
-
-                            <!-- PRECIOS -->
-                            <td class="px-4 py-3 whitespace-nowrap">
-
-                                <div th:text="${'Unidad: $'+(p.precioVenta != null ? p.precioVenta : 0)}">
-                                </div>
-
-                                <div class="text-[10px] text-slate-500"
-                                     th:text="${'Caja: $'+(p.precioVentaEmpaque != null ? p.precioVentaEmpaque : 0)}">
-                                </div>
-
-                            </td>
-
-                            <!-- STOCK -->
-                            <td class="px-4 py-3 text-center whitespace-nowrap">
-
-                                <span class="inline-flex px-2.5 py-1 rounded-md bg-slate-100 font-extrabold text-pillone-dark"
-                                      th:text="${p.stockTotal != null ? p.stockTotal : 0}">
-                                </span>
-
-                                <div class="text-[10px] text-slate-400 mt-1">
-                                    unidades
-                                </div>
-
-                            </td>
-
-                            <!-- LOTES -->
-                            <td class="px-4 py-3 whitespace-nowrap"
-                                th:with="r=${resumenLotes.get(p.idProducto)}">
-
-                                <div class="font-semibold"
-                                     th:text="${r != null ? r.cantidadLotes+' lote(s)' : '0 lotes'}">
+                                     th:text="${p.concentracion != null && !p.concentracion.isBlank() ? p.concentracion : 'Sin concentración'}">
                                 </div>
 
                                 <div class="text-[10px] text-slate-400"
-                                     th:text="${r != null && r.proximoVencimiento != null ? 'Próx. vence: '+r.proximoVencimiento : 'Sin lote vigente'}">
+                                     th:text="${'INVIMA: ' + p.registroInvima}">
                                 </div>
 
                             </td>
 
-                            <!-- ESTADO -->
-                            <td class="px-4 py-3 text-center whitespace-nowrap">
 
-                                <span class="px-2 py-1 rounded-full text-[10px] font-bold"
-                                      th:classappend="${p.estado == 'ACTIVO' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}"
-                                      th:text="${p.estado}">
+                            <!-- PRECIOS -->
+                            <td class="px-4 py-3.5">
+
+                                <div class="space-y-1 min-w-[150px]">
+
+                                    <div class="flex justify-between gap-3">
+
+                                        <span class="text-[10px] text-slate-500">
+                                            Unidad:
+                                        </span>
+
+                                        <span class="font-bold text-slate-700"
+                                              th:text="${p.precioVenta != null ? '$' + #numbers.formatDecimal(p.precioVenta,0,'POINT',2,'COMMA') : 'N/A'}">
+                                        </span>
+
+                                    </div>
+
+                                    <div class="flex justify-between gap-3">
+
+                                        <span class="text-[10px] text-slate-500">
+                                            Tableta:
+                                        </span>
+
+                                        <span class="font-bold text-pillone-accent"
+                                              th:text="${p.precioVentaTableta != null ? '$' + #numbers.formatDecimal(p.precioVentaTableta,0,'POINT',2,'COMMA') : 'No aplica'}">
+                                        </span>
+
+                                    </div>
+
+                                    <div class="flex justify-between gap-3">
+
+                                        <span class="text-[10px] text-slate-500">
+                                            Caja:
+                                        </span>
+
+                                        <span class="font-bold text-emerald-700"
+                                              th:text="${p.precioVentaEmpaque != null ? '$' + #numbers.formatDecimal(p.precioVentaEmpaque,0,'POINT',2,'COMMA') : 'No aplica'}">
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- STOCK -->
+                            <td class="px-4 py-3.5 text-center">
+
+                                <span class="inline-flex px-2 py-1 rounded-lg bg-slate-100 font-bold text-pillone-dark"
+                                      th:text="${p.stockTotal != null ? p.stockTotal : 0}">
+                                    0
+                                </span>
+
+                                <div class="text-[10px] text-slate-400 mt-1"
+                                     th:text="${'Mín: ' + (p.stockMinimo != null ? p.stockMinimo : 0)}">
+                                </div>
+
+                            </td>
+
+
+                            <!-- ESTADO -->
+                            <td class="px-4 py-3.5 text-center">
+
+                                <span class="inline-flex px-2 py-1 rounded-full text-[10px] font-bold"
+                                      th:classappend="${p.estado == 'ACTIVO'
+                                        ? ' bg-emerald-50 text-emerald-700'
+                                        : ' bg-slate-100 text-slate-600'}"
+                                      th:text="${p.estado != null ? p.estado : 'ACTIVO'}">
+                                    ACTIVO
                                 </span>
 
                             </td>
 
+
                             <!-- ACCIONES -->
-                            <td class="px-4 py-3 whitespace-nowrap">
+                            <td class="px-4 py-3.5 text-center">
 
                                 <div class="flex items-center justify-center gap-1.5">
 
-                                    <a th:href="@{/view/lotes(productoId=${p.idProducto})}"
-                                       class="px-2 py-1.5 rounded bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 transition">
-                                        📦 Lotes
-                                    </a>
+                                    <!-- VER DETALLE -->
+                                    <button type="button"
+                                            class="btn-ver-producto p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-pillone-accent hover:bg-pillone-accent/10 transition"
+                                            title="Ver producto"
 
-                                    <a th:href="@{/view/lotes/form(productoId=${p.idProducto})}"
-                                       class="px-2 py-1.5 rounded bg-emerald-50 text-emerald-700 font-semibold hover:bg-emerald-100 transition">
-                                        + Lote
-                                    </a>
+                                            th:attr="
+                                            data-codigo-interno=${p.codigoInterno},
+                                            data-codigo-barras=${p.codigoBarras},
+                                            data-nombre-comercial=${p.nombreComercial},
+                                            data-nombre-generico=${p.nombreGenerico},
+                                            data-descripcion=${p.descripcion},
+                                            data-presentacion=${p.presentacion},
+                                            data-concentracion=${p.concentracion},
+                                            data-laboratorio=${p.laboratorio},
+                                            data-registro-invima=${p.registroInvima},
+                                            data-id-categoria=${p.idCategoria},
+                                            data-id-proveedor=${p.idProveedor},
+                                            data-precio-compra=${p.precioCompra},
+                                            data-precio-venta=${p.precioVenta},
+                                            data-precio-venta-tableta=${p.precioVentaTableta},
+                                            data-unidades-empaque=${p.unidadesPorEmpaque},
+                                            data-sellos-caja=${p.sellosPorCaja},
+                                            data-unidades-sello=${p.unidadesPorSello},
+                                            data-precio-compra-empaque=${p.precioCompraEmpaque},
+                                            data-precio-venta-empaque=${p.precioVentaEmpaque},
+                                            data-stock-total=${p.stockTotal},
+                                            data-stock-minimo=${p.stockMinimo},
+                                            data-ubicacion=${p.ubicacionEstante},
+                                            data-requiere-formula=${p.requiereFormula},
+                                            data-venta-libre=${p.esVentaLibre},
+                                            data-controlado=${p.esControlado},
+                                            data-refrigeracion=${p.requiereRefrigeracion},
+                                            data-restricciones=${p.restriccionesVenta},
+                                            data-estado=${p.estado}
+                                            ">
 
+                                        <svg class="w-4 h-4"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             viewBox="0 0 24 24">
+
+                                            <path stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z">
+                                            </path>
+
+                                            <circle cx="12"
+                                                    cy="12"
+                                                    r="3">
+                                            </circle>
+
+                                        </svg>
+
+                                    </button>
+
+
+                                    <!-- EDITAR -->
                                     <a th:href="@{/view/productos/edit/{id}(id=${p.idProducto})}"
-                                       class="p-1.5 bg-slate-50 rounded hover:bg-slate-100 transition"
-                                       title="Editar">
-                                        ✏️
+                                       class="p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-pillone-accent hover:bg-pillone-accent/10 transition"
+                                       title="Editar producto">
+
+                                        <svg class="w-4 h-4"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             viewBox="0 0 24 24">
+
+                                            <path stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  d="M15.232 5.232l3.536 3.536M4 20l4.5-1 10.268-10.268a2.5 2.5 0 10-3.536-3.536L4.964 15.464 4 20z">
+                                            </path>
+
+                                        </svg>
+
                                     </a>
 
+
+                                    <!-- NUEVO LOTE -->
+                                    <a th:href="@{/view/lotes/form(producto=${p.idProducto})}"
+                                       class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                       title="Agregar lote">
+
+                                        <svg class="w-4 h-4"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             viewBox="0 0 24 24">
+
+                                            <path stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  d="M4 7l8-4 8 4-8 4-8-4zM4 7v10l8 4 8-4V7M12 11v10">
+                                            </path>
+
+                                            <path stroke-linecap="round"
+                                                  d="M17 12v5m-2.5-2.5h5">
+                                            </path>
+
+                                        </svg>
+
+                                    </a>
+
+
+                                    <!-- ELIMINAR -->
                                     <form th:action="@{/view/productos/delete/{id}(id=${p.idProducto})}"
                                           method="post"
-                                          onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');">
+                                          class="inline"
+                                          onsubmit="return confirm('¿Está seguro de eliminar este producto?');">
 
                                         <button type="submit"
-                                                class="p-1.5 bg-slate-50 rounded hover:bg-red-50 hover:text-red-600 transition"
+                                                class="p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-red-600 hover:bg-red-50 transition"
                                                 title="Eliminar">
-                                            🗑
+
+                                            <svg class="w-4 h-4"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8"
+                                                 viewBox="0 0 24 24">
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3">
+                                                </path>
+
+                                            </svg>
+
                                         </button>
 
                                     </form>
 
                                 </div>
 
-                            </td>
-
-                        </tr>
-
-                        <tr id="sinResultados"
-                            class="hidden">
-
-                            <td colspan="8"
-                                class="py-12 text-center">
-
-                                <div class="text-3xl mb-2">
-                                    🔎
-                                </div>
-
-                                <p class="font-semibold text-slate-600">
-                                    No se encontraron productos
-                                </p>
-
-                                <p class="text-[10px] text-slate-400 mt-1">
-                                    Cambia la búsqueda o selecciona otra categoría.
-                                </p>
-
-                            </td>
-
-                        </tr>
-
-                        <tr th:if="${#lists.isEmpty(productos)}">
-
-                            <td colspan="8"
-                                class="py-12 text-center text-slate-400">
-                                No hay productos registrados.
                             </td>
 
                         </tr>
@@ -429,133 +507,874 @@
 
 </div>
 
+
+<!-- ===================================================== -->
+<!-- MODAL DETALLE DEL PRODUCTO -->
+<!-- ===================================================== -->
+
+<div id="modal-detalle"
+     class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col">
+
+        <!-- CABECERA MODAL -->
+        <div class="bg-pillone-dark px-5 sm:px-6 py-4 flex items-center justify-between">
+
+            <div>
+
+                <div class="text-[10px] uppercase tracking-[.2em] text-slate-400 font-bold">
+                    Ficha del producto
+                </div>
+
+                <h3 id="modal-titulo"
+                    class="text-white font-bold text-base mt-0.5">
+                    Detalle del Producto
+                </h3>
+
+            </div>
+
+            <button type="button"
+                    onclick="cerrarModalDetalle()"
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition">
+
+                <svg class="w-5 h-5"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                          d="M6 6l12 12M18 6L6 18">
+                    </path>
+
+                </svg>
+
+            </button>
+
+        </div>
+
+
+        <!-- CONTENIDO -->
+        <div class="overflow-y-auto p-5 sm:p-6 space-y-5">
+
+
+            <!-- INFORMACIÓN GENERAL -->
+            <section>
+
+                <h4 class="font-bold text-pillone-accent uppercase tracking-wider text-[11px] pb-2 border-b border-slate-100 mb-3">
+                    1. Información General
+                </h4>
+
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Código Interno
+                        </div>
+                        <div id="m-codigoInterno"
+                             class="font-bold text-pillone-dark mt-1">
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Código de Barras
+                        </div>
+                        <div id="m-codigoBarras"
+                             class="font-medium text-slate-700 mt-1 break-all">
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Estado
+                        </div>
+                        <div id="m-estado"
+                             class="font-bold mt-1">
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-2 rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Nombre Comercial
+                        </div>
+                        <div id="m-nombreComercial"
+                             class="font-bold text-slate-800 mt-1">
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Nombre Genérico
+                        </div>
+                        <div id="m-nombreGenerico"
+                             class="font-medium text-slate-700 mt-1">
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-3 rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Descripción
+                        </div>
+                        <div id="m-descripcion"
+                             class="text-slate-700 mt-1 leading-relaxed">
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- INFORMACIÓN FARMACÉUTICA -->
+            <section>
+
+                <h4 class="font-bold text-pillone-accent uppercase tracking-wider text-[11px] pb-2 border-b border-slate-100 mb-3">
+                    2. Información Farmacéutica
+                </h4>
+
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                    <div class="rounded-xl border border-slate-200 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Laboratorio
+                        </div>
+                        <div id="m-laboratorio" class="font-semibold mt-1"></div>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Presentación
+                        </div>
+                        <div id="m-presentacion" class="font-semibold mt-1"></div>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Concentración
+                        </div>
+                        <div id="m-concentracion" class="font-semibold mt-1"></div>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Registro INVIMA
+                        </div>
+                        <div id="m-registroInvima" class="font-semibold mt-1"></div>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Categoría
+                        </div>
+                        <div id="m-categoria"
+                             class="font-bold text-pillone-dark mt-1">
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 p-3">
+                        <div class="text-[9px] uppercase text-slate-400 font-bold">
+                            Proveedor habitual
+                        </div>
+                        <div id="m-proveedor"
+                             class="font-bold text-pillone-dark mt-1">
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- PRECIOS -->
+            <section>
+
+                <h4 class="font-bold text-pillone-accent uppercase tracking-wider text-[11px] pb-2 border-b border-slate-100 mb-3">
+                    3. Precios y Empaque
+                </h4>
+
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+
+                    <div class="rounded-xl border border-slate-200 p-4">
+                        <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">
+                            Venta Unidad
+                        </div>
+                        <div id="m-precioVenta"
+                             class="text-lg font-extrabold text-pillone-dark mt-1">
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl border border-pillone-accent/30 bg-pillone-accent/5 p-4">
+                        <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">
+                            Venta Tableta
+                        </div>
+                        <div id="m-precioVentaTableta"
+                             class="text-lg font-extrabold text-pillone-accent mt-1">
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                        <div class="text-[9px] uppercase tracking-wider text-emerald-600 font-bold">
+                            Venta Caja
+                        </div>
+                        <div id="m-precioVentaEmpaque"
+                             class="text-lg font-extrabold text-emerald-700 mt-1">
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 border border-slate-100 rounded-xl p-4">
+
+                    <div>
+                        <span class="font-semibold text-slate-500">
+                            Compra Unidad:
+                        </span>
+                        <span id="m-precioCompra"></span>
+                    </div>
+
+                    <div>
+                        <span class="font-semibold text-slate-500">
+                            Compra Caja:
+                        </span>
+                        <span id="m-precioCompraEmpaque"></span>
+                    </div>
+
+                    <div>
+                        <span class="font-semibold text-slate-500">
+                            Total unidades caja:
+                        </span>
+                        <span id="m-unidadesPorEmpaque"></span>
+                    </div>
+
+                    <div>
+                        <span class="font-semibold text-slate-500">
+                            Sellos / Blíster:
+                        </span>
+                        <span id="m-sellosPorCaja"></span>
+                    </div>
+
+                    <div>
+                        <span class="font-semibold text-slate-500">
+                            Unidades por sello:
+                        </span>
+                        <span id="m-unidadesPorSello"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- INVENTARIO -->
+            <section>
+
+                <h4 class="font-bold text-pillone-accent uppercase tracking-wider text-[11px] pb-2 border-b border-slate-100 mb-3">
+                    4. Inventario y Restricciones
+                </h4>
+
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <div class="text-[9px] text-slate-400 uppercase font-bold">
+                            Stock Total
+                        </div>
+                        <div id="m-stockTotal"
+                             class="font-extrabold text-pillone-dark mt-1">
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <div class="text-[9px] text-slate-400 uppercase font-bold">
+                            Stock Mínimo
+                        </div>
+                        <div id="m-stockMinimo"
+                             class="font-semibold mt-1">
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <div class="text-[9px] text-slate-400 uppercase font-bold">
+                            Ubicación
+                        </div>
+                        <div id="m-ubicacionEstante"
+                             class="font-semibold mt-1">
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="font-semibold text-slate-500">
+                            Requiere fórmula:
+                        </span>
+                        <span id="m-requiereFormula"></span>
+                    </div>
+
+                    <div>
+                        <span class="font-semibold text-slate-500">
+                            Venta libre:
+                        </span>
+                        <span id="m-esVentaLibre"></span>
+                    </div>
+
+                    <div>
+                        <span class="font-semibold text-slate-500">
+                            Controlado:
+                        </span>
+                        <span id="m-esControlado"></span>
+                    </div>
+
+                    <div>
+                        <span class="font-semibold text-slate-500">
+                            Refrigeración:
+                        </span>
+                        <span id="m-requiereRefrigeracion"></span>
+                    </div>
+
+                    <div class="sm:col-span-3 rounded-xl bg-slate-50 border border-slate-100 p-3">
+                        <span class="font-semibold text-slate-500">
+                            Restricciones de venta:
+                        </span>
+                        <span id="m-restriccionesVenta"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- PIE MODAL -->
+        <div class="bg-slate-50 px-5 sm:px-6 py-3 border-t border-slate-200 flex justify-end">
+
+            <button type="button"
+                    onclick="cerrarModalDetalle()"
+                    class="px-5 py-2 rounded-lg bg-pillone-dark text-white font-bold hover:opacity-90 transition">
+
+                Cerrar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- MAPAS CATEGORÍA / PROVEEDOR -->
+<!-- ===================================================== -->
+
+<script th:inline="javascript">
+
+    const categoriasMap = {};
+
+    /*[# th:each="cat : ${categorias}"]*/
+    categoriasMap[
+        String(/*[[${cat.idCategoria}]]*/ '')
+    ] = /*[[${cat.nombre}]]*/ '';
+    /*[/]*/
+
+
+    const proveedoresMap = {};
+
+    /*[# th:each="prov : ${proveedores}"]*/
+    proveedoresMap[
+        String(/*[[${prov.id_proveedor}]]*/ '')
+    ] = /*[[${prov.razon_social}]]*/ '';
+    /*[/]*/
+
+</script>
+
+
 <script>
-    function toggleSidebar(){
-        document.querySelector('aside').classList.toggle('-translate-x-full');
-        document.getElementById('overlay').classList.toggle('hidden');
+
+    function filtrarTabla() {
+
+        const filtroTexto =
+            document
+                .getElementById('buscador-tabla')
+                .value
+                .toLowerCase()
+                .trim();
+
+        const filtroCategoria =
+            document
+                .getElementById('filtro-categoria')
+                .value;
+
+        let visibles = 0;
+
+        document
+            .querySelectorAll('.fila-producto')
+            .forEach(function(fila) {
+
+                const coincideTexto =
+                    fila.textContent
+                        .toLowerCase()
+                        .includes(filtroTexto);
+
+                const categoriaFila =
+                    fila.dataset.categoria || '';
+
+                const coincideCategoria =
+                    filtroCategoria === '' ||
+                    categoriaFila === filtroCategoria;
+
+                const mostrar =
+                    coincideTexto &&
+                    coincideCategoria;
+
+                fila.style.display =
+                    mostrar ? '' : 'none';
+
+                if(mostrar) {
+                    visibles++;
+                }
+            });
+
+        document
+            .getElementById('contador-total')
+            .textContent = visibles;
     }
 
-    function filtrar(){
 
-        const buscador=
-            document.getElementById('buscador');
+    function valorDataset(valor) {
 
-        const filtroCategoria=
-            document.getElementById('filtroCategoria');
+        if(
+            valor === undefined ||
+            valor === null ||
+            valor === '' ||
+            valor === 'null' ||
+            valor === 'undefined'
+        ) {
+            return null;
+        }
 
-        const texto=
-            buscador.value.toLowerCase().trim();
+        return valor;
+    }
 
-        const categoria=
-            String(filtroCategoria.value || '');
 
-        let visibles=0;
+    function formatoDinero(valor) {
 
-        document.querySelectorAll('.fila-producto').forEach(fila=>{
+        valor = valorDataset(valor);
 
-            const contenido=
-                fila.textContent.toLowerCase();
+        if(valor === null) {
+            return 'No aplica';
+        }
 
-            const categoriaProducto=
+        const numero =
+            Number(valor);
+
+        if(Number.isNaN(numero)) {
+            return 'No aplica';
+        }
+
+        return '$' +
+            numero.toLocaleString(
+                'es-CO',
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+    }
+
+
+    function colocarTexto(
+        id,
+        valor,
+        defecto = 'N/A'
+    ) {
+
+        const elemento =
+            document.getElementById(id);
+
+        if(!elemento) {
+            return;
+        }
+
+        valor =
+            valorDataset(valor);
+
+        elemento.textContent =
+            valor !== null
+                ? valor
+                : defecto;
+    }
+
+
+    function colocarBooleano(
+        id,
+        valor
+    ) {
+
+        const elemento =
+            document.getElementById(id);
+
+        if(!elemento) {
+            return;
+        }
+
+        const activo =
+            valor === 'true' ||
+            valor === true ||
+            valor === '1';
+
+        elemento.textContent =
+            activo ? 'SÍ' : 'NO';
+
+        elemento.className =
+            activo
+                ? 'font-bold text-rose-600'
+                : 'font-bold text-slate-600';
+    }
+
+
+    function abrirModalDesdeBoton(boton) {
+
+        const d =
+            boton.dataset;
+
+
+        colocarTexto(
+            'm-codigoInterno',
+            d.codigoInterno
+        );
+
+        colocarTexto(
+            'm-codigoBarras',
+            d.codigoBarras
+        );
+
+        colocarTexto(
+            'm-nombreComercial',
+            d.nombreComercial
+        );
+
+        colocarTexto(
+            'm-nombreGenerico',
+            d.nombreGenerico,
+            'Sin genérico'
+        );
+
+        colocarTexto(
+            'm-descripcion',
+            d.descripcion,
+            'Sin descripción'
+        );
+
+        colocarTexto(
+            'm-presentacion',
+            d.presentacion
+        );
+
+        colocarTexto(
+            'm-concentracion',
+            d.concentracion
+        );
+
+        colocarTexto(
+            'm-laboratorio',
+            d.laboratorio
+        );
+
+        colocarTexto(
+            'm-registroInvima',
+            d.registroInvima
+        );
+
+
+        colocarTexto(
+            'm-categoria',
+            categoriasMap[
                 String(
-                    fila.dataset.categoria ||
-                    ''
+                    d.idCategoria
+                )
+            ],
+            'Sin categoría'
+        );
+
+
+        colocarTexto(
+            'm-proveedor',
+            proveedoresMap[
+                String(
+                    d.idProveedor
+                )
+            ],
+            'Sin proveedor'
+        );
+
+
+        colocarTexto(
+            'm-precioCompra',
+            formatoDinero(
+                d.precioCompra
+            )
+        );
+
+
+        colocarTexto(
+            'm-precioVenta',
+            formatoDinero(
+                d.precioVenta
+            )
+        );
+
+
+        colocarTexto(
+            'm-precioVentaTableta',
+            formatoDinero(
+                d.precioVentaTableta
+            ),
+            'No aplica'
+        );
+
+
+        colocarTexto(
+            'm-precioVentaEmpaque',
+            formatoDinero(
+                d.precioVentaEmpaque
+            ),
+            'No aplica'
+        );
+
+
+        colocarTexto(
+            'm-precioCompraEmpaque',
+            formatoDinero(
+                d.precioCompraEmpaque
+            ),
+            'No aplica'
+        );
+
+
+        colocarTexto(
+            'm-unidadesPorEmpaque',
+            d.unidadesEmpaque,
+            '1'
+        );
+
+
+        colocarTexto(
+            'm-sellosPorCaja',
+            d.sellosCaja,
+            '1'
+        );
+
+
+        colocarTexto(
+            'm-unidadesPorSello',
+            d.unidadesSello,
+            '1'
+        );
+
+
+        colocarTexto(
+            'm-stockTotal',
+            d.stockTotal,
+            '0'
+        );
+
+
+        colocarTexto(
+            'm-stockMinimo',
+            d.stockMinimo,
+            '0'
+        );
+
+
+        colocarTexto(
+            'm-ubicacionEstante',
+            d.ubicacion,
+            'Sin ubicación'
+        );
+
+
+        colocarTexto(
+            'm-restriccionesVenta',
+            d.restricciones,
+            'Ninguna'
+        );
+
+
+        colocarBooleano(
+            'm-requiereFormula',
+            d.requiereFormula
+        );
+
+
+        colocarBooleano(
+            'm-esVentaLibre',
+            d.ventaLibre
+        );
+
+
+        colocarBooleano(
+            'm-esControlado',
+            d.controlado
+        );
+
+
+        colocarBooleano(
+            'm-requiereRefrigeracion',
+            d.refrigeracion
+        );
+
+
+        const estado =
+            valorDataset(
+                d.estado
+            ) || 'ACTIVO';
+
+
+        const estadoElemento =
+            document.getElementById(
+                'm-estado'
+            );
+
+
+        estadoElemento.textContent =
+            estado;
+
+
+        estadoElemento.className =
+            estado === 'ACTIVO'
+                ? 'font-bold mt-1 text-emerald-700'
+                : estado === 'DESCONTINUADO'
+                    ? 'font-bold mt-1 text-amber-700'
+                    : 'font-bold mt-1 text-slate-600';
+
+
+        document
+            .getElementById(
+                'modal-titulo'
+            )
+            .textContent =
+            valorDataset(
+                d.nombreComercial
+            ) || 'Detalle del Producto';
+
+
+        const modal =
+            document.getElementById(
+                'modal-detalle'
+            );
+
+
+        modal.classList.remove(
+            'hidden'
+        );
+
+
+        modal.classList.add(
+            'flex'
+        );
+
+
+        document.body.classList.add(
+            'overflow-hidden'
+        );
+    }
+
+
+    function cerrarModalDetalle() {
+
+        const modal =
+            document.getElementById(
+                'modal-detalle'
+            );
+
+
+        modal.classList.add(
+            'hidden'
+        );
+
+
+        modal.classList.remove(
+            'flex'
+        );
+
+
+        document.body.classList.remove(
+            'overflow-hidden'
+        );
+    }
+
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function() {
+
+            document
+                .querySelectorAll(
+                    '.btn-ver-producto'
+                )
+                .forEach(function(boton) {
+
+                    boton.addEventListener(
+                        'click',
+                        function() {
+
+                            abrirModalDesdeBoton(
+                                boton
+                            );
+
+                        }
+                    );
+
+                });
+
+
+            const modal =
+                document.getElementById(
+                    'modal-detalle'
                 );
 
-            const coincideTexto=
-                texto==='' ||
-                contenido.includes(texto);
 
-            const coincideCategoria=
-                categoria==='' ||
-                categoriaProducto===categoria;
+            modal.addEventListener(
+                'click',
+                function(evento) {
 
-            const mostrar=
-                coincideTexto &&
-                coincideCategoria;
+                    if(
+                        evento.target === modal
+                    ) {
 
-            fila.style.display=
-                mostrar
-                    ? ''
-                    : 'none';
+                        cerrarModalDetalle();
 
-            if(mostrar){
-                visibles++;
-            }
-        });
+                    }
 
-        document.getElementById('contadorVisible').textContent=
-            visibles;
+                }
+            );
 
-        const btnLimpiar=
-            document.getElementById('btnLimpiar');
 
-        if(texto!=='' || categoria!==''){
-            btnLimpiar.classList.remove('hidden');
-        }else{
-            btnLimpiar.classList.add('hidden');
+            document.addEventListener(
+                'keydown',
+                function(evento) {
+
+                    if(
+                        evento.key === 'Escape'
+                    ) {
+
+                        cerrarModalDetalle();
+
+                    }
+
+                }
+            );
+
         }
+    );
 
-        const resumen=
-            document.getElementById('resumenFiltro');
-
-        const textoCategoria=
-            document.getElementById('textoFiltroCategoria');
-
-        if(categoria!==''){
-
-            textoCategoria.textContent=
-                filtroCategoria.options[
-                    filtroCategoria.selectedIndex
-                ].textContent.trim();
-
-            resumen.classList.remove('hidden');
-
-        }else{
-
-            resumen.classList.add('hidden');
-
-            textoCategoria.textContent='';
-        }
-
-        const sinResultados=
-            document.getElementById('sinResultados');
-
-        const total=
-            document.querySelectorAll('.fila-producto').length;
-
-        if(visibles===0 && total>0){
-            sinResultados.classList.remove('hidden');
-        }else{
-            sinResultados.classList.add('hidden');
-        }
-    }
-
-    function limpiarFiltros(){
-
-        document.getElementById('buscador').value='';
-
-        document.getElementById('filtroCategoria').value='';
-
-        filtrar();
-    }
-
-    function quitarCategoria(){
-
-        document.getElementById('filtroCategoria').value='';
-
-        filtrar();
-    }
-
-    document.addEventListener('DOMContentLoaded',function(){
-
-        const total=
-            document.querySelectorAll('.fila-producto').length;
-
-        document.getElementById('contadorVisible').textContent=
-            total;
-    });
 </script>
+
 
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 

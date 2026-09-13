@@ -1,6 +1,5 @@
 package com.pillone.pillone.view;
-import jakarta.validation.Valid;
-import org.springframework.validation.BindingResult;
+
 import com.pillone.pillone.model.Empleados;
 import com.pillone.pillone.model.Roles;
 import com.pillone.pillone.model.Usuarios;
@@ -8,97 +7,719 @@ import com.pillone.pillone.repository.EmpleadosRepository;
 import com.pillone.pillone.repository.RolesRepository;
 import com.pillone.pillone.repository.SucursalesRepository;
 import com.pillone.pillone.repository.UsuariosRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class EmpleadosView {
 
-    @Autowired
-    private EmpleadosRepository empleadosRepository;
+    private final EmpleadosRepository empleadosRepository;
+    private final SucursalesRepository sucursalesRepository;
+    private final RolesRepository rolesRepository;
+    private final UsuariosRepository usuariosRepository;
 
-    @Autowired
-    private SucursalesRepository sucursalesRepository;
+    public EmpleadosView(
+            EmpleadosRepository empleadosRepository,
+            SucursalesRepository sucursalesRepository,
+            RolesRepository rolesRepository,
+            UsuariosRepository usuariosRepository
+    ){
+        this.empleadosRepository=empleadosRepository;
+        this.sucursalesRepository=sucursalesRepository;
+        this.rolesRepository=rolesRepository;
+        this.usuariosRepository=usuariosRepository;
+    }
 
-    @Autowired
-    private RolesRepository rolesRepository;
-
-    @Autowired
-    private UsuariosRepository usuariosRepository;
-
-    // LISTA
     @GetMapping("/view/empleados")
-    public String lista(Model model) {
-        model.addAttribute("empleados", empleadosRepository.findAll());
+    public String lista(Model model){
+        Map<Long,Usuarios> usuariosPorEmpleado=new HashMap<>();
+
+        for(Usuarios usuario:usuariosRepository.findAll()){
+            if(usuario.getIdEmpleado()!=null){
+                usuariosPorEmpleado.put(
+                        usuario.getIdEmpleado(),
+                        usuario
+                );
+            }
+        }
+
+        model.addAttribute(
+                "empleados",
+                empleadosRepository.findAll()
+        );
+
+        model.addAttribute(
+                "usuariosPorEmpleado",
+                usuariosPorEmpleado
+        );
+
         return "empleados/empleados";
     }
 
-    // FORMULARIO CREAR
     @GetMapping("/view/empleados/form")
-    public String form(Model model) {
-        Empleados empleado = new Empleados();
-        model.addAttribute("empleado", empleado);
-        model.addAttribute("sucursales", sucursalesRepository.findAll());
-        model.addAttribute("roles", rolesRepository.findAll());
+    public String form(Model model){
+        Empleados empleado=new Empleados();
+        empleado.setEstado("ACTIVO");
+
+        model.addAttribute(
+                "empleado",
+                empleado
+        );
+
+        model.addAttribute(
+                "usuario",
+                new Usuarios()
+        );
+
+        cargarListas(model);
+
+        return "empleados/empleadosForm";
+    }
+
+    @GetMapping("/view/empleados/edit/{id}")
+    public String edit(
+            @PathVariable Long id,
+            Model model,
+            RedirectAttributes ra
+    ){
+        Empleados empleado=empleadosRepository
+                .findById(id)
+                .orElse(null);
+
+        if(empleado==null){
+            ra.addFlashAttribute(
+                    "error",
+                    "El empleado no existe."
+            );
+
+            return "redirect:/view/empleados";
+        }
+
+        Usuarios usuario=usuariosRepository
+                .findByIdEmpleado(id);
+
+        if(usuario==null){
+            usuario=new Usuarios();
+            usuario.setIdEmpleado(id);
+        }
+
+        model.addAttribute(
+                "empleado",
+                empleado
+        );
+
+        model.addAttribute(
+                "usuario",
+                usuario
+        );
+
+        cargarListas(model);
+
         return "empleados/empleadosForm";
     }
 
     @PostMapping("/view/empleados/save")
+    @Transactional
     public String save(
-            @Valid @ModelAttribute Empleados empleado,
-                       BindingResult result,
-                       @RequestParam(value = "password_hash", required = false) String passwordHash,
-                       RedirectAttributes ra) {
+            @Valid
+            @ModelAttribute("empleado")
+            Empleados empleado,
+            BindingResult result,
+            @RequestParam String username,
+            @RequestParam(required=false) String password,
+            @RequestParam(required=false) String confirmarPassword,
+            @RequestParam Integer idRol,
+            @RequestParam(defaultValue="ACTIVO") String estadoUsuario,
+            Model model,
+            RedirectAttributes ra
+    ){
+        normalizarEmpleado(empleado);
 
-        if (result.hasErrors())
-        {
-            ra.addFlashAttribute("error", "hay campos obligatorios vacios.");
-            return "redirect:/view/empleados/form";
+        username=username==null
+                ? ""
+                : username.trim();
+
+        Usuarios usuarioExistente=
+                empleado.getId_empleado()==null
+                        ? null
+                        : usuariosRepository.findByIdEmpleado(
+                        empleado.getId_empleado()
+                );
+
+        if(result.hasErrors()){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "Hay campos obligatorios vacíos o incorrectos."
+            );
         }
 
-        if (empleado.getId_empleado() == null &&
-                empleadosRepository.existsByNumeroDocumento(
-                        empleado.getNumero_documento()))
-        {
+        /*
+         * DOCUMENTO ÚNICO
+         */
+        if(empleado.getId_empleado()==null){
+            if(
+                    empleadosRepository.existsByNumeroDocumento(
+                            empleado.getNumero_documento()
+                    )
+            ){
+                return volverFormularioConError(
+                        model,
+                        empleado,
+                        usuarioTemporal(
+                                usuarioExistente,
+                                username,
+                                idRol,
+                                estadoUsuario
+                        ),
+                        "Ese número de documento ya está registrado."
+                );
+            }
+        }else if(
+                empleadosRepository
+                        .existsByNumeroDocumentoAndIdEmpleadoNot(
+                                empleado.getNumero_documento(),
+                                empleado.getId_empleado()
+                        )
+        ){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "Ese número de documento pertenece a otro empleado."
+            );
+        }
 
-            ra.addFlashAttribute(
-                    "error",
-                    "Ese número de documento ya está registrado."
+        /*
+         * USERNAME
+         */
+        if(username.isBlank()){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "El nombre de usuario es obligatorio."
+            );
+        }
+
+        if(
+                username.length()<4 ||
+                        username.length()>50
+        ){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "El usuario debe tener entre 4 y 50 caracteres."
+            );
+        }
+
+        if(
+                !username.matches(
+                        "^[A-Za-z0-9._-]+$"
+                )
+        ){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "El usuario solo puede contener letras, números, punto, guion y guion bajo."
+            );
+        }
+
+        boolean usernameOcupado=
+                usuarioExistente==null
+                        ? usuariosRepository
+                        .existsByUsernameIgnoreCase(
+                                username
+                        )
+                        : usuariosRepository
+                        .existsByUsernameIgnoreCaseAndIdUsuarioNot(
+                                username,
+                                usuarioExistente.getIdUsuario()
+                        );
+
+        if(usernameOcupado){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "Ese nombre de usuario ya está registrado."
+            );
+        }
+
+        /*
+         * ROL
+         */
+        Roles rol=rolesRepository
+                .findById(idRol)
+                .orElse(null);
+
+        if(rol==null){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "Selecciona un rol válido."
+            );
+        }
+
+        /*
+         * CONTRASEÑA
+         */
+        boolean creandoUsuario=
+                usuarioExistente==null;
+
+        boolean cambioPassword=
+                password!=null &&
+                        !password.isBlank();
+
+        if(
+                creandoUsuario &&
+                        !cambioPassword
+        ){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "La contraseña es obligatoria al crear el acceso del empleado."
+            );
+        }
+
+        if(cambioPassword){
+            if(password.length()<8){
+                return volverFormularioConError(
+                        model,
+                        empleado,
+                        usuarioTemporal(
+                                usuarioExistente,
+                                username,
+                                idRol,
+                                estadoUsuario
+                        ),
+                        "La contraseña debe tener mínimo 8 caracteres."
+                );
+            }
+
+            if(
+                    confirmarPassword==null ||
+                            !password.equals(
+                                    confirmarPassword
+                            )
+            ){
+                return volverFormularioConError(
+                        model,
+                        empleado,
+                        usuarioTemporal(
+                                usuarioExistente,
+                                username,
+                                idRol,
+                                estadoUsuario
+                        ),
+                        "Las contraseñas no coinciden."
+                );
+            }
+        }
+
+        /*
+         * ESTADO DEL USUARIO
+         */
+        Usuarios.EstadoUsuario estado;
+
+        try{
+            estado=Usuarios.EstadoUsuario.valueOf(
+                    estadoUsuario.toUpperCase()
+            );
+        }catch(Exception e){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "Estado de usuario no válido."
+            );
+        }
+
+        /*
+         * GUARDAR EMPLEADO + USUARIO
+         */
+        try{
+            Empleados empleadoGuardado=
+                    empleadosRepository.saveAndFlush(
+                            empleado
+                    );
+
+            Usuarios usuario=
+                    usuarioExistente==null
+                            ? new Usuarios()
+                            : usuarioExistente;
+
+            usuario.setIdEmpleado(
+                    empleadoGuardado.getId_empleado()
             );
 
-            return "redirect:/view/empleados/form";
+            usuario.setUsername(
+                    username
+            );
+
+            usuario.setRol(
+                    rol
+            );
+
+            /*
+             * Si el empleado queda INACTIVO,
+             * automáticamente su cuenta también.
+             */
+            usuario.setEstado(
+                    "ACTIVO".equalsIgnoreCase(
+                            empleadoGuardado.getEstado()
+                    )
+                            ? estado
+                            : Usuarios.EstadoUsuario.INACTIVO
+            );
+
+            /*
+             * SOLO cambia la contraseña si se escribió una nueva.
+             */
+            if(cambioPassword){
+                usuario.setPasswordHash(
+                        hashPassword(password)
+                );
+            }
+
+            /*
+             * Protección adicional:
+             * nunca se guarda un usuario sin contraseña.
+             */
+            if(
+                    usuario.getPasswordHash()==null ||
+                            usuario.getPasswordHash().isBlank()
+            ){
+                throw new IllegalStateException(
+                        "El usuario no tiene una contraseña válida."
+                );
+            }
+
+            usuariosRepository.saveAndFlush(
+                    usuario
+            );
+
+            ra.addFlashAttribute(
+                    "mensaje",
+                    usuarioExistente==null
+                            ? "Empleado y credenciales creados correctamente."
+                            : "Empleado y credenciales actualizados correctamente."
+            );
+
+            return "redirect:/view/empleados";
+
+        }catch(DataIntegrityViolationException e){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "No se pudo guardar. Revisa que documento y usuario no estén repetidos."
+            );
+
+        }catch(Exception e){
+            return volverFormularioConError(
+                    model,
+                    empleado,
+                    usuarioTemporal(
+                            usuarioExistente,
+                            username,
+                            idRol,
+                            estadoUsuario
+                    ),
+                    "No se pudo guardar el empleado: "+e.getMessage()
+            );
+        }
+    }
+
+    @PostMapping("/view/empleados/delete/{id}")
+    public String delete(
+            @PathVariable Long id,
+            RedirectAttributes ra
+    ){
+        if(
+                !empleadosRepository.existsById(id)
+        ){
+            ra.addFlashAttribute(
+                    "error",
+                    "El empleado no existe."
+            );
+
+            return "redirect:/view/empleados";
         }
 
+        try{
+            empleadosRepository.deleteById(id);
+            empleadosRepository.flush();
 
-        // 2. Guardar primero el empleado para obtener/asegurar su ID
-        Empleados empleadoGuardado = empleadosRepository.save(empleado);
+            ra.addFlashAttribute(
+                    "mensaje",
+                    "Empleado eliminado. Su usuario de acceso también fue eliminado."
+            );
 
+        }catch(DataIntegrityViolationException e){
+            ra.addFlashAttribute(
+                    "error",
+                    "No se puede eliminar este empleado porque tiene ventas, compras u otros registros asociados. Cámbialo a INACTIVO y guarda los cambios."
+            );
+        }
 
-
-        ra.addFlashAttribute("mensaje", "Empleado y usuario guardados con éxito");
         return "redirect:/view/empleados";
     }
 
-    // EDITAR
-    @GetMapping("/view/empleados/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
-        Empleados empleado = empleadosRepository.findById(id).orElse(null);
-        if (empleado == null) return "redirect:/view/empleados";
+    private String volverFormularioConError(
+            Model model,
+            Empleados empleado,
+            Usuarios usuario,
+            String mensaje
+    ){
+        model.addAttribute(
+                "empleado",
+                empleado
+        );
 
-        model.addAttribute("empleado", empleado);
-        model.addAttribute("sucursales", sucursalesRepository.findAll());
-        model.addAttribute("roles", rolesRepository.findAll());
+        model.addAttribute(
+                "usuario",
+                usuario
+        );
+
+        model.addAttribute(
+                "error",
+                mensaje
+        );
+
+        cargarListas(model);
+
         return "empleados/empleadosForm";
     }
 
-    // ELIMINAR
-    @PostMapping("/view/empleados/delete/{id}")
-    public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        empleadosRepository.deleteById(id);
-        ra.addFlashAttribute("mensaje", "Empleado eliminado");
-        return "redirect:/view/empleados";
+    private Usuarios usuarioTemporal(
+            Usuarios existente,
+            String username,
+            Integer idRol,
+            String estadoUsuario
+    ){
+        Usuarios usuario=
+                existente==null
+                        ? new Usuarios()
+                        : existente;
+
+        usuario.setUsername(
+                username
+        );
+
+        if(idRol!=null){
+            rolesRepository
+                    .findById(idRol)
+                    .ifPresent(
+                            usuario::setRol
+                    );
+        }
+
+        try{
+            usuario.setEstado(
+                    Usuarios.EstadoUsuario.valueOf(
+                            estadoUsuario.toUpperCase()
+                    )
+            );
+        }catch(Exception ignored){
+            usuario.setEstado(
+                    Usuarios.EstadoUsuario.ACTIVO
+            );
+        }
+
+        return usuario;
+    }
+
+    private void cargarListas(
+            Model model
+    ){
+        model.addAttribute(
+                "sucursales",
+                sucursalesRepository.findAll()
+        );
+
+        model.addAttribute(
+                "roles",
+                rolesRepository.findAll()
+        );
+    }
+
+    private void normalizarEmpleado(
+            Empleados empleado
+    ){
+        if(
+                empleado.getNombre_completo()!=null
+        ){
+            empleado.setNombre_completo(
+                    empleado.getNombre_completo().trim()
+            );
+        }
+
+        if(
+                empleado.getNumero_documento()!=null
+        ){
+            empleado.setNumero_documento(
+                    empleado.getNumero_documento().trim()
+            );
+        }
+
+        if(
+                empleado.getCorreo()!=null
+        ){
+            empleado.setCorreo(
+                    empleado.getCorreo().trim()
+            );
+        }
+
+        if(
+                empleado.getTelefono()!=null
+        ){
+            empleado.setTelefono(
+                    empleado.getTelefono().trim()
+            );
+        }
+
+        if(
+                empleado.getCargo()!=null
+        ){
+            empleado.setCargo(
+                    empleado.getCargo().trim()
+            );
+        }
+
+        if(
+                empleado.getEstado()==null ||
+                        empleado.getEstado().isBlank()
+        ){
+            empleado.setEstado(
+                    "ACTIVO"
+            );
+        }
+    }
+
+    /*
+     * HASH DE CONTRASEÑA SIN SPRING SECURITY.
+     * Utiliza PBKDF2WithHmacSHA256 incluido en Java 17.
+     *
+     * Formato guardado:
+     * PBKDF2$210000$salt$hash
+     */
+    private String hashPassword(
+            String password
+    ){
+        try{
+            int iteraciones=210000;
+            int longitudClave=256;
+
+            byte[] salt=new byte[16];
+
+            SecureRandom secureRandom=
+                    new SecureRandom();
+
+            secureRandom.nextBytes(
+                    salt
+            );
+
+            PBEKeySpec spec=
+                    new PBEKeySpec(
+                            password.toCharArray(),
+                            salt,
+                            iteraciones,
+                            longitudClave
+                    );
+
+            SecretKeyFactory factory=
+                    SecretKeyFactory.getInstance(
+                            "PBKDF2WithHmacSHA256"
+                    );
+
+            byte[] hash=
+                    factory
+                            .generateSecret(spec)
+                            .getEncoded();
+
+            spec.clearPassword();
+
+            return "PBKDF2$"
+                    +iteraciones
+                    +"$"
+                    +Base64.getEncoder().encodeToString(salt)
+                    +"$"
+                    +Base64.getEncoder().encodeToString(hash);
+
+        }catch(Exception e){
+            throw new IllegalStateException(
+                    "No fue posible proteger la contraseña.",
+                    e
+            );
+        }
     }
 }

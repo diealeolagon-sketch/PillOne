@@ -7,9 +7,16 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UsuariosRepository extends JpaRepository<Usuarios, Long> {
+public interface UsuariosRepository extends JpaRepository<Usuarios,Long> {
 
-    // Cambiado de findByid_usuario a findByIdUsuario para que coincida con el atributo en camelCase
     Usuarios findByIdEmpleado(Long idEmpleado);
 
+    Optional<Usuarios> findByUsernameIgnoreCase(String username);
+
+    boolean existsByUsernameIgnoreCase(String username);
+
+    boolean existsByUsernameIgnoreCaseAndIdUsuarioNot(
+            String username,
+            Long idUsuario
+    );
 }

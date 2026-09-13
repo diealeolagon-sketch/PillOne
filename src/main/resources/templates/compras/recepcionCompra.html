@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        PillOne - Recibir Pedido
+    </title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
+    <script>
+
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
+                        }
+                    },
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
+                    }
+                }
+            }
+        }
+
+    </script>
+
+</head>
+
+<body class="bg-pillone-bg font-sans text-pillone-text min-h-screen flex flex-col text-xs">
+
+<header th:replace="fragments/layout :: topbar('Recepción de Pedido')"></header>
+
+<div class="flex flex-1 relative">
+
+    <aside th:replace="fragments/layout :: sidebar('compras')"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+
+            <!-- CABECERA -->
+
+            <section class="mb-5">
+
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+
+                    <div>
+
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase">
+
+                            Recibir Pedido
+
+                        </h1>
+
+                        <p class="text-xs text-slate-500 mt-1">
+
+                            Confirme la mercancía que realmente llegó y registre sus lotes.
+
+                        </p>
+
+                    </div>
+
+                    <a th:href="@{/view/compras}"
+                       class="px-4 py-2.5 rounded-lg bg-slate-100 text-slate-600 font-semibold">
+
+                        ← Volver
+
+                    </a>
+
+                </div>
+
+            </section>
+
+            <!-- RESUMEN -->
+
+            <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-5">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                    <div>
+
+                        <div class="text-[10px] uppercase text-slate-400 font-semibold">
+                            Pedido
+                        </div>
+
+                        <div class="font-bold text-pillone-accent mt-1"
+                             th:text="${compra.numeroFacturaProveedor}">
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-[10px] uppercase text-slate-400 font-semibold">
+                            Proveedor
+                        </div>
+
+                        <div class="font-semibold mt-1"
+                             th:text="${proveedor != null ? proveedor.razon_social : 'Proveedor'}">
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-[10px] uppercase text-slate-400 font-semibold">
+                            Fecha Pedido
+                        </div>
+
+                        <div class="font-semibold mt-1"
+                             th:text="${#temporals.format(compra.fechaCompra,'dd/MM/yyyy HH:mm')}">
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-[10px] uppercase text-slate-400 font-semibold">
+                            Total Pedido
+                        </div>
+
+                        <div class="font-bold text-pillone-dark mt-1"
+                             th:text="${'$' + #numbers.formatDecimal(compra.total,0,'POINT',2,'COMMA')}">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- AVISO -->
+
+            <section class="mb-5 p-4 rounded-xl bg-amber-50 border border-amber-200">
+
+                <div class="font-bold text-amber-700">
+                    Importante
+                </div>
+
+                <p class="text-[10px] text-amber-700 mt-1">
+
+                    Al confirmar esta recepción, las cantidades recibidas se convertirán a unidades base,
+                    se crearán los lotes y se sumarán automáticamente al inventario.
+
+                </p>
+
+            </section>
+
+            <!-- FORM -->
+
+            <form th:action="@{/view/compras/recibir/{id}(id=${compra.idCompra})}"
+                  method="post">
+
+                <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+
+                    <div class="overflow-x-auto">
+
+                        <table class="w-full text-left">
+
+                            <thead>
+
+                            <tr class="bg-pillone-dark text-white text-[10px] uppercase">
+
+                                <th class="px-4 py-3">
+                                    Producto
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Pedido
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Cantidad recibida
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Lote
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Fabricación
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Vencimiento
+                                </th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody class="divide-y divide-slate-100">
+
+                            <tr th:each="d : ${detalles}"
+                                class="hover:bg-slate-50">
+
+                                <td class="px-4 py-4">
+
+                                    <input type="hidden"
+                                           name="detalleId"
+                                           th:value="${d.idDetalleCompra}">
+
+                                    <div class="font-bold text-slate-800"
+                                         th:text="${productosPorId.get(d.idProducto) != null ? productosPorId.get(d.idProducto).nombreComercial : 'Producto #' + d.idProducto}">
+                                    </div>
+
+                                    <div class="text-[10px] text-slate-400"
+                                         th:text="${productosPorId.get(d.idProducto) != null ? productosPorId.get(d.idProducto).codigoInterno : ''}">
+                                    </div>
+
+                                </td>
+
+                                <td class="px-4 py-4">
+
+                                    <div class="font-bold text-pillone-accent"
+                                         th:text="${d.cantidad + ' ' + d.tipoPresentacion}">
+                                    </div>
+
+                                    <div class="text-[10px] text-slate-400"
+                                         th:text="${'1 ' + d.tipoPresentacion + ' = ' + d.factorConversion + ' unidad(es)'}">
+                                    </div>
+
+                                    <div class="text-[10px] font-semibold text-slate-600 mt-1"
+                                         th:text="${'Total esperado: ' + (d.cantidad * d.factorConversion) + ' unidades'}">
+                                    </div>
+
+                                </td>
+
+                                <td class="px-4 py-4">
+
+                                    <input type="number"
+                                           name="cantidadRecibida"
+                                           min="0"
+                                           th:max="${d.cantidad}"
+                                           th:value="${d.cantidad}"
+                                           required
+                                           class="w-24 px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+
+                                    <div class="text-[9px] text-slate-400 mt-1">
+                                        En la misma presentación pedida
+                                    </div>
+
+                                </td>
+
+                                <td class="px-4 py-4">
+
+                                    <input type="text"
+                                           name="numeroLote"
+                                           maxlength="50"
+                                           required
+                                           placeholder="Ej. ABC-2026"
+                                           class="min-w-[140px] px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+
+                                </td>
+
+                                <td class="px-4 py-4">
+
+                                    <input type="date"
+                                           name="fechaFabricacion"
+                                           class="px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+
+                                </td>
+
+                                <td class="px-4 py-4">
+
+                                    <input type="date"
+                                           name="fechaVencimiento"
+                                           required
+                                           class="px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+
+                                </td>
+
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <!-- EJEMPLO -->
+
+                <section class="mt-4 bg-blue-50 border border-blue-100 rounded-xl p-4">
+
+                    <div class="font-bold text-pillone-dark">
+                        Ejemplo de conversión
+                    </div>
+
+                    <p class="text-[10px] text-slate-500 mt-1">
+
+                        Si pidió 10 cajas y cada caja equivale a 100 unidades,
+                        al confirmar la recepción completa se crearán 1.000 unidades dentro del lote registrado.
+
+                    </p>
+
+                </section>
+
+                <!-- BOTONES -->
+
+                <section class="mt-5 flex justify-end gap-2">
+
+                    <a th:href="@{/view/compras}"
+                       class="px-5 py-3 rounded-lg bg-slate-100 text-slate-600 font-semibold">
+
+                        Cancelar
+
+                    </a>
+
+                    <button type="submit"
+                            onclick="return confirm('¿Confirmar la recepción? Las cantidades recibidas serán agregadas al inventario.');"
+                            class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">
+
+                        <svg class="w-4 h-4"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M5 13l4 4L19 7">
+                            </path>
+
+                        </svg>
+
+                        Confirmar Recepción
+
+                    </button>
+
+                </section>
+
+            </form>
+
+        </main>
+
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </div>
+
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+</body>
+
+</html>

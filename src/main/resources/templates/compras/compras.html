@@ -1,263 +1,806 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PillOne - Órdenes de Compra</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+    <title>PillOne - Compras y Pedidos</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="icon"
+          type="image/png"
+          th:href="@{/img/img.png}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
     <th:block th:replace="fragments/layout :: styles"></th:block>
+
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        pillone: {
-                            bg: '#F7F7FF',
-                            dark: '#07004D',
-                            darker: '#04002C',
-                            accent: '#208AAE',
-                            text: '#1D1E18'
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
                         }
                     },
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
+                    }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
-<!-- TOPBAR GLOBAL -->
-<header th:replace="fragments/layout :: topbar('Órdenes de Compra')"></header>
+<body class="bg-pillone-bg font-sans text-pillone-text min-h-screen flex flex-col text-xs">
 
-<!-- CONTENEDOR CENTRAL -->
+<header th:replace="fragments/layout :: topbar('Compras y Pedidos')"></header>
+
 <div class="flex flex-1 relative">
 
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden"></div>
+    <div id="overlay"
+         onclick="toggleSidebar()"
+         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+    </div>
 
-    <!-- SIDEBAR GLOBAL -->
     <aside th:replace="fragments/layout :: sidebar('compras')"></aside>
 
-    <!-- AREA PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0">
+
         <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
 
-            <!-- ENCABEZADO -->
+            <!-- HEADER -->
             <section class="mb-5">
-                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+
                     <div>
+
                         <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight">
-                            Gestión de Órdenes de Compra
+                            Pedidos a Proveedores
                         </h1>
+
                         <p class="text-xs text-slate-500 mt-1">
-                            Administre y controle las adquisiciones y pedidos realizados a los proveedores.
+                            Registre, consulte y reciba las órdenes de compra realizadas a proveedores.
                         </p>
+
                     </div>
+
+                    <a th:href="@{/view/compras/form}"
+                       class="inline-flex items-center justify-center gap-2 rounded-lg bg-pillone-accent px-4 py-2.5 font-bold text-white hover:opacity-90 transition">
+
+                        <svg class="w-4 h-4"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M12 5v14M5 12h14">
+                            </path>
+
+                        </svg>
+
+                        Nuevo Pedido
+
+                    </a>
+
+                </div>
+
+            </section>
+
+            <!-- MENSAJES -->
+            <div th:if="${mensaje}"
+                 class="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold"
+                 th:text="${mensaje}">
+            </div>
+
+            <div th:if="${error}"
+                 class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 font-semibold"
+                 th:text="${error}">
+            </div>
+
+            <!-- INFO -->
+            <section class="mb-4 bg-blue-50 border border-blue-100 rounded-xl p-4">
+
+                <div class="flex items-start gap-3">
+
+                    <div class="w-8 h-8 shrink-0 rounded-lg bg-white flex items-center justify-center text-pillone-accent">
+
+                        <svg class="w-4 h-4"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             viewBox="0 0 24 24">
+
+                            <circle cx="12" cy="12" r="9"></circle>
+
+                            <path stroke-linecap="round"
+                                  d="M12 11v5">
+                            </path>
+
+                            <path stroke-linecap="round"
+                                  d="M12 8h.01">
+                            </path>
+
+                        </svg>
+
+                    </div>
+
                     <div>
-                        <a th:href="@{/view/compras/gestion/form}"
-                           class="inline-flex items-center justify-center gap-2 rounded-lg bg-pillone-accent px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 transition cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                            Nueva Orden de Compra
-                        </a>
+
+                        <div class="font-bold text-pillone-dark">
+                            Flujo de compras
+                        </div>
+
+                        <p class="text-[10px] text-slate-500 mt-0.5">
+                            Crear el pedido no aumenta el inventario. El stock se actualiza al recibir la mercancía y registrar sus lotes y fechas de vencimiento.
+                        </p>
+
                     </div>
+
                 </div>
+
             </section>
 
-            <!-- MENSAJE FLASH -->
-            <div th:if="${mensaje}" class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 text-xs font-medium shadow-sm flex items-center gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                <span th:text="${mensaje}">Mensaje de éxito</span>
-            </div>
-            <div th:if="${error}" class="mb-4 rounded-lg bg-rose-50 border border-rose-200 p-3 text-rose-800 text-xs font-medium shadow-sm flex items-center gap-2">
-                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                <span th:text="${error}">Mensaje de error</span>
-            </div>
+            <!-- TABLA -->
+            <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
-            <!-- CONTENEDOR DE TABLA Y FILTROS -->
-            <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
+                <!-- BUSCADOR -->
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
-                <!-- BARRA DE BÚSQUEDA -->
-                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white">
-                    <div class="relative w-full sm:w-80">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </span>
-                        <input type="text" id="buscador-tabla" onkeyup="filtrarTabla()" placeholder="Buscar por factura, proveedor, estado..."
-                               class="w-full pl-9 pr-3.5 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 text-pillone-text bg-slate-50/50 transition">
+                    <div class="relative w-full sm:w-96">
+
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             viewBox="0 0 24 24">
+
+                            <circle cx="11"
+                                    cy="11"
+                                    r="7">
+                            </circle>
+
+                            <path stroke-linecap="round"
+                                  d="M20 20l-3.5-3.5">
+                            </path>
+
+                        </svg>
+
+                        <input type="text"
+                               id="buscar"
+                               oninput="filtrar()"
+                               placeholder="Buscar pedido, proveedor, pago o estado..."
+                               class="w-full pl-9 pr-4 py-2 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-pillone-accent">
+
                     </div>
-                    <div class="text-xs text-slate-500 font-medium">
-                        Total registros: <span id="contador-total" class="font-bold text-pillone-dark">0</span>
+
+                    <div class="text-slate-500">
+                        Total:
+                        <strong id="contador"
+                                class="text-pillone-dark"
+                                th:text="${#lists.size(compras)}">
+                            0
+                        </strong>
                     </div>
+
                 </div>
 
-                <!-- TABLA RESPONSIVA -->
+                <!-- TABLA -->
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-xs text-left">
+
+                    <table class="w-full text-left">
+
                         <thead>
-                        <tr class="bg-pillone-dark text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">
-                            <th class="px-4 py-3.5 font-bold">ID</th>
-                            <th class="px-4 py-3.5 font-bold">Factura Proveedor</th>
-                            <th class="px-4 py-3.5 font-bold">Sucursal / Proveedor</th>
-                            <th class="px-4 py-3.5 font-bold">Fecha de Compra</th>
-                            <th class="px-4 py-3.5 font-bold">Total</th>
-                            <th class="px-4 py-3.5 font-bold">Forma Pago</th>
-                            <th class="px-4 py-3.5 text-center font-bold">Estado</th>
-                            <th class="px-4 py-3.5 text-center font-bold w-24">Acciones</th>
+
+                        <tr class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
+
+                            <th class="px-4 py-3">
+                                Pedido
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Fecha
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Proveedor
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Total
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Forma de Pago
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Estado
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Edición
+                            </th>
+
+                            <th class="px-4 py-3 text-center">
+                                Acciones
+                            </th>
+
                         </tr>
+
                         </thead>
-                        <tbody id="tabla-compras" class="divide-y divide-slate-100">
 
-                        <!-- Iteración de Compras -->
-                        <tr th:each="c : ${compras}" class="fila-compra hover:bg-pillone-bg/40 transition">
-                            <td class="px-4 py-3.5">
-                                <span class="font-bold text-pillone-accent px-2 py-1 rounded bg-pillone-accent/5 border border-pillone-accent/10"
-                                      th:text="${'#' + c.idCompra}">
-                                </span>
+                        <tbody class="divide-y divide-slate-100">
+
+                        <!-- VACÍO -->
+                        <tr th:if="${#lists.isEmpty(compras)}">
+
+                            <td colspan="8"
+                                class="p-8 text-center text-slate-400">
+
+                                No hay pedidos registrados.
+
                             </td>
-                            <td class="px-4 py-3.5 font-semibold text-slate-700" th:text="${c.numeroFacturaProveedor != null ? c.numeroFacturaProveedor : 'S/N'}"></td>
-                            <td class="px-4 py-3.5">
-                                <div class="text-slate-700 font-medium" th:text="${'Sucursal ID: ' + c.idSucursal}"></div>
-                                <div class="text-[10px] text-slate-400" th:text="${'Proveedor ID: ' + c.idProveedor}"></div>
-                            </td>
-                            <td class="px-4 py-3.5 text-slate-600" th:text="${c.fechaCompra}"></td>
-                            <td class="px-4 py-3.5 font-bold text-pillone-dark" th:text="${c.total != null ? '$' + #numbers.formatDecimal(c.total, 0, 'POINT', 2, 'COMMA') : '$0.00'}"></td>
-                            <td class="px-4 py-3.5 text-slate-600" th:text="${c.formaPago}"></td>
-                            <td class="px-4 py-3.5 text-center">
-                                <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold"
-                                      th:classappend="${c.estado == 'RECIBIDA' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}"
-                                      th:text="${c.estado}">PENDIENTE</span>
-                            </td>
-                            <td class="px-4 py-3.5 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <!-- Botón Editar -->
-                                    <a th:href="@{/view/compras/gestion/editar/{id}(id=${c.idCompra})}"
-                                       class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-pillone-accent transition shadow-xs" title="Editar registro">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </a>
-                                    <!-- Botón Eliminar -->
-                                    <form th:action="@{'/view/compras/gestion/eliminar/' + ${c.idCompra}}" method="post" onsubmit="return confirm('¿Estás seguro de eliminar esta orden de compra?');" class="inline-flex">
-                                        <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-rose-600 transition shadow-xs bg-transparent border-0 cursor-pointer" title="Eliminar registro">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
+
+                        </tr>
+
+                        <!-- FILAS -->
+                        <tr th:each="c : ${compras}"
+                            class="fila-compra hover:bg-slate-50 transition">
+
+                            <!-- PEDIDO -->
+                            <td class="px-4 py-3">
+
+                                <div class="font-bold text-pillone-accent"
+                                     th:text="${c.numeroFacturaProveedor}">
+                                    PED-001
                                 </div>
+
+                                <div class="text-[10px] text-slate-400"
+                                     th:text="${'ID Compra: ' + c.idCompra}">
+                                    ID Compra
+                                </div>
+
                             </td>
+
+                            <!-- FECHA -->
+                            <td class="px-4 py-3">
+
+                                <span th:text="${c.fechaCompra != null ? #temporals.format(c.fechaCompra,'dd/MM/yyyy HH:mm') : '-'}">
+                                    -
+                                </span>
+
+                            </td>
+
+                            <!-- PROVEEDOR -->
+                            <td class="px-4 py-3">
+
+                                <div class="font-semibold"
+                                     th:text="${proveedoresPorId.get(c.idProveedor) != null ? proveedoresPorId.get(c.idProveedor).razon_social : 'Proveedor #' + c.idProveedor}">
+                                    Proveedor
+                                </div>
+
+                                <div class="text-[10px] text-slate-400"
+                                     th:text="${proveedoresPorId.get(c.idProveedor) != null ? proveedoresPorId.get(c.idProveedor).nit : ''}">
+                                </div>
+
+                            </td>
+
+                            <!-- TOTAL -->
+                            <td class="px-4 py-3">
+
+                                <strong class="text-pillone-dark"
+                                        th:text="${'$' + #numbers.formatDecimal(c.total,0,'POINT',2,'COMMA')}">
+                                    $0
+                                </strong>
+
+                            </td>
+
+                            <!-- FORMA PAGO -->
+                            <td class="px-4 py-3">
+
+                                <span class="inline-flex px-2 py-1 rounded-lg bg-slate-100 text-slate-700 text-[10px] font-semibold"
+                                      th:text="${c.formaPago}">
+                                    EFECTIVO
+                                </span>
+
+                            </td>
+
+                            <!-- ESTADO -->
+                            <td class="px-4 py-3">
+
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold"
+                                      th:classappend="${
+                                      c.estado.name() == 'PENDIENTE'
+                                      ? ' bg-amber-100 text-amber-700'
+                                      :
+                                      c.estado.name() == 'RECIBIDA'
+                                      ? ' bg-emerald-100 text-emerald-700'
+                                      :
+                                      c.estado.name() == 'PARCIALMENTE_RECIBIDA'
+                                      ? ' bg-sky-100 text-sky-700'
+                                      :
+                                      c.estado.name() == 'CANCELADA'
+                                      ? ' bg-red-100 text-red-700'
+                                      :
+                                      c.estado.name() == 'DEVUELTA'
+                                      ? ' bg-violet-100 text-violet-700'
+                                      :
+                                      ' bg-slate-100 text-slate-700'
+                                      }"
+                                      th:text="${c.estado}">
+                                    PENDIENTE
+                                </span>
+
+                            </td>
+
+                            <!-- EDICIÓN -->
+                            <td class="px-4 py-3">
+
+                                <!-- DISPONIBLE -->
+                                <div th:if="${
+                                    c.estado.name() == 'PENDIENTE'
+                                    &&
+                                    c.fechaCompra != null
+                                    &&
+                                    T(java.time.LocalDateTime).now().isBefore(c.fechaCompra.plusHours(horasLimiteEdicion))
+                                }">
+
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-bold">
+
+                                        <svg class="w-3.5 h-3.5"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             viewBox="0 0 24 24">
+
+                                            <circle cx="12"
+                                                    cy="12"
+                                                    r="9">
+                                            </circle>
+
+                                            <path stroke-linecap="round"
+                                                  d="M12 7v5l3 2">
+                                            </path>
+
+                                        </svg>
+
+                                        Disponible
+
+                                    </span>
+
+                                    <div class="text-[9px] text-slate-400 mt-1"
+                                         th:text="${'Hasta ' + #temporals.format(c.fechaCompra.plusHours(horasLimiteEdicion),'dd/MM/yyyy HH:mm')}">
+                                    </div>
+
+                                </div>
+
+                                <!-- VENCIDA -->
+                                <div th:if="${
+                                    c.estado.name() == 'PENDIENTE'
+                                    &&
+                                    (
+                                        c.fechaCompra == null
+                                        ||
+                                        !T(java.time.LocalDateTime).now().isBefore(c.fechaCompra.plusHours(horasLimiteEdicion))
+                                    )
+                                }">
+
+                                    <span class="inline-flex items-center px-2 py-1 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-bold">
+                                        Edición vencida
+                                    </span>
+
+                                </div>
+
+                                <!-- PARCIAL -->
+                                <span th:if="${c.estado.name() == 'PARCIALMENTE_RECIBIDA'}"
+                                      class="text-[10px] text-sky-600 font-semibold">
+                                    Recepción iniciada
+                                </span>
+
+                                <!-- RECIBIDA -->
+                                <span th:if="${c.estado.name() == 'RECIBIDA'}"
+                                      class="text-[10px] text-emerald-600 font-semibold">
+                                    Cerrada
+                                </span>
+
+                                <!-- CANCELADA -->
+                                <span th:if="${c.estado.name() == 'CANCELADA'}"
+                                      class="text-[10px] text-red-500 font-semibold">
+                                    Cancelada
+                                </span>
+
+                                <!-- DEVUELTA -->
+                                <span th:if="${c.estado.name() == 'DEVUELTA'}"
+                                      class="text-[10px] text-violet-500 font-semibold">
+                                    Devuelta
+                                </span>
+
+                            </td>
+
+                            <!-- ACCIONES -->
+                            <td class="px-4 py-3">
+
+                                <div class="flex items-center justify-center gap-1.5 flex-wrap">
+
+                                    <!-- EDITAR -->
+                                    <a th:if="${
+                                        c.estado.name() == 'PENDIENTE'
+                                        &&
+                                        c.fechaCompra != null
+                                        &&
+                                        T(java.time.LocalDateTime).now().isBefore(c.fechaCompra.plusHours(horasLimiteEdicion))
+                                    }"
+                                       th:href="@{/view/compras/form(idCompra=${c.idCompra})}"
+                                       class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                       title="Editar pedido">
+
+                                        <svg class="w-4 h-4"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             viewBox="0 0 24 24">
+
+                                            <path stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  d="M15.232 5.232l3.536 3.536M4 20l4.5-1 10.268-10.268a2.5 2.5 0 10-3.536-3.536L4.964 15.464 4 20z">
+                                            </path>
+
+                                        </svg>
+
+                                    </a>
+
+                                    <!-- RECIBIR PEDIDO -->
+                                    <a th:if="${c.estado.name() == 'PENDIENTE' || c.estado.name() == 'PARCIALMENTE_RECIBIDA'}"
+                                       th:href="@{/view/compras/recibir/{id}(id=${c.idCompra})}"
+                                       class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition"
+                                       title="Recibir pedido">
+
+                                        <svg class="w-4 h-4"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             viewBox="0 0 24 24">
+
+                                            <path stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  d="M20 7L9 18l-5-5">
+                                            </path>
+
+                                        </svg>
+
+                                    </a>
+
+                                    <!-- CANCELAR -->
+                                    <form th:if="${c.estado.name() == 'PENDIENTE'}"
+                                          th:action="@{/view/compras/cancelar/{id}(id=${c.idCompra})}"
+                                          method="post"
+                                          class="inline"
+                                          onsubmit="return confirm('¿Cancelar este pedido?');">
+
+                                        <button type="submit"
+                                                class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition cursor-pointer"
+                                                title="Cancelar pedido">
+
+                                            <svg class="w-4 h-4"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8"
+                                                 viewBox="0 0 24 24">
+
+                                                <circle cx="12"
+                                                        cy="12"
+                                                        r="9">
+                                                </circle>
+
+                                                <path stroke-linecap="round"
+                                                      d="M8.5 8.5l7 7">
+                                                </path>
+
+                                            </svg>
+
+                                        </button>
+
+                                    </form>
+
+                                    <!-- REACTIVAR -->
+                                    <form th:if="${c.estado.name() == 'CANCELADA'}"
+                                          th:action="@{/view/compras/reactivar/{id}(id=${c.idCompra})}"
+                                          method="post"
+                                          class="inline"
+                                          onsubmit="return confirm('¿Reactivar este pedido?');">
+
+                                        <button type="submit"
+                                                class="p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 transition cursor-pointer"
+                                                title="Reactivar pedido">
+
+                                            <svg class="w-4 h-4"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8"
+                                                 viewBox="0 0 24 24">
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M4 4v6h6">
+                                                </path>
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M20 20v-6h-6">
+                                                </path>
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M5.5 18.5A8 8 0 0018.4 15">
+                                                </path>
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M18.5 5.5A8 8 0 005.6 9">
+                                                </path>
+
+                                            </svg>
+
+                                        </button>
+
+                                    </form>
+
+                                    <!-- ELIMINAR -->
+                                    <form th:if="${c.estado.name() == 'PENDIENTE' || c.estado.name() == 'CANCELADA'}"
+                                          th:action="@{/view/compras/delete/{id}(id=${c.idCompra})}"
+                                          method="post"
+                                          class="inline"
+                                          onsubmit="return confirm('¿Eliminar definitivamente este pedido? Esta acción no se puede deshacer.');">
+
+                                        <button type="submit"
+                                                class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer"
+                                                title="Eliminar pedido">
+
+                                            <svg class="w-4 h-4"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8"
+                                                 viewBox="0 0 24 24">
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M4 7h16">
+                                                </path>
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M10 11v6M14 11v6">
+                                                </path>
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M6 7l1 14h10l1-14">
+                                                </path>
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M9 7V4h6v3">
+                                                </path>
+
+                                            </svg>
+
+                                        </button>
+
+                                    </form>
+
+                                    <!-- RECIBIDA -->
+                                    <span th:if="${c.estado.name() == 'RECIBIDA'}"
+                                          class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+
+                                        <svg class="w-3.5 h-3.5"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="2"
+                                             viewBox="0 0 24 24">
+
+                                            <path stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  d="M5 13l4 4L19 7">
+                                            </path>
+
+                                        </svg>
+
+                                        Compra cerrada
+
+                                    </span>
+
+                                    <!-- PARCIAL -->
+                                    <span th:if="${c.estado.name() == 'PARCIALMENTE_RECIBIDA'}"
+                                          class="inline-flex items-center px-2 py-1 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-bold">
+                                        Recepción parcial
+                                    </span>
+
+                                    <!-- DEVUELTA -->
+                                    <span th:if="${c.estado.name() == 'DEVUELTA'}"
+                                          class="inline-flex items-center px-2 py-1 rounded-lg bg-violet-50 text-violet-700 text-[10px] font-bold">
+                                        Devuelta
+                                    </span>
+
+                                </div>
+
+                            </td>
+
                         </tr>
 
-                        <tr id="sin-registros" class="hidden">
-                            <td colspan="8" class="px-6 py-12 text-center text-slate-400">
-                                <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                                No se encontraron registros de órdenes de compra coincidentes.
-                            </td>
-                        </tr>
                         </tbody>
+
                     </table>
+
                 </div>
 
-                <!-- PAGINACIÓN -->
-                <div id="paginacion-container" class="flex flex-col sm:flex-row items-center justify-between px-4 py-3 bg-slate-50/80 border-t border-slate-200 gap-3">
-                    <span id="info-paginacion" class="text-slate-500 font-medium">Mostrando registros</span>
-                    <div class="flex items-center gap-1.5">
-                        <button id="btn-anterior" onclick="cambiarPagina(-1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition font-medium shadow-xs">Anterior</button>
-                        <span id="indicador-pagina" class="px-3 py-1 font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg shadow-xs">Página 1 de 1</span>
-                        <button id="b   tn-siguiente" onclick="cambiarPagina(1)" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition font-medium shadow-xs">Siguiente</button>
-                    </div>
-                </div>
             </section>
+
+            <!-- LEYENDA -->
+            <section class="mt-4 bg-white rounded-xl border border-slate-200 p-4">
+
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-3 text-[10px] text-slate-500">
+
+                    <div class="flex items-center gap-2">
+
+                        <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+
+                            <svg class="w-3.5 h-3.5"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M15.232 5.232l3.536 3.536M4 20l4.5-1 10.268-10.268a2.5 2.5 0 10-3.536-3.536L4.964 15.464 4 20z">
+                                </path>
+
+                            </svg>
+
+                        </span>
+
+                        Editar durante 48 horas
+
+                    </div>
+
+                    <div class="flex items-center gap-2">
+
+                        <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+
+                            <svg class="w-3.5 h-3.5"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M20 7L9 18l-5-5">
+                                </path>
+
+                            </svg>
+
+                        </span>
+
+                        Recibir mercancía
+
+                    </div>
+
+                    <div class="flex items-center gap-2">
+
+                        <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+
+                            <svg class="w-3.5 h-3.5"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 viewBox="0 0 24 24">
+
+                                <circle cx="12"
+                                        cy="12"
+                                        r="9">
+                                </circle>
+
+                                <path stroke-linecap="round"
+                                      d="M8.5 8.5l7 7">
+                                </path>
+
+                            </svg>
+
+                        </span>
+
+                        Cancelar pendiente
+
+                    </div>
+
+                    <div class="flex items-center gap-2">
+
+                        <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-50 text-sky-600">
+
+                            <svg class="w-3.5 h-3.5"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      d="M4 4v6h6M20 20v-6h-6">
+                                </path>
+
+                            </svg>
+
+                        </span>
+
+                        Reactivar cancelado
+
+                    </div>
+
+                    <div class="flex items-center gap-2">
+
+                        <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-50 text-red-600">
+
+                            <svg class="w-3.5 h-3.5"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M4 7h16M6 7l1 14h10l1-14">
+                                </path>
+
+                            </svg>
+
+                        </span>
+
+                        Eliminar
+
+                    </div>
+
+                </div>
+
+            </section>
+
         </main>
 
-        <footer th:replace="fragments/layout :: footer"></footer>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
     </div>
+
 </div>
 
-<div th:replace="fragments/layout :: scripts"></div>
-
 <script>
-    const registrosPorPagina = 8;
-    let paginaActual = 1;
-    let filasOriginales = [];
-    let filasFiltradas = [];
+    function filtrar(){
+        const filtro=document.getElementById('buscar').value.trim().toLowerCase();
+        let visibles=0;
 
-    document.addEventListener("DOMContentLoaded", function() {
-        filasOriginales = Array.from(document.querySelectorAll(".fila-compra"));
-        filasFiltradas = [...filasOriginales];
+        document.querySelectorAll('.fila-compra').forEach(function(fila){
+            const mostrar=fila.textContent.toLowerCase().includes(filtro);
 
-        document.getElementById("contador-total").innerText = filasOriginales.length;
+            fila.style.display=mostrar ? '' : 'none';
 
-        if (filasOriginales.length === 0) {
-            document.getElementById("sin-registros").classList.remove("hidden");
-            document.getElementById("paginacion-container").style.display = "none";
-            return;
-        }
+            if(mostrar){
+                visibles++;
+            }
+        });
 
-        actualizarTabla();
-    });
-
-    function filtrarTabla() {
-        const textoBusqueda = document.getElementById("buscador-tabla").value.toLowerCase().trim();
-
-        if (textoBusqueda === "") {
-            filasFiltradas = [...filasOriginales];
-        } else {
-            filasFiltradas = filasOriginales.filter(fila => {
-                const contenidoFila = fila.innerText.toLowerCase();
-                return contenidoFila.includes(textoBusqueda);
-            });
-        }
-
-        paginaActual = 1;
-        actualizarTabla();
-    }
-
-    function actualizarTabla() {
-        const sinRegistros = document.getElementById("sin-registros");
-        const paginacionContainer = document.getElementById("paginacion-container");
-
-        filasOriginales.forEach(f => f.style.display = "none");
-
-        if (filasFiltradas.length === 0) {
-            sinRegistros.classList.remove("hidden");
-            paginacionContainer.style.display = "none";
-            return;
-        } else {
-            sinRegistros.classList.add("hidden");
-            paginacionContainer.style.display = "flex";
-        }
-
-        const totalPaginas = Math.ceil(filasFiltradas.length / registrosPorPagina) || 1;
-        if (paginaActual > totalPaginas) paginaActual = totalPaginas;
-
-        const inicio = (paginaActual - 1) * registrosPorPagina;
-        const fin = inicio + registrosPorPagina;
-
-        for (let i = inicio; i < fin && i < filasFiltradas.length; i++) {
-            filasFiltradas[i].style.display = "table-row";
-        }
-
-        document.getElementById("indicador-pagina").innerText = `Página ${paginaActual} de ${totalPaginas}`;
-        document.getElementById("info-paginacion").innerText = `Mostrando ${Math.min(fin, filasFiltradas.length)} de ${filasFiltradas.length} órdenes filtradas`;
-
-        document.getElementById("btn-anterior").disabled = paginaActual === 1;
-        document.getElementById("btn-siguiente").disabled = paginaActual >= totalPaginas;
-
-        if (totalPaginas <= 1) {
-            paginacionContainer.style.display = "none";
-        }
-    }
-
-    function cambiarPagina(direccion) {
-        const totalPaginas = Math.ceil(filasFiltradas.length / registrosPorPagina);
-        const nuevaPagina = paginaActual + direccion;
-        if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
-            paginaActual = nuevaPagina;
-            actualizarTabla();
-        }
+        document.getElementById('contador').textContent=visibles;
     }
 </script>
 
-<script th:src="@{/js/script.js}" defer></script>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
 </body>
 </html>

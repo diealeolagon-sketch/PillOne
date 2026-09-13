@@ -1,155 +1,255 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head}">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PillOne - Registrar Proveedor</title>
 
-    <!-- Tailwind CSS CDN -->
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>PillOne - Proveedor</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts: Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon"
+          type="image/png"
+          th:href="@{/img/img.png}">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
 
-    <!-- Configuración personalizada de Tailwind -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        pillone: {
-                            bg: '#F7F7FF',
-                            dark: '#07004D',
-                            darker: '#04002C',
-                            accent: '#208AAE',
-                            text: '#1D1E18'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
 </head>
-<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col selection:bg-pillone-accent selection:text-white">
 
-<!-- HEADER / TOPBAR -->
-<header th:replace="~{fragments/layout :: topbar('Proveedores')}"></header>
 
-<!-- CONTENEDOR CENTRAL -->
-<div class="flex flex-1 relative min-h-[calc(100vh-4rem)]">
+<body class="bg-pillone-bg font-sans text-pillone-text min-h-screen flex flex-col text-xs">
 
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden transition-all duration-300"></div>
+<header th:replace="fragments/layout :: topbar('Proveedores')"></header>
 
-    <!-- SIDEBAR -->
-    <aside th:replace="~{fragments/layout :: sidebar('proveedores')}"></aside>
+<div class="flex flex-1 relative">
 
-    <!-- AREA PRINCIPAL -->
-    <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
+    <aside th:replace="fragments/layout :: sidebar('proveedores')"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+
         <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full">
 
-            <!-- Cabecera del Formulario -->
-            <div class="mb-6 flex items-center justify-between">
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-pillone-dark uppercase tracking-wide">REGISTRAR NUEVO PROVEEDOR</h1>
-                    <p class="text-xs sm:text-sm text-slate-500">Complete los datos requeridos para dar de alta un proveedor en el sistema.</p>
-                </div>
-                <div>
-                    <a th:href="@{/view/proveedores}" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-300 transition-colors">
+
+            <section class="mb-5">
+
+                <div class="flex items-center justify-between">
+
+                    <div>
+
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase"
+                            th:text="${proveedor.id_proveedor != null ? 'Editar Proveedor' : 'Nuevo Proveedor'}">
+
+                            Proveedor
+
+                        </h1>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Registre los datos comerciales y de contacto del proveedor.
+                        </p>
+
+                    </div>
+
+
+                    <a th:href="@{/view/proveedores}"
+                       class="px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold">
+
                         ← Volver
+
                     </a>
+
                 </div>
+
+            </section>
+
+
+            <div th:if="${error}"
+                 class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 font-semibold"
+                 th:text="${error}">
             </div>
 
-            <!-- Tarjeta del Formulario -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-6 sm:p-8">
 
-                <form th:action="@{/view/proveedores/save}" th:object="${proveedor}" method="post" class="space-y-6">
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
 
-                    <!-- Campo oculto para el ID (clave para que funcione la edición y guardado correcto) -->
-                    <input type="hidden" th:field="*{id_proveedor}" />
+                <form th:action="@{/view/proveedores/save}"
+                      th:object="${proveedor}"
+                      method="post"
+                      class="space-y-6">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <!-- NIT -->
+
+                    <input type="hidden"
+                           th:field="*{id_proveedor}">
+
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">NIT</label>
-                            <input type="text" th:field="*{nit}" placeholder="Ej: 900123456-1" class="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+
+                            <label class="block font-semibold mb-1">
+                                NIT *
+                            </label>
+
+                            <input type="text"
+                                   th:field="*{nit}"
+                                   required
+                                   placeholder="Ej. 900123456-1"
+                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
                         </div>
 
-                        <!-- Razón Social -->
+
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Razón Social</label>
-                            <input type="text" th:field="*{razon_social}" placeholder="Ej: Distribuidora S.A.S." class="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+
+                            <label class="block font-semibold mb-1">
+                                Razón Social *
+                            </label>
+
+                            <input type="text"
+                                   th:field="*{razon_social}"
+                                   required
+                                   placeholder="Ej. Distribuciones Farmacéuticas S.A.S."
+                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
                         </div>
 
-                        <!-- Dirección -->
+
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Dirección</label>
-                            <input type="text" th:field="*{direccion}" placeholder="Ej: Calle 10 # 20-30" class="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+
+                            <label class="block font-semibold mb-1">
+                                Dirección *
+                            </label>
+
+                            <input type="text"
+                                   th:field="*{direccion}"
+                                   required
+                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
                         </div>
 
-                        <!-- Teléfono -->
+
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Teléfono</label>
-                            <input type="text" th:field="*{telefono}" placeholder="Ej: 3112233445" class="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+
+                            <label class="block font-semibold mb-1">
+                                Teléfono *
+                            </label>
+
+                            <input type="text"
+                                   th:field="*{telefono}"
+                                   required
+                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
                         </div>
 
-                        <!-- Correo -->
+
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Correo</label>
-                            <input type="email" th:field="*{correo}" placeholder="Ej: contacto@distribuidora.com" class="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+
+                            <label class="block font-semibold mb-1">
+                                Correo *
+                            </label>
+
+                            <input type="email"
+                                   th:field="*{correo}"
+                                   required
+                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
                         </div>
 
-                        <!-- Nombre Contacto -->
+
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Nombre Contacto</label>
-                            <input type="text" th:field="*{nombre_contacto}" placeholder="Ej: Juan Pérez" class="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+
+                            <label class="block font-semibold mb-1">
+                                Nombre de Contacto *
+                            </label>
+
+                            <input type="text"
+                                   th:field="*{nombre_contacto}"
+                                   required
+                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
                         </div>
 
-                        <!-- Tipo de Productos -->
+
                         <div class="sm:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Tipo de Productos</label>
-                            <input type="text" th:field="*{tipo_productos}" placeholder="Ej: Medicamentos Genéricos" class="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
+
+                            <label class="block font-semibold mb-1">
+                                Tipo de Productos *
+                            </label>
+
+                            <input type="text"
+                                   th:field="*{tipo_productos}"
+                                   required
+                                   placeholder="Ej. Medicamentos, cuidado personal, dispositivos médicos..."
+                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
                         </div>
+
+
+                        <div>
+
+                            <label class="block font-semibold mb-1">
+                                Estado *
+                            </label>
+
+                            <select th:field="*{estado}"
+                                    required
+                                    class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
+                                <option value="ACTIVO">
+                                    ACTIVO
+                                </option>
+
+                                <option value="INACTIVO">
+                                    INACTIVO
+                                </option>
+
+                            </select>
+
+                        </div>
+
                     </div>
 
-                    <!-- Estado -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Estado</label>
-                        <select th:field="*{estado}" class="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pillone-accent transition-all">
-                            <option value="ACTIVO">ACTIVO</option>
-                            <option value="INACTIVO">INACTIVO</option>
-                        </select>
-                    </div>
 
-                    <!-- Botones de Acción -->
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                        <a th:href="@{/view/proveedores}" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+                    <div class="flex justify-end gap-3 pt-4 border-t">
+
+                        <a th:href="@{/view/proveedores}"
+                           class="px-5 py-2.5 rounded-lg bg-slate-100 text-slate-600 font-semibold">
+
                             Cancelar
+
                         </a>
-                        <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-pillone-accent hover:opacity-90 transition-opacity cursor-pointer">
-                            Guardar Proveedor
+
+
+                        <button type="submit"
+                                class="px-5 py-2.5 rounded-lg bg-pillone-accent text-white font-bold">
+
+                            <span th:text="${proveedor.id_proveedor != null ? 'Guardar Cambios' : 'Guardar Proveedor'}">
+                                Guardar Proveedor
+                            </span>
+
                         </button>
+
                     </div>
 
                 </form>
-            </div>
+
+            </section>
 
         </main>
 
-        <!-- FOOTER -->
         <footer th:replace="~{fragments/layout :: footer}"></footer>
+
     </div>
+
 </div>
 
-<!-- SCRIPTS GLOBALES -->
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
 </body>
 </html>

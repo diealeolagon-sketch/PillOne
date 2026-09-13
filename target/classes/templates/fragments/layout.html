@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head th:fragment="head">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,25 +11,26 @@
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+              rel="stylesheet">
 
         <link rel="icon" type="image/png" th:href="@{/img/img.png}">
 
         <script>
-            tailwind.config={
-                theme:{
-                    extend:{
-                        colors:{
-                            pillone:{
-                                bg:'#F7F7FF',
-                                dark:'#07004D',
-                                darker:'#04002C',
-                                accent:'#208AAE',
-                                text:'#1D1E18'
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            pillone: {
+                                bg: '#F7F7FF',
+                                dark: '#07004D',
+                                darker: '#04002C',
+                                accent: '#208AAE',
+                                text: '#1D1E18'
                             }
                         },
-                        fontFamily:{
-                            sans:['Poppins','sans-serif']
+                        fontFamily: {
+                            sans: ['Poppins', 'sans-serif']
                         }
                     }
                 }
@@ -36,17 +38,48 @@
         </script>
 
         <style>
-            .submenu-container{
-                max-height:0px;
-                overflow:hidden;
-                transition:max-height 0.3s cubic-bezier(0.4,0,0.2,1),opacity 0.2s ease-in-out;
-                opacity:0;
+            .submenu-container {
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition:
+                        max-height .3s cubic-bezier(.4, 0, .2, 1),
+                        opacity .2s ease-in-out;
+            }
+
+            .nav-icon {
+                width: 1rem;
+                height: 1rem;
+                flex-shrink: 0;
+            }
+
+            .submenu-icon {
+                width: .9rem;
+                height: .9rem;
+                flex-shrink: 0;
+            }
+
+            #pillone-sidebar::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            #pillone-sidebar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            #pillone-sidebar::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,.15);
+                border-radius: 999px;
             }
         </style>
     </th:block>
 </head>
 
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col selection:bg-pillone-accent selection:text-white">
+
+<!-- ========================================================= -->
+<!-- TOPBAR -->
+<!-- ========================================================= -->
 
 <header th:fragment="topbar(title)"
         class="h-16 bg-pillone-dark text-white flex items-center justify-between px-4 sm:px-6 z-30 sticky top-0 shadow-md border-b border-white/10 w-full flex-shrink-0">
@@ -55,72 +88,103 @@
 
         <button type="button"
                 onclick="toggleSidebar()"
-                class="md:hidden text-slate-300 hover:text-white hover:bg-white/10 p-2 rounded-xl transition-all duration-200 focus:outline-none cursor-pointer">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="md:hidden text-slate-300 hover:text-white hover:bg-white/10 p-2 rounded-xl transition-all focus:outline-none">
+
+            <svg class="w-5 h-5"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24">
+
                 <path stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
                       d="M4 6h16M4 12h16M4 18h16"/>
+
             </svg>
         </button>
 
         <a th:href="@{/view/dashboard}"
-           class="flex items-center group focus:outline-none py-1 cursor-pointer"
-           title="Ir al inicio">
+           class="flex items-center group focus:outline-none py-1"
+           title="Ir al Dashboard">
 
             <svg xmlns="http://www.w3.org/2000/svg"
                  viewBox="0 0 460 110"
                  class="h-10 sm:h-11 w-auto drop-shadow-sm transition-transform duration-200 group-hover:scale-[1.02]">
 
                 <defs>
-                    <linearGradient id="hdrBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+
+                    <linearGradient id="hdrBlue"
+                                    x1="0%"
+                                    y1="0%"
+                                    x2="100%"
+                                    y2="100%">
+
                         <stop offset="0%" stop-color="#208AAE"/>
                         <stop offset="100%" stop-color="#07004D"/>
+
                     </linearGradient>
 
-                    <linearGradient id="hdrGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <linearGradient id="hdrGreen"
+                                    x1="0%"
+                                    y1="0%"
+                                    x2="100%"
+                                    y2="100%">
+
                         <stop offset="0%" stop-color="#34D399"/>
                         <stop offset="100%" stop-color="#10B981"/>
+
                     </linearGradient>
+
                 </defs>
 
                 <g>
-                    <path d="M 8,8 L 8,92 C 8,96.4 11.6,100 16,100 C 20.4,100 24,96.4 24,92 L 24,60 L 48,60 C 64,60 76,48 76,34 C 76,20 64,8 48,8 Z M 24,22 L 46,22 C 53,22 58,27 58,34 C 58,41 53,46 46,46 L 24,46 Z"
+
+                    <path d="M8 8L8 92C8 96.4 11.6 100 16 100C20.4 100 24 96.4 24 92L24 60L48 60C64 60 76 48 76 34C76 20 64 8 48 8ZM24 22H46C53 22 58 27 58 34C58 41 53 46 46 46H24Z"
                           fill="#FFFFFF"/>
 
-                    <g transform="translate(70, 4)">
-                        <path d="M16 48 V16 A16 16 0 0 1 32 0 H44 A16 16 0 0 1 60 16 V48 Z"
+                    <g transform="translate(70,4)">
+
+                        <path d="M16 48V16A16 16 0 0132 0H44A16 16 0 0160 16V48Z"
                               fill="url(#hdrBlue)"/>
-                        <path d="M16 48 H60 V80 A16 16 0 0 1 44 96 H32 A16 16 0 0 1 16 80 Z"
+
+                        <path d="M16 48H60V80A16 16 0 0144 96H32A16 16 0 0116 80Z"
                               fill="url(#hdrGreen)"/>
+
                         <line x1="16"
                               y1="48"
                               x2="60"
                               y2="48"
                               stroke="#FFFFFF"
                               stroke-width="2.5"/>
-                        <path d="M38 20 V76"
+
+                        <path d="M38 20V76"
                               stroke="#FFFFFF"
                               stroke-width="6"
                               stroke-linecap="round"/>
-                        <path d="M28 30 L38 20"
+
+                        <path d="M28 30L38 20"
                               fill="none"
                               stroke="#FFFFFF"
                               stroke-width="5"
                               stroke-linecap="round"
                               stroke-linejoin="round"/>
+
                     </g>
+
                 </g>
 
-                <g transform="translate(145, 12)">
+                <g transform="translate(145,12)">
+
                     <text x="0"
                           y="44"
-                          font-family="'Poppins', sans-serif"
+                          font-family="'Poppins',sans-serif"
                           font-weight="700"
                           font-size="44"
                           fill="#FFFFFF"
                           letter-spacing="-1">
+
                         Pill<tspan fill="#208AAE">One</tspan>
+
                     </text>
 
                     <rect x="0"
@@ -129,420 +193,933 @@
                           height="22"
                           rx="11"
                           fill="#FFFFFF"
-                          opacity="0.1"/>
+                          opacity=".1"/>
 
                     <text x="10"
                           y="71"
-                          font-family="'Poppins', sans-serif"
+                          font-family="'Poppins',sans-serif"
                           font-weight="600"
                           font-size="9"
                           fill="#34D399"
                           letter-spacing="1.1">
+
                         EL NÚMERO UNO EN CONTROL FARMACÉUTICO
+
                     </text>
+
                 </g>
+
             </svg>
+
         </a>
 
         <div class="hidden sm:block h-5 w-px bg-white/15 mx-1"></div>
 
-        <span class="hidden md:block font-medium text-xs lowercase tracking-wider text-slate-300">
-            gestión farmacéutica rápida, legal y sin errores
-        </span>
+        <div class="hidden md:flex flex-col">
+
+            <span th:text="${title}"
+                  class="text-xs font-semibold text-white">
+                Panel
+            </span>
+
+            <span class="text-[9px] text-slate-400 tracking-wide">
+                gestión farmacéutica
+            </span>
+
+        </div>
+
     </div>
+
 
     <div class="flex items-center gap-3 sm:gap-4">
 
-        <button type="button"
-                class="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 focus:outline-none cursor-pointer"
-                title="Notificaciones">
+        <!-- ALERTAS -->
+        <a th:href="@{/view/alertas/vencimientos}"
+           class="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all"
+           title="Alertas">
 
             <svg class="w-4 h-4"
                  fill="none"
                  stroke="currentColor"
                  viewBox="0 0 24 24">
+
                 <path stroke-linecap="round"
                       stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                      stroke-width="1.8"
+                      d="M15 17h5l-1.4-1.4A2 2 0 0118 14.17V11a6 6 0 00-4-5.66V5a2 2 0 10-4 0v.34A6 6 0 006 11v3.17a2 2 0 01-.6 1.43L4 17h5m6 0v1a3 3 0 11-6 0v-1"/>
+
             </svg>
 
             <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-pillone-accent rounded-full ring-2 ring-pillone-dark"></span>
-        </button>
 
-        <div class="flex items-center gap-2.5 border-l border-white/10 pl-3.5 group cursor-pointer py-1"
-             title="Ver Perfil">
+        </a>
 
-            <img id="user-avatar"
-                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop"
-                 alt="Avatar de Usuario"
-                 class="w-8 h-8 rounded-xl object-cover ring-2 ring-pillone-accent/60 group-hover:ring-pillone-accent transition-all duration-200 shadow-md">
+        <!-- PERFIL -->
+        <div class="flex items-center gap-2.5 border-l border-white/10 pl-3.5 py-1">
+
+            <div class="w-8 h-8 rounded-xl bg-pillone-accent/20 border border-pillone-accent/40 flex items-center justify-center">
+
+                <svg class="w-4 h-4 text-teal-300"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.8"
+                          d="M20 21a8 8 0 00-16 0m8-10a4 4 0 100-8 4 4 0 000 8z"/>
+
+                </svg>
+
+            </div>
 
             <div class="hidden sm:flex flex-col text-left">
-                <span class="text-xs font-semibold text-white group-hover:text-teal-300 leading-tight transition-colors duration-200">
+
+                <span class="text-xs font-semibold text-white leading-tight">
                     Farmacéutico
                 </span>
-                <span class="text-[10px] text-slate-300 group-hover:text-white transition-colors duration-200">
-                    Turno Activo
+
+                <span class="text-[10px] text-slate-400">
+                    Sesión activa
                 </span>
+
             </div>
+
         </div>
+
     </div>
+
 </header>
+
+
+<!-- ========================================================= -->
+<!-- CONTENEDOR -->
+<!-- ========================================================= -->
 
 <div class="flex flex-1 relative min-h-[calc(100vh-4rem)]">
 
     <div id="overlay"
          onclick="toggleSidebar()"
-         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden transition-all duration-300">
+         class="fixed inset-0 bg-slate-950/70 backdrop-blur-[1px] z-30 hidden md:hidden">
     </div>
+
+
+    <!-- ===================================================== -->
+    <!-- SIDEBAR -->
+    <!-- ===================================================== -->
 
     <aside th:fragment="sidebar(activeMenu)"
            id="pillone-sidebar"
-           class="w-60 bg-gradient-to-b from-pillone-dark to-pillone-darker text-white flex flex-col fixed md:sticky top-16 h-[calc(100vh-4rem)] z-40 transition-transform duration-300 ease-out -translate-x-full md:translate-x-0 shadow-2xl border-r border-white/10 flex-shrink-0">
+           data-open="false"
+           class="w-64 bg-gradient-to-b from-pillone-dark to-pillone-darker text-white flex flex-col fixed md:sticky top-16 h-[calc(100vh-4rem)] z-40 transition-transform duration-300 ease-out -translate-x-full md:translate-x-0 shadow-2xl border-r border-white/10 flex-shrink-0">
 
         <div class="px-4 py-3 border-b border-white/5">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest cursor-default">
+
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-[.18em]">
                 Navegación
             </span>
+
         </div>
+
 
         <nav class="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
 
-            <a th:href="@{/view/dashboard}"
-               class="text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 group cursor-pointer">
 
-                <div class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-200">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0"
+            <!-- ================================================= -->
+            <!-- DASHBOARD -->
+            <!-- ================================================= -->
+
+            <a th:href="@{/view/dashboard}"
+               data-nav-path="/view/dashboard"
+               class="nav-link text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group">
+
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
+
+                    <svg class="nav-icon"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="1.8"
                          viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+
+                        <rect x="3"
+                              y="3"
+                              width="7"
+                              height="7"
+                              rx="1.5"
+                              stroke-width="1.8"/>
+
+                        <rect x="14"
+                              y="3"
+                              width="7"
+                              height="7"
+                              rx="1.5"
+                              stroke-width="1.8"/>
+
+                        <rect x="3"
+                              y="14"
+                              width="7"
+                              height="7"
+                              rx="1.5"
+                              stroke-width="1.8"/>
+
+                        <rect x="14"
+                              y="14"
+                              width="7"
+                              height="7"
+                              rx="1.5"
+                              stroke-width="1.8"/>
+
                     </svg>
+
                 </div>
 
-                <span>Inicio</span>
+                <span>Dashboard</span>
+
             </a>
+
+
+            <!-- ================================================= -->
+            <!-- CATÁLOGO E INVENTARIO -->
+            <!-- ================================================= -->
 
             <div class="space-y-1">
 
                 <button type="button"
                         onclick="toggleSubmenu('submenu-inventario')"
-                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors duration-200 group focus:outline-none cursor-pointer">
+                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-all group focus:outline-none">
 
                     <div class="flex items-center gap-3">
 
-                        <div class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-200">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0"
+                        <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
+
+                            <!-- ICONO CAJA / INVENTARIO -->
+                            <svg class="nav-icon"
                                  fill="none"
                                  stroke="currentColor"
-                                 stroke-width="1.8"
                                  viewBox="0 0 24 24">
-                                <path stroke-linecap="round"
+
+                                <path stroke-width="1.8"
+                                      stroke-linecap="round"
                                       stroke-linejoin="round"
-                                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                      d="M4 7.5L12 3l8 4.5v9L12 21l-8-4.5v-9z"/>
+
+                                <path stroke-width="1.8"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M4.5 7.5L12 12l7.5-4.5M12 12v9"/>
+
+                                <path stroke-width="1.8"
+                                      stroke-linecap="round"
+                                      d="M8 5.2l8 4.5"/>
+
                             </svg>
+
                         </div>
 
                         <span>Catálogo y Stock</span>
+
                     </div>
 
                     <svg id="arrow-inventario"
-                         class="w-3 h-3 transition-transform duration-300 text-slate-400 group-hover:text-white"
+                         class="w-3 h-3 transition-transform duration-300 text-slate-400"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="2"
                          viewBox="0 0 24 24">
+
                         <path stroke-linecap="round"
                               stroke-linejoin="round"
+                              stroke-width="2"
                               d="M19 9l-7 7-7-7"/>
+
                     </svg>
+
                 </button>
 
+
                 <div id="submenu-inventario"
-                     class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1"
-                     style="max-height:0px;overflow:hidden;opacity:0;">
+                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
 
+                    <!-- MEDICAMENTOS -->
                     <a th:href="@{/view/productos}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Medicamentos
+                       data-nav-path="/view/productos"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M8.5 4.5l11 11a3.5 3.5 0 01-5 5l-11-11a3.5 3.5 0 015-5z"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  d="M8 14l6-6"/>
+
+                        </svg>
+
+                        <span>Medicamentos</span>
+
                     </a>
 
+
+                    <!-- CATEGORÍAS -->
+                    <a th:href="@{/view/categorias}"
+                       data-nav-path="/view/categorias"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M4 6a2 2 0 012-2h5l9 9-7 7-9-9V6z"/>
+
+                            <circle cx="8"
+                                    cy="8"
+                                    r="1"
+                                    fill="currentColor"
+                                    stroke="none"/>
+
+                        </svg>
+
+                        <span>Categorías</span>
+
+                    </a>
+
+
+                    <!-- LOTES -->
                     <a th:href="@{/view/lotes}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Control de Lotes e Inventario
+                       data-nav-path="/view/lotes"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M5 7h14v13H5zM8 7V4h8v3M9 11h6M9 15h4"/>
+
+                        </svg>
+
+                        <span>Lotes e Inventario</span>
+
                     </a>
 
+
+                    <!-- ALERTAS -->
                     <a th:href="@{/view/alertas/vencimientos}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Alertas de Vencimiento
+                       data-nav-path="/view/alertas/vencimientos"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M12 3L2.8 19h18.4L12 3z"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  d="M12 9v4"/>
+
+                            <circle cx="12"
+                                    cy="16"
+                                    r=".8"
+                                    fill="currentColor"
+                                    stroke="none"/>
+
+                        </svg>
+
+                        <span>Alertas de Vencimiento</span>
+
                     </a>
+
                 </div>
+
             </div>
+
+
+            <!-- ================================================= -->
+            <!-- VENTAS / POS -->
+            <!-- ================================================= -->
 
             <div class="space-y-1">
 
                 <button type="button"
                         onclick="toggleSubmenu('submenu-dispensacion')"
-                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors duration-200 group focus:outline-none cursor-pointer">
+                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-all group focus:outline-none">
 
                     <div class="flex items-center gap-3">
 
-                        <div class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-200">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0"
+                        <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
+
+                            <!-- ICONO CAJA REGISTRADORA -->
+                            <svg class="nav-icon"
                                  fill="none"
                                  stroke="currentColor"
-                                 stroke-width="1.8"
                                  viewBox="0 0 24 24">
-                                <path stroke-linecap="round"
+
+                                <path stroke-width="1.8"
+                                      stroke-linecap="round"
                                       stroke-linejoin="round"
-                                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
+                                      d="M5 8h14v12H5zM8 4h8l2 4H6l2-4z"/>
+
+                                <path stroke-width="1.8"
+                                      stroke-linecap="round"
+                                      d="M8 12h2m2 0h2m2 0h1M8 16h8"/>
+
                             </svg>
+
                         </div>
 
                         <span>Dispensación / POS</span>
+
                     </div>
 
                     <svg id="arrow-dispensacion"
-                         class="w-3 h-3 transition-transform duration-300 text-slate-400 group-hover:text-white"
+                         class="w-3 h-3 transition-transform duration-300 text-slate-400"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="2"
                          viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
+
+                        <path stroke-width="2"
+                              stroke-linecap="round"
                               stroke-linejoin="round"
                               d="M19 9l-7 7-7-7"/>
+
                     </svg>
+
                 </button>
 
+
                 <div id="submenu-dispensacion"
-                     class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1"
-                     style="max-height:0px;overflow:hidden;opacity:0;">
+                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
 
+                    <!-- NUEVA VENTA -->
                     <a th:href="@{/view/ventas/form}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Nueva Venta
+                       data-nav-path="/view/ventas/form"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <circle cx="9"
+                                    cy="19"
+                                    r="1.5"
+                                    stroke-width="1.8"/>
+
+                            <circle cx="17"
+                                    cy="19"
+                                    r="1.5"
+                                    stroke-width="1.8"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M3 4h2l2.2 10.5h10.6L20 7H6"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  d="M14 9v4m-2-2h4"/>
+
+                        </svg>
+
+                        <span>Nueva Venta</span>
+
                     </a>
 
+
+                    <!-- HISTORIAL -->
                     <a th:href="@{/view/ventas}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Historial de Dispensación
+                       data-nav-path="/view/ventas"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M12 8v5l3 2M4 6v4h4"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M5.2 17A8 8 0 104.5 8"/>
+
+                        </svg>
+
+                        <span>Historial de Ventas</span>
+
                     </a>
+
                 </div>
+
             </div>
+
+
+            <!-- ================================================= -->
+            <!-- PROVEEDORES Y COMPRAS -->
+            <!-- ================================================= -->
 
             <div class="space-y-1">
 
                 <button type="button"
                         onclick="toggleSubmenu('submenu-proveedores')"
-                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors duration-200 group focus:outline-none cursor-pointer">
+                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-all group focus:outline-none">
 
                     <div class="flex items-center gap-3">
 
-                        <div class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-200">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0"
+                        <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
+
+                            <!-- CAMIÓN -->
+                            <svg class="nav-icon"
                                  fill="none"
                                  stroke="currentColor"
-                                 stroke-width="1.8"
                                  viewBox="0 0 24 24">
-                                <path stroke-linecap="round"
+
+                                <path stroke-width="1.8"
+                                      stroke-linecap="round"
                                       stroke-linejoin="round"
-                                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9m4 0V7m0 0h4m-4 0H9"/>
+                                      d="M3 6h11v10H3zM14 10h4l3 3v3h-7z"/>
+
+                                <circle cx="7"
+                                        cy="18"
+                                        r="2"
+                                        stroke-width="1.8"/>
+
+                                <circle cx="18"
+                                        cy="18"
+                                        r="2"
+                                        stroke-width="1.8"/>
+
                             </svg>
+
                         </div>
 
                         <span>Proveedores</span>
+
                     </div>
 
                     <svg id="arrow-proveedores"
-                         class="w-3 h-3 transition-transform duration-300 text-slate-400 group-hover:text-white"
+                         class="w-3 h-3 transition-transform duration-300 text-slate-400"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="2"
                          viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
+
+                        <path stroke-width="2"
+                              stroke-linecap="round"
                               stroke-linejoin="round"
                               d="M19 9l-7 7-7-7"/>
+
                     </svg>
+
                 </button>
 
+
                 <div id="submenu-proveedores"
-                     class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1"
-                     style="max-height:0px;overflow:hidden;opacity:0;">
+                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
 
+                    <!-- PROVEEDORES -->
                     <a th:href="@{/view/proveedores}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Directorio de Proveedores
+                       data-nav-path="/view/proveedores"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M4 21V5a2 2 0 012-2h12a2 2 0 012 2v16M8 7h2m4 0h2M8 11h2m4 0h2M8 15h8M9 21v-3h6v3"/>
+
+                        </svg>
+
+                        <span>Directorio de Proveedores</span>
+
                     </a>
 
+
+                    <!-- COMPRAS -->
                     <a th:href="@{/view/compras}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Órdenes de Compra
+                       data-nav-path="/view/compras"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M6 3h12v18H6z"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  d="M9 8h6M9 12h6M9 16h4"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M9 3V2m6 1V2"/>
+
+                        </svg>
+
+                        <span>Órdenes de Compra</span>
+
                     </a>
+
                 </div>
+
             </div>
 
+
+            <!-- ================================================= -->
+            <!-- CLIENTES -->
+            <!-- ================================================= -->
+
             <a th:href="@{/view/clientes}"
-               class="text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 group cursor-pointer">
+               data-nav-path="/view/clientes"
+               class="nav-link text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group">
 
-                <div class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-200">
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
 
-                    <svg class="w-3.5 h-3.5 flex-shrink-0"
+                    <svg class="nav-icon"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="1.8"
                          viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round"
+                        <circle cx="12"
+                                cy="8"
+                                r="3.5"
+                                stroke-width="1.8"/>
+
+                        <path stroke-width="1.8"
+                              stroke-linecap="round"
                               stroke-linejoin="round"
-                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                              d="M5 21v-1a7 7 0 0114 0v1"/>
+
+                        <path stroke-width="1.8"
+                              stroke-linecap="round"
+                              d="M18 8h3m-1.5-1.5v3"/>
+
                     </svg>
+
                 </div>
 
                 <span>Pacientes / Clientes</span>
+
             </a>
+
+
+            <!-- ================================================= -->
+            <!-- PERSONAL Y ACCESOS -->
+            <!-- ================================================= -->
 
             <div class="space-y-1">
 
                 <button type="button"
                         onclick="toggleSubmenu('submenu-empleados')"
-                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors duration-200 group focus:outline-none cursor-pointer">
+                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-all group focus:outline-none">
 
                     <div class="flex items-center gap-3">
 
-                        <div class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-200">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0"
+                        <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
+
+                            <!-- CREDENCIAL / EMPLEADO -->
+                            <svg class="nav-icon"
                                  fill="none"
                                  stroke="currentColor"
-                                 stroke-width="1.8"
                                  viewBox="0 0 24 24">
-                                <path stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+
+                                <rect x="3"
+                                      y="5"
+                                      width="18"
+                                      height="14"
+                                      rx="2"
+                                      stroke-width="1.8"/>
+
+                                <circle cx="8"
+                                        cy="11"
+                                        r="2"
+                                        stroke-width="1.8"/>
+
+                                <path stroke-width="1.8"
+                                      stroke-linecap="round"
+                                      d="M5.5 16c.7-1.7 1.7-2.5 2.5-2.5s1.8.8 2.5 2.5M14 10h4M14 14h4"/>
+
                             </svg>
+
                         </div>
 
-                        <span>Usuarios y Personal</span>
+                        <span>Personal y Accesos</span>
+
                     </div>
 
                     <svg id="arrow-empleados"
-                         class="w-3 h-3 transition-transform duration-300 text-slate-400 group-hover:text-white"
+                         class="w-3 h-3 transition-transform duration-300 text-slate-400"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="2"
                          viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
+
+                        <path stroke-width="2"
+                              stroke-linecap="round"
                               stroke-linejoin="round"
                               d="M19 9l-7 7-7-7"/>
+
                     </svg>
+
                 </button>
 
+
                 <div id="submenu-empleados"
-                     class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1"
-                     style="max-height:0px;overflow:hidden;opacity:0;">
+                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
 
+                    <!-- EMPLEADOS -->
                     <a th:href="@{/view/empleados}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Empleados
+                       data-nav-path="/view/empleados"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <circle cx="9"
+                                    cy="7"
+                                    r="3"
+                                    stroke-width="1.8"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  d="M3.5 20a5.5 5.5 0 0111 0"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M16 11h5M18.5 8.5v5"/>
+
+                        </svg>
+
+                        <span>Empleados y Accesos</span>
+
                     </a>
 
-                    <a th:href="@{/view/usuarios}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Usuarios
-                    </a>
 
+                    <!-- ROLES -->
                     <a th:href="@{/view/roles}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Roles
+                       data-nav-path="/view/roles"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M12 3l7 3v5c0 4.6-2.8 8.2-7 10-4.2-1.8-7-5.4-7-10V6l7-3z"/>
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M9 12l2 2 4-4"/>
+
+                        </svg>
+
+                        <span>Roles y Permisos</span>
+
                     </a>
+
                 </div>
+
             </div>
 
+
+            <!-- ================================================= -->
+            <!-- REPORTES -->
+            <!-- ================================================= -->
+
             <a th:href="@{/view/reportes}"
-               class="text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 group cursor-pointer">
+               data-nav-path="/view/reportes"
+               class="nav-link text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group">
 
-                <div class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-200">
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
 
-                    <svg class="w-3.5 h-3.5 flex-shrink-0"
+                    <svg class="nav-icon"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="1.8"
                          viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round"
+                        <path stroke-width="1.8"
+                              stroke-linecap="round"
                               stroke-linejoin="round"
-                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                              d="M4 20V10h4v10H4zm6 0V4h4v16h-4zm6 0v-7h4v7h-4z"/>
+
                     </svg>
+
                 </div>
 
                 <span>Reportes</span>
+
             </a>
+
+
+            <!-- ================================================= -->
+            <!-- CONFIGURACIÓN -->
+            <!-- ================================================= -->
 
             <div class="space-y-1">
 
                 <button type="button"
                         onclick="toggleSubmenu('submenu-config')"
-                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors duration-200 group focus:outline-none cursor-pointer">
+                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-all group focus:outline-none">
 
                     <div class="flex items-center gap-3">
 
-                        <div class="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors duration-200">
+                        <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
 
-                            <svg class="w-3.5 h-3.5 flex-shrink-0"
+                            <svg class="nav-icon"
                                  fill="none"
                                  stroke="currentColor"
-                                 stroke-width="1.8"
                                  viewBox="0 0 24 24">
 
-                                <path stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <circle cx="12"
+                                        cy="12"
+                                        r="3"
+                                        stroke-width="1.8"/>
 
-                                <path stroke-linecap="round"
+                                <path stroke-width="1.8"
+                                      stroke-linecap="round"
                                       stroke-linejoin="round"
-                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                      d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0015 19.4a1.7 1.7 0 00-1 .6 1.7 1.7 0 00-.4 1V21h-4v-.09a1.7 1.7 0 00-1.1-1.58 1.7 1.7 0 00-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 004.6 15a1.7 1.7 0 00-.6-1 1.7 1.7 0 00-1-.4H3v-4h.09A1.7 1.7 0 004.67 8.5a1.7 1.7 0 00-.34-1.88l-.06-.06L7.1 3.73l.06.06A1.7 1.7 0 009 4.6a1.7 1.7 0 001-.6 1.7 1.7 0 00.4-1V3h4v.09A1.7 1.7 0 0015.5 4.67a1.7 1.7 0 001.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0019.4 9c.2.36.5.7.6 1 .1.3.2.7.2 1H21v4h-.09A1.7 1.7 0 0019.4 15z"/>
+
                             </svg>
+
                         </div>
 
                         <span>Configuración</span>
+
                     </div>
 
                     <svg id="arrow-config"
-                         class="w-3 h-3 transition-transform duration-300 text-slate-400 group-hover:text-white"
+                         class="w-3 h-3 transition-transform duration-300 text-slate-400"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="2"
                          viewBox="0 0 24 24">
 
-                        <path stroke-linecap="round"
+                        <path stroke-width="2"
+                              stroke-linecap="round"
                               stroke-linejoin="round"
                               d="M19 9l-7 7-7-7"/>
+
                     </svg>
+
                 </button>
 
+
                 <div id="submenu-config"
-                     class="submenu-container pl-4 space-y-1 pt-1 border-l border-white/10 ml-5 my-1"
-                     style="max-height:0px;overflow:hidden;opacity:0;">
+                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
 
+                    <!-- SUCURSALES -->
                     <a th:href="@{/view/sucursales}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Sucursales
+                       data-nav-path="/view/sucursales"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M4 21V8l8-5 8 5v13M8 21v-5h8v5M8 10h2m4 0h2"/>
+
+                        </svg>
+
+                        <span>Sucursales</span>
+
                     </a>
 
+
+                    <!-- CONFIG GENERAL -->
                     <a th:href="@{/view/configuracion}"
-                       class="block px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
-                        Impuestos / Métodos de Pago
+                       data-nav-path="/view/configuracion"
+                       class="submenu-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+
+                        <svg class="submenu-icon"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  d="M4 7h10M18 7h2M4 17h2M10 17h10M4 12h4M12 12h8"/>
+
+                            <circle cx="16"
+                                    cy="7"
+                                    r="2"
+                                    stroke-width="1.8"/>
+
+                            <circle cx="8"
+                                    cy="17"
+                                    r="2"
+                                    stroke-width="1.8"/>
+
+                            <circle cx="10"
+                                    cy="12"
+                                    r="2"
+                                    stroke-width="1.8"/>
+
+                        </svg>
+
+                        <span>Configuración General</span>
+
                     </a>
+
                 </div>
+
             </div>
+
+
         </nav>
+
     </aside>
 
+
+    <!-- ===================================================== -->
+    <!-- ÁREA PRINCIPAL -->
+    <!-- ===================================================== -->
+
     <div class="flex-1 flex flex-col min-w-0 bg-pillone-bg">
-        <main class="flex-1 p-4 sm:p-6 lg:p-8"></main>
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+        </main>
+
+
+        <!-- ================================================= -->
+        <!-- FOOTER -->
+        <!-- ================================================= -->
 
         <footer th:fragment="footer"
                 class="bg-white border-t border-slate-200 py-3 px-6 text-xs text-slate-500 mt-auto w-full">
@@ -552,207 +1129,372 @@
                 <div class="flex items-center gap-2">
 
                     <a th:href="@{/view/dashboard}"
-                       class="font-semibold text-pillone-dark hover:text-pillone-accent transition-colors duration-200 cursor-pointer">
+                       class="font-semibold text-pillone-dark hover:text-pillone-accent transition-colors">
                         PillOne Pharma System
                     </a>
 
                     <span>
                         &copy;
-                        <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span>.
-                        Todos los derechos reservados.
+                        <span th:text="${#dates.format(#dates.createNow(),'yyyy')}">
+                            2026
+                        </span>
+                        . Todos los derechos reservados.
                     </span>
+
                 </div>
 
                 <div class="flex items-center gap-4 text-slate-400">
-                    <span class="hover:text-pillone-dark transition-colors duration-200 cursor-pointer">
-                        Soporte Técnico
-                    </span>
+
+                    <span>Soporte Técnico</span>
 
                     <span>&bull;</span>
 
-                    <span class="hover:text-pillone-dark transition-colors duration-200 cursor-pointer">
-                        Normativa Sanitaria
-                    </span>
+                    <span>Control Farmacéutico</span>
 
                     <span>&bull;</span>
 
-                    <span class="text-slate-400 font-mono text-[11px]">
-                        v1.0.4-RELEASE
+                    <span class="font-mono text-[11px]">
+                        v1.0.4
                     </span>
+
                 </div>
+
             </div>
+
         </footer>
+
     </div>
+
 </div>
 
+
+<!-- ========================================================= -->
+<!-- SCRIPTS -->
+<!-- ========================================================= -->
+
 <th:block th:fragment="scripts">
+
     <script>
-        window.toggleSidebar=function(){
-            const sidebar=document.getElementById('pillone-sidebar');
-            const overlay=document.getElementById('overlay');
 
-            if(!sidebar)return;
+        window.toggleSidebar = function(){
 
-            const isOpen=sidebar.dataset.open==='true';
+            const sidebar =
+                document.getElementById('pillone-sidebar');
 
-            if(isOpen){
-                sidebar.classList.add('-translate-x-full');
-                sidebar.dataset.open='false';
+            const overlay =
+                document.getElementById('overlay');
+
+            if(!sidebar) return;
+
+            const abierto =
+                sidebar.dataset.open === 'true';
+
+            if(abierto){
+
+                sidebar.classList.add(
+                    '-translate-x-full'
+                );
+
+                sidebar.dataset.open =
+                    'false';
 
                 if(overlay){
-                    overlay.classList.add('hidden');
+                    overlay.classList.add(
+                        'hidden'
+                    );
                 }
 
-                document.body.classList.remove('overflow-hidden');
+                document.body.classList.remove(
+                    'overflow-hidden'
+                );
+
             }else{
-                sidebar.classList.remove('-translate-x-full');
-                sidebar.dataset.open='true';
+
+                sidebar.classList.remove(
+                    '-translate-x-full'
+                );
+
+                sidebar.dataset.open =
+                    'true';
 
                 if(overlay){
-                    overlay.classList.remove('hidden');
+                    overlay.classList.remove(
+                        'hidden'
+                    );
                 }
 
-                document.body.classList.add('overflow-hidden');
+                document.body.classList.add(
+                    'overflow-hidden'
+                );
             }
         };
 
-        window.toggleSubmenu=function(id){
-            const submenu=document.getElementById(id);
 
-            if(!submenu){
-                return;
-            }
+        window.toggleSubmenu = function(id){
 
-            const arrowId='arrow-'+id.split('-')[1];
-            const arrow=document.getElementById(arrowId);
+            const submenu =
+                document.getElementById(id);
 
-            const isOpen=
-                submenu.style.maxHeight
-                &&
-                submenu.style.maxHeight!=='0px';
+            if(!submenu) return;
 
-            document.querySelectorAll('.submenu-container').forEach(function(otro){
-                if(otro!==submenu){
-                    otro.style.maxHeight='0px';
-                    otro.style.opacity='0';
+            const nombre =
+                id.replace(
+                    'submenu-',
+                    ''
+                );
 
-                    const otroArrowId='arrow-'+otro.id.split('-')[1];
-                    const otroArrow=document.getElementById(otroArrowId);
+            const arrow =
+                document.getElementById(
+                    'arrow-' + nombre
+                );
 
-                    if(otroArrow){
-                        otroArrow.classList.remove('rotate-180');
-                    }
-                }
-            });
+            const abierto =
+                submenu.style.maxHeight &&
+                submenu.style.maxHeight !== '0px';
 
-            if(isOpen){
-                submenu.style.maxHeight='0px';
-                submenu.style.opacity='0';
 
-                if(arrow){
-                    arrow.classList.remove('rotate-180');
-                }
-            }else{
-                submenu.style.maxHeight=submenu.scrollHeight+'px';
-                submenu.style.opacity='1';
+            document
+                .querySelectorAll(
+                    '.submenu-container'
+                )
+                .forEach(function(otro){
 
-                if(arrow){
-                    arrow.classList.add('rotate-180');
-                }
-            }
-        };
+                    if(otro !== submenu){
 
-        document.addEventListener("DOMContentLoaded",function(){
-            const sidebar=document.getElementById('pillone-sidebar');
+                        otro.style.maxHeight =
+                            '0px';
 
-            if(sidebar){
-                sidebar.querySelectorAll('a[href]').forEach(function(link){
-                    link.addEventListener('click',function(){
-                        if(
-                            window.innerWidth<768
-                            &&
-                            sidebar.dataset.open==='true'
-                        ){
-                            window.toggleSidebar();
+                        otro.style.opacity =
+                            '0';
+
+                        const otroNombre =
+                            otro.id.replace(
+                                'submenu-',
+                                ''
+                            );
+
+                        const otraFlecha =
+                            document.getElementById(
+                                'arrow-' + otroNombre
+                            );
+
+                        if(otraFlecha){
+
+                            otraFlecha
+                                .classList
+                                .remove(
+                                    'rotate-180'
+                                );
                         }
-                    });
+                    }
                 });
+
+
+            if(abierto){
+
+                submenu.style.maxHeight =
+                    '0px';
+
+                submenu.style.opacity =
+                    '0';
+
+                if(arrow){
+
+                    arrow
+                        .classList
+                        .remove(
+                            'rotate-180'
+                        );
+                }
+
+            }else{
+
+                submenu.style.maxHeight =
+                    submenu.scrollHeight + 'px';
+
+                submenu.style.opacity =
+                    '1';
+
+                if(arrow){
+
+                    arrow
+                        .classList
+                        .add(
+                            'rotate-180'
+                        );
+                }
             }
-        });
+        };
 
-        document.addEventListener("DOMContentLoaded",function(){
-            let currentPath=window.location.pathname;
 
-            if(currentPath.length>1&&currentPath.endsWith('/')){
-                currentPath=currentPath.slice(0,-1);
-            }
+        document.addEventListener(
+            'DOMContentLoaded',
+            function(){
 
-            const submenuContainers=
-                document.querySelectorAll('.submenu-container');
-
-            submenuContainers.forEach(function(submenu){
-                const links=submenu.querySelectorAll('a');
-                let hasActiveLink=false;
-
-                links.forEach(function(link){
-                    link.classList.remove(
-                        'text-white',
-                        'bg-white/10'
+                const sidebar =
+                    document.getElementById(
+                        'pillone-sidebar'
                     );
 
-                    let href=link.getAttribute('href');
+                if(sidebar){
 
-                    if(!href||href==='#'){
-                        return;
-                    }
+                    sidebar
+                        .querySelectorAll(
+                            'a[href]'
+                        )
+                        .forEach(function(link){
 
-                    try{
-                        href=new URL(
-                            href,
-                            window.location.origin
-                        ).pathname;
-                    }catch(error){
-                        return;
-                    }
+                            link.addEventListener(
+                                'click',
+                                function(){
 
-                    if(href.length>1&&href.endsWith('/')){
-                        href=href.slice(0,-1);
-                    }
+                                    if(
+                                        window.innerWidth < 768 &&
+                                        sidebar.dataset.open === 'true'
+                                    ){
 
-                    if(currentPath===href){
-                        hasActiveLink=true;
+                                        window.toggleSidebar();
 
-                        link.classList.add(
-                            'text-white',
-                            'bg-white/10'
-                        );
-                    }
-                });
+                                    }
+                                }
+                            );
 
-                const id=submenu.id;
-                const arrowId='arrow-'+id.split('-')[1];
-                const arrow=document.getElementById(arrowId);
-
-                if(hasActiveLink){
-                    submenu.style.maxHeight=
-                        submenu.scrollHeight+'px';
-
-                    submenu.style.opacity='1';
-
-                    if(arrow){
-                        arrow.classList.add('rotate-180');
-                    }
-                }else{
-                    submenu.style.maxHeight='0px';
-                    submenu.style.opacity='0';
-
-                    if(arrow){
-                        arrow.classList.remove('rotate-180');
-                    }
+                        });
                 }
-            });
-        });
+
+
+                const currentPath =
+                    window.location.pathname
+                        .replace(/\/+$/, '');
+
+
+                document
+                    .querySelectorAll(
+                        '[data-nav-path]'
+                    )
+                    .forEach(function(link){
+
+                        const linkPath =
+                            link
+                                .getAttribute(
+                                    'data-nav-path'
+                                )
+                                .replace(/\/+$/, '');
+
+
+                        /*
+                         * Comparación exacta.
+                         * Excepción para pantallas hijas
+                         * como /edit/123.
+                         */
+                        const activo =
+                            currentPath === linkPath ||
+                            currentPath.startsWith(
+                                linkPath + '/'
+                            );
+
+
+                        /*
+                         * Evita que /view/ventas
+                         * se marque también cuando
+                         * estamos específicamente
+                         * en /view/ventas/form.
+                         */
+                        const existeMasEspecifico =
+                            Array
+                                .from(
+                                    document.querySelectorAll(
+                                        '[data-nav-path]'
+                                    )
+                                )
+                                .some(function(otro){
+
+                                    if(otro === link){
+                                        return false;
+                                    }
+
+                                    const otroPath =
+                                        otro
+                                            .getAttribute(
+                                                'data-nav-path'
+                                            )
+                                            .replace(
+                                                /\/+$/,
+                                                ''
+                                            );
+
+                                    return (
+                                        otroPath.length >
+                                        linkPath.length &&
+                                        (
+                                            currentPath ===
+                                            otroPath ||
+
+                                            currentPath.startsWith(
+                                                otroPath + '/'
+                                            )
+                                        )
+                                    );
+                                });
+
+
+                        if(
+                            activo &&
+                            !existeMasEspecifico
+                        ){
+
+                            link.classList.add(
+                                'text-white',
+                                'bg-white/10'
+                            );
+
+
+                            const submenu =
+                                link.closest(
+                                    '.submenu-container'
+                                );
+
+
+                            if(submenu){
+
+                                submenu.style.maxHeight =
+                                    submenu.scrollHeight +
+                                    'px';
+
+                                submenu.style.opacity =
+                                    '1';
+
+
+                                const nombre =
+                                    submenu.id.replace(
+                                        'submenu-',
+                                        ''
+                                    );
+
+
+                                const arrow =
+                                    document.getElementById(
+                                        'arrow-' +
+                                        nombre
+                                    );
+
+
+                                if(arrow){
+
+                                    arrow
+                                        .classList
+                                        .add(
+                                            'rotate-180'
+                                        );
+                                }
+                            }
+                        }
+                    });
+            }
+        );
+
     </script>
+
 </th:block>
 
 </body>

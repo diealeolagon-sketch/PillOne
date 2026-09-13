@@ -7,6 +7,19 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface DetallesFormulasRepository extends JpaRepository<DetallesFormulas, Long> {
-    List findByIdFormula(Long idFormula);
+public interface DetallesFormulasRepository
+        extends JpaRepository<DetallesFormulas, Long> {
+
+    List<DetallesFormulas> findByIdFormula(
+            Long idFormula
+    );
+
+    void deleteByIdFormula(
+            Long idFormula
+    );
+
+    boolean existsByIdFormulaAndIdProducto(
+            Long idFormula,
+            Long idProducto
+    );
 }

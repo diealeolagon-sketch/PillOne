@@ -194,6 +194,19 @@ public class ProductosView {
         }
 
         /*
+         * PROVEEDOR HABITUAL:
+         * - Es opcional al crear/editar el producto.
+         * - Si se deja vacío, queda NULL.
+         * - La primera compra del producto asignará automáticamente
+         *   el proveedor de esa compra mediante el trigger de BD.
+         * - Si el usuario selecciona otro proveedor manualmente,
+         *   se respeta porque el trigger solo actúa cuando está NULL.
+         */
+        if(producto.getIdProveedor()!=null && producto.getIdProveedor()<=0){
+            producto.setIdProveedor(null);
+        }
+
+        /*
          * EL STOCK NO SE REGISTRA MANUALMENTE EN PRODUCTO.
          * LOS LOTES SON LA FUENTE REAL DEL INVENTARIO.
          */

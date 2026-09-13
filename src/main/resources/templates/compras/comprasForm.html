@@ -1,163 +1,1151 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PillOne - Formulario de Orden de Compra</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+    <title>PillOne - Pedido a Proveedor</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="icon"
+          type="image/png"
+          th:href="@{/img/img.png}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
     <th:block th:replace="fragments/layout :: styles"></th:block>
+
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        pillone: {
-                            bg: '#F7F7FF',
-                            dark: '#07004D',
-                            darker: '#04002C',
-                            accent: '#208AAE',
-                            text: '#1D1E18'
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
                         }
                     },
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
+                    }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
-<!-- TOPBAR GLOBAL -->
-<header th:replace="fragments/layout :: topbar('Gestión de Órdenes de Compra')"></header>
+<body class="bg-pillone-bg font-sans text-pillone-text min-h-screen flex flex-col text-xs">
 
-<!-- CONTENEDOR CENTRAL -->
+<header th:replace="fragments/layout :: topbar('Pedido a Proveedor')"></header>
+
 <div class="flex flex-1 relative">
 
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden"></div>
+    <div id="overlay"
+         onclick="toggleSidebar()"
+         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+    </div>
 
-    <!-- SIDEBAR GLOBAL -->
     <aside th:replace="fragments/layout :: sidebar('compras')"></aside>
 
-    <!-- AREA PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0">
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full">
 
-            <!-- ENCABEZADO -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+
+            <!-- CABECERA -->
             <section class="mb-5">
-                <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight"
-                    th:text="${compra.idCompra == null ? 'Nueva Orden de Compra' : 'Editar Orden de Compra'}">
-                </h1>
-                <p class="text-xs text-slate-500 mt-1">
-                    Complete la información requerida para registrar o actualizar la orden de compra.
-                </p>
+
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+
+                    <div>
+
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase"
+                            th:text="${compraEditar != null ? 'Editar Pedido' : 'Nuevo Pedido'}">
+                            Nuevo Pedido
+                        </h1>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Registre los productos y la presentación solicitada al proveedor.
+                        </p>
+
+                    </div>
+
+                    <a th:href="@{/view/compras}"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200 transition">
+
+                        <svg class="w-4 h-4"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M15 19l-7-7 7-7">
+                            </path>
+
+                        </svg>
+
+                        Volver
+
+                    </a>
+
+                </div>
+
             </section>
 
-            <!-- MENSAJE DE ERROR FLASH -->
-            <div th:if="${error}" class="mb-4 rounded-lg bg-rose-50 border border-rose-200 p-3 text-rose-800 text-xs font-medium shadow-sm flex items-center gap-2">
-                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                <span th:text="${error}">Mensaje de error</span>
+            <!-- EDICIÓN -->
+            <div th:if="${compraEditar != null}"
+                 class="mb-4 p-4 rounded-xl bg-blue-50 border border-blue-100">
+
+                <div class="font-bold text-pillone-dark">
+                    Pedido en edición
+                </div>
+
+                <p class="text-[10px] text-slate-500 mt-1">
+                    Este pedido puede modificarse únicamente durante las primeras 48 horas.
+                </p>
+
             </div>
 
-            <!-- FORMULARIO -->
-            <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden p-6">
-                <form th:action="@{/view/compras/gestion/guardar}" th:object="${compra}" method="post" class="space-y-4">
+            <form th:action="@{/view/compras/save}"
+                  method="post"
+                  id="formCompra">
 
-                    <!-- Campo oculto para el ID en caso de edición -->
-                    <input type="hidden" th:field="*{idCompra}" />
+                <input type="hidden"
+                       name="idCompra"
+                       th:value="${compraEditar != null ? compraEditar.idCompra : ''}">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Sucursal con carga dinámica -->
+                <!-- INFORMACIÓN -->
+                <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-5">
+
+                    <h2 class="font-bold text-pillone-accent uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
+                        Información del Pedido
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
                         <div>
-                            <label class="block text-slate-700 font-bold mb-1">Sucursal:</label>
-                            <select th:field="*{idSucursal}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required>
-                                <option value="">Seleccione una sucursal</option>
-                                <option th:each="s : ${sucursales}" th:value="${s.idSucursal}" th:text="${s.nombre}"></option>
+
+                            <label class="block mb-1.5 font-semibold text-slate-600">
+                                Número de Pedido
+                            </label>
+
+                            <input type="text"
+                                   name="numeroPedido"
+                                   th:value="${numeroPedido}"
+                                   readonly
+                                   required
+                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 outline-none">
+
+                        </div>
+
+                        <div>
+
+                            <label class="block mb-1.5 font-semibold text-slate-600">
+                                Proveedor *
+                            </label>
+
+                            <select name="idProveedor"
+                                    id="idProveedor"
+                                    required
+                                    onchange="cambiarProveedor()"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+
+                                <option value="">
+                                    Seleccione proveedor
+                                </option>
+
+                                <option th:each="p : ${proveedores}"
+                                        th:value="${p.id_proveedor}"
+                                        th:text="${p.razon_social}"
+                                        th:selected="${proveedorSeleccionado != null && proveedorSeleccionado == p.id_proveedor}">
+                                </option>
+
                             </select>
+
                         </div>
 
                         <div>
-                            <label class="block text-slate-700 font-bold mb-1">Número Factura Proveedor:</label>
-                            <input type="text" th:field="*{numeroFacturaProveedor}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" />
+
+                            <label class="block mb-1.5 font-semibold text-slate-600">
+                                Sucursal *
+                            </label>
+
+                            <select name="idSucursal"
+                                    required
+                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+
+                                <option value="">
+                                    Seleccione sucursal
+                                </option>
+
+                                <option th:each="s : ${sucursales}"
+                                        th:value="${s.idSucursal}"
+                                        th:text="${s.nombre}"
+                                        th:selected="${compraEditar != null && compraEditar.idSucursal == s.idSucursal}">
+                                </option>
+
+                            </select>
+
                         </div>
+
+                        <div>
+
+                            <label class="block mb-1.5 font-semibold text-slate-600">
+                                Responsable *
+                            </label>
+
+                            <select name="idEmpleado"
+                                    required
+                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+
+                                <option value="">
+                                    Seleccione responsable
+                                </option>
+
+                                <option th:each="e : ${empleados}"
+                                        th:value="${e.id_empleado}"
+                                        th:text="${e.nombre_completo}"
+                                        th:selected="${compraEditar != null && compraEditar.idEmpleado == e.id_empleado}">
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div>
+
+                            <label class="block mb-1.5 font-semibold text-slate-600">
+                                Forma de Pago *
+                            </label>
+
+                            <select name="formaPago"
+                                    required
+                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+
+                                <option value="CREDITO_PROVEEDOR"
+                                        th:selected="${compraEditar == null || compraEditar.formaPago.name() == 'CREDITO_PROVEEDOR'}">
+                                    Crédito Proveedor
+                                </option>
+
+                                <option value="TRANSFERENCIA"
+                                        th:selected="${compraEditar != null && compraEditar.formaPago.name() == 'TRANSFERENCIA'}">
+                                    Transferencia
+                                </option>
+
+                                <option value="EFECTIVO"
+                                        th:selected="${compraEditar != null && compraEditar.formaPago.name() == 'EFECTIVO'}">
+                                    Efectivo
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div>
+
+                            <label class="block mb-1.5 font-semibold text-slate-600">
+                                Impuesto %
+                            </label>
+
+                            <input type="number"
+                                   id="porcentajeImpuesto"
+                                   name="porcentajeImpuesto"
+                                   min="0"
+                                   step="0.01"
+                                   th:value="${porcentajeImpuesto}"
+                                   oninput="actualizarTotales()"
+                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+
+                        </div>
+
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Proveedor con carga dinámica -->
-                        <div>
-                            <label class="block text-slate-700 font-bold mb-1">Proveedor:</label>
-                            <select th:field="*{idProveedor}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required>
-                                <option value="">Seleccione un proveedor</option>
-                                <option th:each="p : ${proveedores}" th:value="${p.id_proveedor}" th:text="${p.razon_social}"></option>
-                            </select>
-                        </div>
+                </section>
 
-                        <!-- Empleado con carga dinámica -->
-                        <div>
-                            <label class="block text-slate-700 font-bold mb-1">Empleado:</label>
-                            <select th:field="*{idEmpleado}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required>
-                                <option value="">Seleccione un empleado</option>
-                                <option th:each="e : ${empleados}" th:value="${e.id_empleado}" th:text="${e.nombre_completo}"></option>
-                            </select>
-                        </div>
+                <!-- AGREGAR PRODUCTO -->
+                <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-5">
+
+                    <div class="mb-4">
+
+                        <h2 class="font-bold text-pillone-accent uppercase tracking-wider">
+                            Productos del Pedido
+                        </h2>
+
+                        <p class="text-[10px] text-slate-400 mt-1">
+                            Seleccione producto, presentación, cantidad y costo de compra.
+                        </p>
+
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-slate-700 font-bold mb-1">Subtotal:</label>
-                            <input type="number" step="0.01" th:field="*{subtotal}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required />
-                        </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
 
-                        <div>
-                            <label class="block text-slate-700 font-bold mb-1">Impuestos:</label>
-                            <input type="number" step="0.01" th:field="*{impuestos}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" />
-                        </div>
+                        <!-- PRODUCTO -->
+                        <div class="lg:col-span-4">
 
-                        <div>
-                            <label class="block text-slate-700 font-bold mb-1">Total:</label>
-                            <input type="number" step="0.01" th:field="*{total}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition" required />
-                        </div>
-                    </div>
+                            <label class="block mb-1.5 font-semibold text-slate-600">
+                                Producto
+                            </label>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-slate-700 font-bold mb-1">Forma de Pago:</label>
-                            <select th:field="*{formaPago}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                                <option value="">Seleccione forma de pago</option>
-                                <option value="EFECTIVO">Efectivo</option>
-                                <option value="TRANSFERENCIA">Transferencia</option>
-                                <option value="CREDITO_PROVEEDOR">Crédito Proveedor</option>
+                            <select id="productoSelect"
+                                    onchange="cambiarProducto()"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+
+                                <option value="">
+                                    Seleccione producto
+                                </option>
+
+                                <option th:each="p : ${productos}"
+                                        th:value="${p.idProducto}"
+                                        th:text="${p.nombreComercial + ' - ' + p.codigoInterno}"
+                                        th:attr="
+                                        data-proveedor=${p.idProveedor},
+                                        data-precio-unidad=${p.precioCompra != null ? p.precioCompra : 0},
+                                        data-precio-caja=${p.precioCompraEmpaque != null ? p.precioCompraEmpaque : 0},
+                                        data-unidades-empaque=${p.unidadesPorEmpaque != null ? p.unidadesPorEmpaque : 1},
+                                        data-sellos-caja=${p.sellosPorCaja != null ? p.sellosPorCaja : 0},
+                                        data-unidades-sello=${p.unidadesPorSello != null ? p.unidadesPorSello : 1}">
+                                </option>
+
                             </select>
+
+                            <div id="mensajeProductos"
+                                 class="mt-1 text-[9px] text-slate-400">
+                                Los productos se filtran según el proveedor seleccionado.
+                            </div>
+
                         </div>
 
-                        <div>
-                            <label class="block text-slate-700 font-bold mb-1">Estado:</label>
-                            <select th:field="*{estado}" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                                <option value="">Seleccione estado</option>
-                                <option value="PENDIENTE">Pendiente</option>
-                                <option value="RECIBIDA">Recibida</option>
-                                <option value="PARCIALMENTE_RECIBIDA">Parcialmente Recibida</option>
-                                <option value="CANCELADA">Cancelada</option>
-                                <option value="DEVUELTA">Devuelta</option>
+                        <!-- PRESENTACIÓN -->
+                        <div class="lg:col-span-2">
+
+                            <label class="block mb-1.5 font-semibold text-slate-600">
+                                Presentación
+                            </label>
+
+                            <select id="presentacionSelect"
+                                    onchange="cambiarPresentacion()"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+
+                                <option value="CAJA" selected>
+                                    Caja
+                                </option>
+
+                                <option value="SELLO">
+                                    Sello / Blíster
+                                </option>
+
+                                <option value="UNIDAD">
+                                    Unidad
+                                </option>
+
                             </select>
+
                         </div>
+
+                        <!-- CANTIDAD -->
+                        <div class="lg:col-span-2">
+
+                            <label class="block mb-1.5 font-semibold text-slate-600">
+                                Cantidad
+                            </label>
+
+                            <input type="number"
+                                   id="cantidadProducto"
+                                   min="1"
+                                   value="1"
+                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+
+                        </div>
+
+                        <!-- PRECIO -->
+                        <div class="lg:col-span-2">
+
+                            <label id="labelPrecio"
+                                   class="block mb-1.5 font-semibold text-slate-600">
+                                Costo por Caja
+                            </label>
+
+                            <input type="number"
+                                   id="precioProducto"
+                                   min="0"
+                                   step="0.01"
+                                   placeholder="0"
+                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+
+                        </div>
+
+                        <!-- AGREGAR -->
+                        <div class="lg:col-span-2">
+
+                            <button type="button"
+                                    onclick="agregarProducto()"
+                                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
+
+                                <svg class="w-4 h-4"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     viewBox="0 0 24 24">
+
+                                    <path stroke-linecap="round"
+                                          d="M12 5v14M5 12h14">
+                                    </path>
+
+                                </svg>
+
+                                Agregar
+
+                            </button>
+
+                        </div>
+
                     </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                        <a th:href="@{/view/compras}" class="px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 transition font-bold shadow-xs">Cancelar</a>
-                        <button type="submit" class="px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition shadow-xs cursor-pointer">Guardar</button>
+                    <div id="infoPresentacion"
+                         class="hidden mt-3 p-3 rounded-lg bg-blue-50 border border-blue-100 text-[10px] text-slate-600">
                     </div>
-                </form>
-            </section>
+
+                </section>
+
+                <!-- TABLA DETALLE -->
+                <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
+
+                    <div class="p-4 border-b border-slate-100">
+
+                        <h2 class="font-bold text-pillone-accent uppercase tracking-wider">
+                            Detalle del Pedido
+                        </h2>
+
+                    </div>
+
+                    <div class="overflow-x-auto">
+
+                        <table class="w-full text-left">
+
+                            <thead>
+
+                            <tr class="bg-pillone-dark text-white text-[10px] uppercase">
+
+                                <th class="px-4 py-3">
+                                    Producto
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Presentación
+                                </th>
+
+                                <th class="px-4 py-3 text-center">
+                                    Cantidad
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Equivalencia
+                                </th>
+
+                                <th class="px-4 py-3 text-right">
+                                    Costo
+                                </th>
+
+                                <th class="px-4 py-3 text-right">
+                                    Subtotal
+                                </th>
+
+                                <th class="px-4 py-3 text-center">
+                                    Acción
+                                </th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody id="detalleBody"
+                                   class="divide-y divide-slate-100">
+
+                            <tr>
+                                <td colspan="7"
+                                    class="p-8 text-center text-slate-400">
+                                    Aún no ha agregado productos.
+                                </td>
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <!-- TOTALES -->
+                <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                    <div class="lg:col-span-2">
+
+                        <div class="p-4 rounded-xl border border-amber-100 bg-amber-50">
+
+                            <div class="font-bold text-amber-700">
+                                Importante
+                            </div>
+
+                            <p class="text-[10px] text-amber-700/80 mt-1">
+                                Registrar el pedido no aumenta el inventario.
+                                La mercancía entrará al stock cuando se registre su recepción y lote.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Subtotal</span>
+                            <strong id="subtotalTexto" class="text-pillone-dark">$0</strong>
+                        </div>
+
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Impuestos</span>
+                            <strong id="impuestosTexto" class="text-pillone-dark">$0</strong>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4">
+                            <span class="font-bold text-pillone-dark">TOTAL</span>
+                            <strong id="totalTexto" class="text-lg text-pillone-accent">$0</strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- BOTONES -->
+                <section class="mt-5 flex flex-col-reverse sm:flex-row justify-end gap-2">
+
+                    <a th:href="@{/view/compras}"
+                       class="px-5 py-3 rounded-lg bg-slate-100 text-slate-600 font-semibold text-center hover:bg-slate-200 transition">
+                        Cancelar
+                    </a>
+
+                    <button type="submit"
+                            id="btnGuardar"
+                            disabled
+                            class="px-5 py-3 rounded-lg bg-pillone-dark text-white font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition">
+
+                        <span th:text="${compraEditar != null ? 'Guardar Cambios' : 'Registrar Pedido'}">
+                            Registrar Pedido
+                        </span>
+
+                    </button>
+
+                </section>
+
+                <div id="camposOcultos"></div>
+
+            </form>
+
+            <!-- DATOS DE EDICIÓN -->
+            <div id="detallesEdicion"
+                 class="hidden">
+
+                <div th:each="d : ${detallesEditar}"
+                     class="detalle-edicion"
+                     th:attr="
+                     data-producto=${d.idProducto},
+                     data-presentacion=${d.tipoPresentacion},
+                     data-factor=${d.factorConversion},
+                     data-cantidad=${d.cantidad},
+                     data-precio=${d.precioUnitario}">
+                </div>
+
+            </div>
+
         </main>
 
-        <footer th:replace="fragments/layout :: footer"></footer>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
     </div>
+
 </div>
 
-<div th:replace="fragments/layout :: scripts"></div>
-<script th:src="@{/js/script.js}" defer></script>
+<script>
+    let lineas=[];
+
+    function moneda(valor){
+        return new Intl.NumberFormat('es-CO',{
+            style:'currency',
+            currency:'COP',
+            maximumFractionDigits:0
+        }).format(valor || 0);
+    }
+
+    function obtenerOptionProducto(){
+        const select=document.getElementById('productoSelect');
+
+        if(!select.value){
+            return null;
+        }
+
+        return select.options[select.selectedIndex];
+    }
+
+    function cambiarProveedor(){
+        const proveedor=document.getElementById('idProveedor').value;
+        const productoSelect=document.getElementById('productoSelect');
+        const mensaje=document.getElementById('mensajeProductos');
+
+        productoSelect.value='';
+
+        let visibles=0;
+
+        Array.from(productoSelect.options).forEach(function(option){
+
+            if(!option.value){
+                option.hidden=false;
+                return;
+            }
+
+            /*
+             * Si no se ha seleccionado proveedor,
+             * mostramos TODOS los productos.
+             */
+            if(!proveedor){
+                option.hidden=false;
+                visibles++;
+                return;
+            }
+
+            const proveedorProducto=option.dataset.proveedor;
+
+            /*
+             * Si el producto no tiene proveedor asociado,
+             * también queda visible.
+             */
+            if(!proveedorProducto ||
+                proveedorProducto==='null' ||
+                proveedorProducto==='undefined'){
+
+                option.hidden=false;
+                visibles++;
+                return;
+            }
+
+            /*
+             * Si tiene proveedor, solo mostramos
+             * si coincide con el seleccionado.
+             */
+            const mostrar=
+                String(proveedorProducto)===
+                String(proveedor);
+
+            option.hidden=!mostrar;
+
+            if(mostrar){
+                visibles++;
+            }
+        });
+
+        if(!proveedor){
+            mensaje.textContent=
+                'Mostrando todos los productos registrados.';
+        }else if(visibles===0){
+            mensaje.textContent=
+                'No hay productos asociados a este proveedor.';
+        }else{
+            mensaje.textContent=
+                'Productos disponibles: '+visibles;
+        }
+
+        document.getElementById('presentacionSelect').value='CAJA';
+        document.getElementById('precioProducto').value='';
+        document.getElementById('infoPresentacion').classList.add('hidden');
+    }
+
+    function cambiarProducto(){
+        document.getElementById('presentacionSelect').value='CAJA';
+        cambiarPresentacion();
+    }
+
+    function obtenerFactor(option,presentacion){
+        if(!option){
+            return 1;
+        }
+
+        const unidadesEmpaque=
+            Number(option.dataset.unidadesEmpaque) || 0;
+
+        const sellosCaja=
+            Number(option.dataset.sellosCaja) || 0;
+
+        const unidadesSello=
+            Number(option.dataset.unidadesSello) || 1;
+
+        if(presentacion==='UNIDAD'){
+            return 1;
+        }
+
+        if(presentacion==='SELLO'){
+            return unidadesSello>0
+                ? unidadesSello
+                : 1;
+        }
+
+        if(unidadesEmpaque>0){
+            return unidadesEmpaque;
+        }
+
+        if(sellosCaja>0 && unidadesSello>0){
+            return sellosCaja*unidadesSello;
+        }
+
+        return 1;
+    }
+
+    function obtenerPrecioSugerido(option,presentacion){
+        if(!option){
+            return 0;
+        }
+
+        const precioUnidad=
+            Number(option.dataset.precioUnidad) || 0;
+
+        const precioCaja=
+            Number(option.dataset.precioCaja) || 0;
+
+        const sellosCaja=
+            Number(option.dataset.sellosCaja) || 0;
+
+        const unidadesSello=
+            Number(option.dataset.unidadesSello) || 1;
+
+        if(presentacion==='CAJA'){
+
+            if(precioCaja>0){
+                return precioCaja;
+            }
+
+            return precioUnidad*obtenerFactor(option,'CAJA');
+        }
+
+        if(presentacion==='SELLO'){
+
+            if(precioCaja>0 && sellosCaja>0){
+                return precioCaja/sellosCaja;
+            }
+
+            return precioUnidad*unidadesSello;
+        }
+
+        return precioUnidad;
+    }
+
+    function cambiarPresentacion(){
+        const option=obtenerOptionProducto();
+
+        const presentacion=
+            document.getElementById('presentacionSelect').value;
+
+        const precio=
+            obtenerPrecioSugerido(option,presentacion);
+
+        document.getElementById('precioProducto').value=
+            precio>0
+                ? precio.toFixed(2)
+                : '';
+
+        let nombre='Unidad';
+
+        if(presentacion==='CAJA'){
+            nombre='Caja';
+        }
+
+        if(presentacion==='SELLO'){
+            nombre='Sello / Blíster';
+        }
+
+        document.getElementById('labelPrecio').textContent=
+            'Costo por '+nombre;
+
+        actualizarInfoPresentacion();
+    }
+
+    function actualizarInfoPresentacion(){
+        const option=obtenerOptionProducto();
+        const info=document.getElementById('infoPresentacion');
+
+        if(!option){
+            info.classList.add('hidden');
+            info.innerHTML='';
+            return;
+        }
+
+        const presentacion=
+            document.getElementById('presentacionSelect').value;
+
+        const factor=
+            obtenerFactor(option,presentacion);
+
+        let nombre='unidad';
+
+        if(presentacion==='CAJA'){
+            nombre='caja';
+        }
+
+        if(presentacion==='SELLO'){
+            nombre='sello / blíster';
+        }
+
+        info.innerHTML=
+            '<strong>Equivalencia:</strong> 1 '
+            +nombre+
+            ' = '
+            +factor+
+            ' unidad'
+            +(factor===1 ? '' : 'es')
+            +' base.';
+
+        info.classList.remove('hidden');
+    }
+
+    function agregarProducto(){
+        const proveedor=
+            document.getElementById('idProveedor').value;
+
+        const option=
+            obtenerOptionProducto();
+
+        if(!proveedor){
+            alert('Primero seleccione un proveedor.');
+            return;
+        }
+
+        if(!option){
+            alert('Seleccione un producto.');
+            return;
+        }
+
+        const proveedorProducto=
+            option.dataset.proveedor;
+
+        /*
+         * Si tiene proveedor asignado y no coincide,
+         * no permitimos agregarlo.
+         *
+         * Si no tiene proveedor, sí puede agregarse.
+         */
+        if(proveedorProducto &&
+            proveedorProducto!=='null' &&
+            proveedorProducto!=='undefined' &&
+            String(proveedorProducto)!==String(proveedor)){
+
+            alert('Este producto pertenece a otro proveedor.');
+            return;
+        }
+
+        const idProducto=option.value;
+        const nombre=option.textContent.trim();
+
+        const presentacion=
+            document.getElementById('presentacionSelect').value;
+
+        const cantidad=
+            Number(
+                document.getElementById('cantidadProducto').value
+            );
+
+        const precio=
+            Number(
+                document.getElementById('precioProducto').value
+            );
+
+        if(!cantidad || cantidad<=0){
+            alert('Ingrese una cantidad válida.');
+            return;
+        }
+
+        if(isNaN(precio) || precio<0){
+            alert('Ingrese un costo válido.');
+            return;
+        }
+
+        const factor=
+            obtenerFactor(option,presentacion);
+
+        const existente=
+            lineas.find(item =>
+                String(item.idProducto)===String(idProducto) &&
+                item.presentacion===presentacion
+            );
+
+        if(existente){
+            existente.cantidad+=cantidad;
+            existente.precio=precio;
+            existente.factor=factor;
+        }else{
+            lineas.push({
+                idProducto:idProducto,
+                nombre:nombre,
+                presentacion:presentacion,
+                factor:factor,
+                cantidad:cantidad,
+                precio:precio
+            });
+        }
+
+        renderizarDetalle();
+
+        document.getElementById('productoSelect').value='';
+        document.getElementById('cantidadProducto').value='1';
+        document.getElementById('precioProducto').value='';
+        document.getElementById('presentacionSelect').value='CAJA';
+        document.getElementById('infoPresentacion').classList.add('hidden');
+    }
+
+    function nombrePresentacion(presentacion){
+        if(presentacion==='CAJA'){
+            return 'Caja';
+        }
+
+        if(presentacion==='SELLO'){
+            return 'Sello / Blíster';
+        }
+
+        return 'Unidad';
+    }
+
+    function renderizarDetalle(){
+        const body=document.getElementById('detalleBody');
+        const ocultos=document.getElementById('camposOcultos');
+
+        body.innerHTML='';
+        ocultos.innerHTML='';
+
+        if(lineas.length===0){
+
+            body.innerHTML=
+                '<tr>'+
+                '<td colspan="7" class="p-8 text-center text-slate-400">'+
+                'Aún no ha agregado productos.'+
+                '</td>'+
+                '</tr>';
+
+            document.getElementById('btnGuardar').disabled=true;
+
+            actualizarTotales();
+            return;
+        }
+
+        lineas.forEach(function(item,index){
+
+            const subtotal=
+                item.cantidad*item.precio;
+
+            const unidades=
+                item.cantidad*item.factor;
+
+            const tr=
+                document.createElement('tr');
+
+            tr.className='hover:bg-slate-50';
+
+            tr.innerHTML=
+                '<td class="px-4 py-3">'+
+                    '<div class="font-semibold">'+
+                        escaparHtml(item.nombre)+
+                    '</div>'+
+                '</td>'+
+
+                '<td class="px-4 py-3">'+
+                    '<span class="inline-flex px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-bold">'+
+                        nombrePresentacion(item.presentacion)+
+                    '</span>'+
+                '</td>'+
+
+                '<td class="px-4 py-3 text-center font-semibold">'+
+                    item.cantidad+
+                '</td>'+
+
+                '<td class="px-4 py-3">'+
+                    '<div class="font-semibold">'+
+                        unidades+
+                        ' unidades'+
+                    '</div>'+
+                    '<div class="text-[9px] text-slate-400">'+
+                        '1 '+
+                        nombrePresentacion(item.presentacion)+
+                        ' = '+
+                        item.factor+
+                        ' unidad(es)'+
+                    '</div>'+
+                '</td>'+
+
+                '<td class="px-4 py-3 text-right">'+
+                    moneda(item.precio)+
+                '</td>'+
+
+                '<td class="px-4 py-3 text-right font-bold text-pillone-dark">'+
+                    moneda(subtotal)+
+                '</td>'+
+
+                '<td class="px-4 py-3 text-center">'+
+                    '<button type="button" '+
+                    'onclick="eliminarLinea('+index+')" '+
+                    'class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100" '+
+                    'title="Eliminar">'+
+                        '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">'+
+                            '<path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"></path>'+
+                        '</svg>'+
+                    '</button>'+
+                '</td>';
+
+            body.appendChild(tr);
+
+            ocultos.insertAdjacentHTML(
+                'beforeend',
+
+                '<input type="hidden" name="productoId" value="'+
+                item.idProducto+
+                '">'+
+
+                '<input type="hidden" name="tipoPresentacion" value="'+
+                item.presentacion+
+                '">'+
+
+                '<input type="hidden" name="cantidad" value="'+
+                item.cantidad+
+                '">'+
+
+                '<input type="hidden" name="precioUnitario" value="'+
+                item.precio+
+                '">'
+            );
+        });
+
+        document.getElementById('btnGuardar').disabled=false;
+
+        actualizarTotales();
+    }
+
+    function eliminarLinea(index){
+        lineas.splice(index,1);
+        renderizarDetalle();
+    }
+
+    function actualizarTotales(){
+        let subtotal=0;
+
+        lineas.forEach(function(item){
+            subtotal+=item.cantidad*item.precio;
+        });
+
+        const porcentaje=
+            Number(
+                document.getElementById('porcentajeImpuesto').value
+            ) || 0;
+
+        const impuestos=
+            subtotal*porcentaje/100;
+
+        const total=
+            subtotal+impuestos;
+
+        document.getElementById('subtotalTexto').textContent=
+            moneda(subtotal);
+
+        document.getElementById('impuestosTexto').textContent=
+            moneda(impuestos);
+
+        document.getElementById('totalTexto').textContent=
+            moneda(total);
+    }
+
+    function escaparHtml(texto){
+        const div=document.createElement('div');
+
+        div.textContent=texto || '';
+
+        return div.innerHTML;
+    }
+
+    function nombreProductoPorId(id){
+        const select=
+            document.getElementById('productoSelect');
+
+        const option=
+            Array.from(select.options)
+                .find(o =>
+                    String(o.value)===String(id)
+                );
+
+        return option
+            ? option.textContent.trim()
+            : 'Producto #'+id;
+    }
+
+    function cargarEdicion(){
+        const detalles=
+            document.querySelectorAll('.detalle-edicion');
+
+        if(!detalles.length){
+            return;
+        }
+
+        detalles.forEach(function(detalle){
+
+            lineas.push({
+                idProducto:detalle.dataset.producto,
+
+                nombre:nombreProductoPorId(
+                    detalle.dataset.producto
+                ),
+
+                presentacion:
+                    detalle.dataset.presentacion || 'CAJA',
+
+                factor:
+                    Number(detalle.dataset.factor) || 1,
+
+                cantidad:
+                    Number(detalle.dataset.cantidad) || 1,
+
+                precio:
+                    Number(detalle.dataset.precio) || 0
+            });
+        });
+
+        renderizarDetalle();
+    }
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function(){
+
+            /*
+             * Primero cargamos los productos.
+             * Si ya viene proveedor desde Proveedores,
+             * filtramos automáticamente.
+             *
+             * Si no hay proveedor seleccionado,
+             * quedan visibles TODOS.
+             */
+            cambiarProveedor();
+
+            /*
+             * Después cargamos detalles existentes
+             * cuando estamos editando.
+             */
+            cargarEdicion();
+
+            actualizarTotales();
+        }
+    );
+</script>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
 </body>
 </html>

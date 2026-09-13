@@ -11,10 +11,10 @@ public class Productos {
     @Column(name = "id_producto")
     private Long idProducto;
 
-    @Column(name = "codigo_interno", unique = true, nullable = false)
+    @Column(name = "codigo_interno", nullable = false, unique = true)
     private String codigoInterno;
 
-    @Column(name = "codigo_barras", unique = true, nullable = false)
+    @Column(name = "codigo_barras", nullable = false, unique = true)
     private String codigoBarras;
 
     @Column(name = "nombre_comercial", nullable = false)
@@ -50,7 +50,9 @@ public class Productos {
     @Column(name = "precio_venta", nullable = false)
     private Double precioVenta;
 
-    // --- CAMPOS DE EMPAQUE Y JERARQUÍA ---
+    @Column(name = "precio_venta_tableta")
+    private Double precioVentaTableta;
+
     @Column(name = "unidades_por_empaque")
     private Integer unidadesPorEmpaque;
 
@@ -65,7 +67,6 @@ public class Productos {
 
     @Column(name = "precio_venta_empaque")
     private Double precioVentaEmpaque;
-    // -------------------------------------
 
     @Column(name = "stock_total")
     private Integer stockTotal;
@@ -94,7 +95,8 @@ public class Productos {
     @Column(name = "estado")
     private String estado;
 
-    // --- GETTERS Y SETTERS ---
+    public Productos() {
+    }
 
     public Long getIdProducto() {
         return idProducto;
@@ -208,6 +210,14 @@ public class Productos {
         this.precioVenta = precioVenta;
     }
 
+    public Double getPrecioVentaTableta() {
+        return precioVentaTableta;
+    }
+
+    public void setPrecioVentaTableta(Double precioVentaTableta) {
+        this.precioVentaTableta = precioVentaTableta;
+    }
+
     public Integer getUnidadesPorEmpaque() {
         return unidadesPorEmpaque;
     }
@@ -319,4 +329,10 @@ public class Productos {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
+    @Transient
+    public boolean tieneProveedorHabitual() {
+        return idProveedor != null;
+    }
+
 }

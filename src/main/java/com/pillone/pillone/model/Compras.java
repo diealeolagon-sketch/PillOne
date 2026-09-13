@@ -1,134 +1,177 @@
 package com.pillone.pillone.model;
 
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "compras")
+@Table(name="compras")
 public class Compras {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_compra")
-    private Long idCompra;
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="id_compra")
+    private Integer idCompra;
 
-    @Column(name = "id_sucursal", nullable = false)
+    @Column(name="id_sucursal",nullable=false)
     private Integer idSucursal;
 
-    @Column(name = "numero_factura_proveedor", length = 50)
+    @Column(name="numero_factura_proveedor",nullable=false,length=50)
     private String numeroFacturaProveedor;
 
-    @Column(name = "id_proveedor", nullable = false)
+    @Column(name="id_proveedor",nullable=false)
     private Integer idProveedor;
 
-    @Column(name = "id_empleado", nullable = false)
+    @Column(name="id_empleado",nullable=false)
     private Integer idEmpleado;
 
-    @Column(name = "fecha_compra")
+    @Column(name="fecha_compra")
     private LocalDateTime fechaCompra;
 
-    @Column(name = "subtotal", nullable = false, precision = 12, scale = 2)
+    @Column(name="subtotal",nullable=false,precision=12,scale=2)
     private BigDecimal subtotal;
 
-    @Column(name = "impuestos", precision = 12, scale = 2)
-    private BigDecimal impuestos;
+    @Column(name="impuestos",nullable=false,precision=12,scale=2)
+    private BigDecimal impuestos=BigDecimal.ZERO;
 
-    @Column(name = "total", nullable = false, precision = 12, scale = 2)
+    @Column(name="total",nullable=false,precision=12,scale=2)
     private BigDecimal total;
 
-    @Column(name = "forma_pago")
-    private String formaPago;
+    @Enumerated(EnumType.STRING)
+    @Column(name="forma_pago")
+    private FormaPago formaPago=FormaPago.CREDITO_PROVEEDOR;
 
-    @Column(name = "estado")
-    private String estado;
+    @Enumerated(EnumType.STRING)
+    @Column(name="estado")
+    private EstadoCompra estado=EstadoCompra.PENDIENTE;
 
-    // Getters y Setters
-    public Long getIdCompra() {
+    public enum FormaPago{
+        EFECTIVO,
+        TRANSFERENCIA,
+        CREDITO_PROVEEDOR
+    }
+
+    public enum EstadoCompra{
+        PENDIENTE,
+        RECIBIDA,
+        PARCIALMENTE_RECIBIDA,
+        CANCELADA,
+        DEVUELTA
+    }
+
+    @PrePersist
+    public void prePersist(){
+        if(fechaCompra==null){
+            fechaCompra=LocalDateTime.now();
+        }
+
+        if(subtotal==null){
+            subtotal=BigDecimal.ZERO;
+        }
+
+        if(impuestos==null){
+            impuestos=BigDecimal.ZERO;
+        }
+
+        if(total==null){
+            total=BigDecimal.ZERO;
+        }
+
+        if(formaPago==null){
+            formaPago=FormaPago.CREDITO_PROVEEDOR;
+        }
+
+        if(estado==null){
+            estado=EstadoCompra.PENDIENTE;
+        }
+    }
+
+    public Integer getIdCompra(){
         return idCompra;
     }
 
-    public void setIdCompra(Long idCompra) {
-        this.idCompra = idCompra;
+    public void setIdCompra(Integer idCompra){
+        this.idCompra=idCompra;
     }
 
-    public Integer getIdSucursal() {
+    public Integer getIdSucursal(){
         return idSucursal;
     }
 
-    public void setIdSucursal(Integer idSucursal) {
-        this.idSucursal = idSucursal;
+    public void setIdSucursal(Integer idSucursal){
+        this.idSucursal=idSucursal;
     }
 
-    public String getNumeroFacturaProveedor() {
+    public String getNumeroFacturaProveedor(){
         return numeroFacturaProveedor;
     }
 
-    public void setNumeroFacturaProveedor(String numeroFacturaProveedor) {
-        this.numeroFacturaProveedor = numeroFacturaProveedor;
+    public void setNumeroFacturaProveedor(String numeroFacturaProveedor){
+        this.numeroFacturaProveedor=numeroFacturaProveedor;
     }
 
-    public Integer getIdProveedor() {
+    public Integer getIdProveedor(){
         return idProveedor;
     }
 
-    public void setIdProveedor(Integer idProveedor) {
-        this.idProveedor = idProveedor;
+    public void setIdProveedor(Integer idProveedor){
+        this.idProveedor=idProveedor;
     }
 
-    public Integer getIdEmpleado() {
+    public Integer getIdEmpleado(){
         return idEmpleado;
     }
 
-    public void setIdEmpleado(Integer idEmpleado) {
-        this.idEmpleado = idEmpleado;
+    public void setIdEmpleado(Integer idEmpleado){
+        this.idEmpleado=idEmpleado;
     }
 
-    public LocalDateTime getFechaCompra() {
+    public LocalDateTime getFechaCompra(){
         return fechaCompra;
     }
 
-    public void setFechaCompra(LocalDateTime fechaCompra) {
-        this.fechaCompra = fechaCompra;
+    public void setFechaCompra(LocalDateTime fechaCompra){
+        this.fechaCompra=fechaCompra;
     }
 
-    public BigDecimal getSubtotal() {
+    public BigDecimal getSubtotal(){
         return subtotal;
     }
 
-    public void setSubtotal(BigDecimal subtotal) {
-        this.subtotal = subtotal;
+    public void setSubtotal(BigDecimal subtotal){
+        this.subtotal=subtotal;
     }
 
-    public BigDecimal getImpuestos() {
+    public BigDecimal getImpuestos(){
         return impuestos;
     }
 
-    public void setImpuestos(BigDecimal impuestos) {
-        this.impuestos = impuestos;
+    public void setImpuestos(BigDecimal impuestos){
+        this.impuestos=impuestos;
     }
 
-    public BigDecimal getTotal() {
+    public BigDecimal getTotal(){
         return total;
     }
 
-    public void setTotal(BigDecimal total) {
-        this.total = total;
+    public void setTotal(BigDecimal total){
+        this.total=total;
     }
 
-    public String getFormaPago() {
+    public FormaPago getFormaPago(){
         return formaPago;
     }
 
-    public void setFormaPago(String formaPago) {
-        this.formaPago = formaPago;
+    public void setFormaPago(FormaPago formaPago){
+        this.formaPago=formaPago;
     }
 
-    public String getEstado() {
+    public EstadoCompra getEstado(){
         return estado;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setEstado(EstadoCompra estado){
+        this.estado=estado;
     }
 }

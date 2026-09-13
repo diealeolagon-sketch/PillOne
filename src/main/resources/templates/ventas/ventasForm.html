@@ -5,303 +5,222 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva venta - PillOne</title>
     <th:block th:replace="~{fragments/layout :: styles}"></th:block>
-
-    <style>
-        .pos-scroll{
-            scrollbar-width:thin;
-            scrollbar-color:#cbd5e1 #f8fafc;
-        }
-
-        .pos-scroll::-webkit-scrollbar{
-            width:7px;
-            height:7px;
-        }
-
-        .pos-scroll::-webkit-scrollbar-track{
-            background:#f8fafc;
-        }
-
-        .pos-scroll::-webkit-scrollbar-thumb{
-            background:#cbd5e1;
-            border-radius:20px;
-        }
-
-        .pos-scroll::-webkit-scrollbar-thumb:hover{
-            background:#94a3b8;
-        }
-
-        @media(min-width:1536px){
-            .contenedor-pos{
-                height:calc(100vh - 155px);
-                min-height:560px;
-            }
-
-            .panel-productos{
-                height:100%;
-            }
-
-            .scroll-carrito{
-                max-height:calc(100vh - 330px);
-                overflow:auto;
-            }
-
-            .panel-venta{
-                max-height:calc(100vh - 155px);
-                overflow-y:auto;
-            }
-        }
-
-        .scroll-carrito thead th{
-            position:sticky;
-            top:0;
-            z-index:10;
-            background:#07004D;
-        }
-    </style>
 </head>
-
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen">
-
 <header th:replace="~{fragments/layout :: topbar('Nueva Venta')}"></header>
 
 <div class="flex min-h-[calc(100vh-4rem)]">
-
     <aside th:replace="~{fragments/layout :: sidebar('ventas')}"></aside>
 
-    <main class="flex-1 min-w-0 p-4 sm:p-5 lg:p-6">
+    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+        <div class="max-w-[1600px] mx-auto space-y-5">
 
-        <div class="max-w-[1600px] mx-auto">
-
-            <!-- ENCABEZADO -->
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
-
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                 <div>
-                    <p class="text-[11px] uppercase tracking-[0.2em] text-pillone-accent font-bold">
-                        Punto de venta
-                    </p>
-
-                    <h1 class="text-2xl sm:text-3xl font-bold text-pillone-dark">
-                        Nueva dispensación
-                    </h1>
-
+                    <p class="text-[11px] uppercase tracking-[0.2em] text-pillone-accent font-bold">Punto de venta</p>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-pillone-dark">Nueva dispensación</h1>
                     <p class="text-sm text-slate-500 mt-1">
-                        Agrega productos, selecciona unidad/sello/caja y finaliza la venta.
+                        Agrega productos, valida fórmula médica cuando aplique y finaliza la venta.
                     </p>
                 </div>
 
                 <button type="button"
                         onclick="abrirModalProductos()"
-                        class="px-5 py-3 rounded-xl bg-pillone-accent text-white font-semibold text-sm hover:opacity-95 shadow-sm">
-                    + Agregar producto
+                        class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-pillone-accent text-white font-semibold text-sm hover:opacity-95 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    Agregar producto
                 </button>
-
             </div>
 
-            <!-- ÁREA POS -->
-            <div class="contenedor-pos grid 2xl:grid-cols-[minmax(0,1fr)_370px] gap-4 items-start">
+            <div class="grid 2xl:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
 
-                <!-- PRODUCTOS DE LA VENTA -->
-                <section class="panel-productos bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[480px]">
-
-                    <!-- CABECERA PRODUCTOS -->
-                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-4 shrink-0">
-
+                <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden min-h-[520px]">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-4">
                         <div>
-                            <h2 class="font-bold text-pillone-dark">
-                                Productos de la venta
-                            </h2>
-
-                            <p class="text-xs text-slate-400">
-                                La salida de inventario usa lotes vigentes por FEFO.
-                            </p>
+                            <h2 class="font-bold text-pillone-dark">Productos de la venta</h2>
+                            <p class="text-xs text-slate-400">La salida de inventario usa lotes vigentes por FEFO.</p>
                         </div>
-
                         <span id="contador-lineas"
-                              class="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full whitespace-nowrap">
+                              class="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full">
                             0 líneas
                         </span>
-
                     </div>
 
-                    <!-- TABLA CON SCROLL -->
-                    <div class="scroll-carrito pos-scroll overflow-x-auto flex-1">
+                    <div id="alerta-formula"
+                         class="hidden m-4 p-4 rounded-xl border border-amber-200 bg-amber-50">
 
-                        <table class="w-full min-w-[850px] text-sm">
-
-                            <thead class="text-white text-[11px] uppercase tracking-wider">
-
-                            <tr>
-                                <th class="text-left p-3.5">
-                                    Producto
-                                </th>
-
-                                <th class="text-left p-3.5">
-                                    Presentación
-                                </th>
-
-                                <th class="text-center p-3.5">
-                                    Stock
-                                </th>
-
-                                <th class="text-center p-3.5">
-                                    Cantidad
-                                </th>
-
-                                <th class="text-right p-3.5">
-                                    Precio
-                                </th>
-
-                                <th class="text-right p-3.5">
-                                    Subtotal
-                                </th>
-
-                                <th class="text-center p-3.5">
-                                    Acción
-                                </th>
-                            </tr>
-
-                            </thead>
-
-                            <tbody id="carrito-body"
-                                   class="divide-y divide-slate-100">
-                            </tbody>
-
-                        </table>
-
-                        <!-- CARRITO VACÍO -->
-                        <div id="carrito-vacio"
-                             class="py-20 text-center text-slate-400">
-
-                            <div class="text-4xl mb-3">
-                                🛒
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="flex items-start gap-3">
+                                <div class="w-9 h-9 shrink-0 rounded-xl bg-white text-amber-600 flex items-center justify-center border border-amber-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 3h6a2 2 0 012 2v16H7V5a2 2 0 012-2zM9 8h6M9 12h6M9 16h4"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-amber-800">Validación de fórmula médica</p>
+                                    <p id="texto-formula" class="text-[11px] text-amber-700 mt-1"></p>
+                                </div>
                             </div>
 
-                            <p class="font-semibold text-slate-500">
-                                Aún no has agregado productos
-                            </p>
-
-                            <p class="text-xs mt-1">
-                                Usa “Agregar producto” para comenzar.
-                            </p>
-
-                            <button type="button"
-                                    onclick="abrirModalProductos()"
-                                    class="mt-4 px-4 py-2.5 rounded-xl bg-pillone-accent text-white text-xs font-bold hover:opacity-90">
-                                + Agregar producto
-                            </button>
-
+                            <a id="btn-registrar-formula"
+                               href="#"
+                               class="hidden px-4 py-2.5 rounded-xl bg-amber-600 text-white font-bold whitespace-nowrap">
+                                Registrar fórmula
+                            </a>
                         </div>
-
                     </div>
 
-                    <!-- AYUDA INFERIOR -->
-                    <div class="hidden 2xl:flex px-4 py-2.5 border-t border-slate-100 bg-slate-50 text-[10px] text-slate-400 justify-between shrink-0">
-
-                        <span>
-                            ↕ Desliza aquí para revisar todos los productos de la venta
-                        </span>
-
-                        <span>
-                            Encabezado fijo
-                        </span>
-
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[850px] text-sm">
+                            <thead class="bg-pillone-dark text-white text-[11px] uppercase tracking-wider">
+                            <tr>
+                                <th class="text-left p-3.5">Producto</th>
+                                <th class="text-left p-3.5">Presentación</th>
+                                <th class="text-left p-3.5 min-w-[250px]">Fórmula médica</th>
+                                <th class="text-center p-3.5">Stock</th>
+                                <th class="text-center p-3.5">Cantidad</th>
+                                <th class="text-right p-3.5">Precio</th>
+                                <th class="text-right p-3.5">Subtotal</th>
+                                <th class="text-center p-3.5">Acción</th>
+                            </tr>
+                            </thead>
+                            <tbody id="carrito-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
                     </div>
 
+                    <div id="carrito-vacio" class="py-24 text-center text-slate-400">
+                        <svg class="w-10 h-10 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l2.4 10.5a2 2 0 002 1.5h7.7a2 2 0 002-1.5L21 7H6"></path>
+                            <circle cx="10" cy="19" r="1"></circle>
+                            <circle cx="18" cy="19" r="1"></circle>
+                        </svg>
+                        <p class="font-semibold text-slate-500">Aún no has agregado productos</p>
+                        <p class="text-xs mt-1">Usa “Agregar producto” para comenzar.</p>
+                    </div>
                 </section>
 
-                <!-- DATOS DE LA VENTA -->
-                <aside class="panel-venta pos-scroll bg-white border border-slate-200 rounded-2xl shadow-sm 2xl:sticky 2xl:top-20">
+                <aside class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-5 2xl:sticky 2xl:top-20">
 
-                    <div class="p-5 space-y-5">
+                    <div>
+                        <h2 class="font-bold text-pillone-dark">Datos de la venta</h2>
+                        <p class="text-xs text-slate-400">
+                            El cliente es obligatorio cuando un medicamento exige fórmula.
+                        </p>
+                    </div>
 
-                        <!-- TÍTULO -->
-                        <div class="sticky top-0 z-10 bg-white -mx-5 px-5 pb-3 border-b border-slate-100">
+                    <div class="space-y-3">
 
-                            <h2 class="font-bold text-pillone-dark">
-                                Datos de la venta
-                            </h2>
-
-                            <p class="text-xs text-slate-400">
-                                Cliente opcional. Sucursal y empleado obligatorios.
-                            </p>
-
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                Sucursal
+                            </label>
+                            <select id="sucursal"
+                                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                            </select>
                         </div>
 
-                        <!-- DATOS PRINCIPALES -->
-                        <div class="space-y-3">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                Empleado
+                            </label>
+                            <select id="empleado"
+                                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                Cliente
+                            </label>
+                            <select id="cliente"
+                                    onchange="actualizarDatosCliente();cambiarClienteVenta()"
+                                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                Método de pago
+                            </label>
+                            <select id="metodo-pago"
+                                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                <option value="EFECTIVO">Efectivo</option>
+                                <option value="TARJETA_DEBITO">Tarjeta débito</option>
+                                <option value="TARJETA_CREDITO">Tarjeta crédito</option>
+                                <option value="TRANSFERENCIA">Transferencia</option>
+                                <option value="NEQUI_DAVIPLATA">Nequi / Daviplata</option>
+                                <option value="PAGO_MIXTO">Pago mixto</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                Descuento
+                            </label>
+                            <input id="descuento"
+                                   type="number"
+                                   min="0"
+                                   step="0.01"
+                                   value="0"
+                                   oninput="recalcularTotales()"
+                                   class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                        </div>
+
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 overflow-hidden">
+
+                        <div class="p-3.5 bg-slate-50 flex items-center justify-between gap-4">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-700">Venta a domicilio</p>
+                                <p class="text-[10px] text-slate-400">Actívalo si requiere entrega.</p>
+                            </div>
+
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input id="es-domicilio"
+                                       type="checkbox"
+                                       class="sr-only peer"
+                                       onchange="toggleDomicilio()">
+                                <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-pillone-accent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+
+                        <div id="datos-domicilio"
+                             class="hidden p-3.5 border-t border-slate-200 space-y-3">
+
+                            <p class="text-[10px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg p-2.5">
+                                Para domicilio debes seleccionar un cliente.
+                            </p>
 
                             <div>
                                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                    Sucursal
+                                    Dirección de entrega
                                 </label>
-
-                                <select id="sucursal"
-                                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
-                                </select>
+                                <input id="direccion-entrega"
+                                       type="text"
+                                       maxlength="200"
+                                       placeholder="Dirección completa"
+                                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
                             </div>
 
                             <div>
                                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                    Empleado
+                                    Teléfono
                                 </label>
-
-                                <select id="empleado"
-                                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
-                                </select>
+                                <input id="telefono-contacto"
+                                       type="text"
+                                       maxlength="15"
+                                       placeholder="Ej. 3151234567"
+                                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
                             </div>
 
                             <div>
                                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                    Cliente
+                                    Costo domicilio
                                 </label>
-
-                                <select id="cliente"
-                                        onchange="actualizarDatosCliente()"
-                                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                    Método de pago
-                                </label>
-
-                                <select id="metodo-pago"
-                                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
-
-                                    <option value="EFECTIVO">
-                                        Efectivo
-                                    </option>
-
-                                    <option value="TARJETA_DEBITO">
-                                        Tarjeta débito
-                                    </option>
-
-                                    <option value="TARJETA_CREDITO">
-                                        Tarjeta crédito
-                                    </option>
-
-                                    <option value="TRANSFERENCIA">
-                                        Transferencia
-                                    </option>
-
-                                    <option value="NEQUI_DAVIPLATA">
-                                        Nequi / Daviplata
-                                    </option>
-
-                                    <option value="PAGO_MIXTO">
-                                        Pago mixto
-                                    </option>
-
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                    Descuento
-                                </label>
-
-                                <input id="descuento"
+                                <input id="costo-domicilio"
                                        type="number"
                                        min="0"
                                        step="0.01"
@@ -310,231 +229,92 @@
                                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
                             </div>
 
-                        </div>
-
-                        <!-- DOMICILIO -->
-                        <div class="rounded-xl border border-slate-200 overflow-hidden">
-
-                            <div class="p-3.5 bg-slate-50 flex items-center justify-between gap-4">
-
-                                <div>
-                                    <p class="text-sm font-semibold text-slate-700">
-                                        Venta a domicilio
-                                    </p>
-
-                                    <p class="text-[10px] text-slate-400">
-                                        Actívalo si esta venta requiere entrega.
-                                    </p>
-                                </div>
-
-                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
-
-                                    <input id="es-domicilio"
-                                           type="checkbox"
-                                           class="sr-only peer"
-                                           onchange="toggleDomicilio()">
-
-                                    <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-pillone-accent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5">
-                                    </div>
-
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                    Domiciliario
                                 </label>
-
-                            </div>
-
-                            <div id="datos-domicilio"
-                                 class="hidden p-3.5 border-t border-slate-200 space-y-3">
-
-                                <p class="text-[10px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg p-2.5">
-                                    Para domicilio debes seleccionar un cliente.
-                                </p>
-
-                                <div>
-                                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                        Dirección de entrega
-                                    </label>
-
-                                    <input id="direccion-entrega"
-                                           type="text"
-                                           maxlength="200"
-                                           placeholder="Dirección completa"
-                                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                        Teléfono de contacto
-                                    </label>
-
-                                    <input id="telefono-contacto"
-                                           type="text"
-                                           maxlength="15"
-                                           placeholder="Ej. 3151234567"
-                                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                        Costo domicilio
-                                    </label>
-
-                                    <input id="costo-domicilio"
-                                           type="number"
-                                           min="0"
-                                           step="0.01"
-                                           value="0"
-                                           oninput="recalcularTotales()"
-                                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                        Domiciliario
-                                        <span class="normal-case font-normal text-slate-400">
-                                            (opcional)
-                                        </span>
-                                    </label>
-
-                                    <input id="nombre-domiciliario"
-                                           type="text"
-                                           maxlength="100"
-                                           placeholder="Nombre del domiciliario"
-                                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
-                                </div>
-
+                                <input id="nombre-domiciliario"
+                                       type="text"
+                                       maxlength="100"
+                                       placeholder="Nombre del domiciliario"
+                                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
                             </div>
 
                         </div>
-
-                        <!-- IVA -->
-                        <div class="rounded-xl border border-slate-200 overflow-hidden">
-
-                            <div class="p-3.5 bg-slate-50 flex items-center justify-between gap-4">
-
-                                <div>
-                                    <p id="texto-iva"
-                                       class="text-sm font-semibold text-slate-700">
-                                        Aplicar IVA
-                                    </p>
-
-                                    <p class="text-[10px] text-slate-400">
-                                        Tomado de Configuración Global
-                                    </p>
-                                </div>
-
-                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
-
-                                    <input id="aplica-iva"
-                                           type="checkbox"
-                                           checked
-                                           class="sr-only peer"
-                                           onchange="cambiarIva()">
-
-                                    <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-pillone-accent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5">
-                                    </div>
-
-                                </label>
-
-                            </div>
-
-                        </div>
-
-                        <!-- TOTALES -->
-                        <div class="space-y-2.5 text-sm border-t border-slate-100 pt-4">
-
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">
-                                    Subtotal
-                                </span>
-
-                                <span id="subtotal"
-                                      class="font-semibold">
-                                    $0
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">
-                                    Descuento
-                                </span>
-
-                                <span id="descuento-vista"
-                                      class="font-semibold">
-                                    $0
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between">
-
-                                <span class="text-slate-500">
-                                    IVA
-                                    <span id="porcentaje-iva-info">
-                                        0%
-                                    </span>
-                                </span>
-
-                                <span id="valor-iva"
-                                      class="font-semibold">
-                                    $0
-                                </span>
-
-                            </div>
-
-                            <div id="fila-costo-domicilio"
-                                 class="hidden flex justify-between">
-
-                                <span class="text-slate-500">
-                                    Domicilio
-                                </span>
-
-                                <span id="costo-domicilio-vista"
-                                      class="font-semibold">
-                                    $0
-                                </span>
-
-                            </div>
-
-                            <div class="flex justify-between text-lg border-t border-slate-100 pt-3">
-
-                                <span class="font-bold text-pillone-dark">
-                                    Total
-                                </span>
-
-                                <span id="total"
-                                      class="font-bold text-pillone-accent">
-                                    $0
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                        <!-- BOTÓN -->
-                        <button id="btn-guardar"
-                                type="button"
-                                onclick="guardarVenta()"
-                                class="w-full py-3.5 rounded-xl bg-pillone-dark text-white text-sm font-bold hover:opacity-95 disabled:opacity-50">
-                            Cobrar y finalizar venta
-                        </button>
-
-                        <p id="mensaje-error"
-                           class="hidden text-xs bg-red-50 text-red-700 border border-red-100 rounded-xl p-3">
-                        </p>
 
                     </div>
+
+                    <div class="rounded-xl border border-slate-200 overflow-hidden">
+
+                        <div class="p-3.5 bg-slate-50 flex items-center justify-between gap-4">
+                            <div>
+                                <p id="texto-iva" class="text-sm font-semibold text-slate-700">Aplicar IVA</p>
+                                <p class="text-[10px] text-slate-400">Configuración Global</p>
+                            </div>
+
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input id="aplica-iva"
+                                       type="checkbox"
+                                       checked
+                                       class="sr-only peer"
+                                       onchange="cambiarIva()">
+                                <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-pillone-accent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <div class="space-y-2.5 text-sm border-t border-slate-100 pt-4">
+
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Subtotal</span>
+                            <span id="subtotal" class="font-semibold">$0</span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Descuento</span>
+                            <span id="descuento-vista" class="font-semibold">$0</span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">
+                                IVA <span id="porcentaje-iva-info">0%</span>
+                            </span>
+                            <span id="valor-iva" class="font-semibold">$0</span>
+                        </div>
+
+                        <div id="fila-costo-domicilio" class="hidden flex justify-between">
+                            <span class="text-slate-500">Domicilio</span>
+                            <span id="costo-domicilio-vista" class="font-semibold">$0</span>
+                        </div>
+
+                        <div class="flex justify-between text-lg border-t border-slate-100 pt-3">
+                            <span class="font-bold text-pillone-dark">Total</span>
+                            <span id="total" class="font-bold text-pillone-accent">$0</span>
+                        </div>
+
+                    </div>
+
+                    <button id="btn-guardar"
+                            type="button"
+                            onclick="guardarVenta()"
+                            class="w-full py-3.5 rounded-xl bg-pillone-dark text-white text-sm font-bold hover:opacity-95 disabled:opacity-50">
+                        Cobrar y finalizar venta
+                    </button>
+
+                    <p id="mensaje-error"
+                       class="hidden text-xs bg-red-50 text-red-700 border border-red-100 rounded-xl p-3">
+                    </p>
 
                 </aside>
 
             </div>
 
         </div>
-
     </main>
-
 </div>
 
-<!-- MODAL PRODUCTOS -->
-<div id="modal-productos"
-     class="hidden fixed inset-0 z-[100]">
+<div id="modal-productos" class="hidden fixed inset-0 z-[100]">
 
     <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
          onclick="cerrarModalProductos()">
@@ -544,14 +324,9 @@
 
         <div class="bg-white w-full max-w-6xl max-h-[92vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
 
-            <!-- CABECERA MODAL -->
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-4 shrink-0">
-
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-lg font-bold text-pillone-dark">
-                        Seleccionar producto
-                    </h2>
-
+                    <h2 class="text-lg font-bold text-pillone-dark">Seleccionar producto</h2>
                     <p class="text-xs text-slate-400">
                         Busca por nombre, genérico, código, barras, laboratorio, concentración o INVIMA.
                     </p>
@@ -559,26 +334,21 @@
 
                 <button type="button"
                         onclick="cerrarModalProductos()"
-                        class="w-9 h-9 shrink-0 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xl">
+                        class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xl">
                     ×
                 </button>
-
             </div>
 
-            <!-- BUSCADOR -->
-            <div class="p-4 border-b border-slate-100 shrink-0">
-
+            <div class="p-4 border-b border-slate-100">
                 <input id="buscar-producto"
                        type="text"
                        oninput="renderProductosModal()"
                        placeholder="Buscar producto..."
                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
-
             </div>
 
-            <!-- PRODUCTOS -->
             <div id="lista-productos"
-                 class="pos-scroll overflow-y-auto flex-1 divide-y divide-slate-100">
+                 class="overflow-y-auto flex-1 divide-y divide-slate-100">
             </div>
 
         </div>
@@ -589,18 +359,24 @@
 
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 
-<script>
+<script th:inline="javascript">
     let productos=[];
     let clientes=[];
     let carrito=[];
     let porcentajeIvaGlobal=0;
     let aplicaIva=true;
 
-    const dinero=n=>new Intl.NumberFormat('es-CO',{
-        style:'currency',
-        currency:'COP',
-        maximumFractionDigits:0
-    }).format(Number(n||0));
+    const clienteInicial=/*[[${param.cliente != null ? param.cliente[0] : ''}]]*/ '';
+    const BORRADOR_KEY='pilloneVentaBorrador';
+
+    const dinero=n=>new Intl.NumberFormat(
+        'es-CO',
+        {
+            style:'currency',
+            currency:'COP',
+            maximumFractionDigits:0
+        }
+    ).format(Number(n||0));
 
     const texto=v=>String(v??'').toLowerCase();
 
@@ -625,11 +401,19 @@
                 cargarEmpleados()
             ]);
 
-            renderCarrito();
+            restaurarBorrador();
 
+            if(clienteInicial){
+                document.getElementById('cliente').value=String(clienteInicial);
+                actualizarDatosCliente();
+            }
+
+            renderCarrito();
+            await cargarFormulasCarrito();
         }catch(e){
             mostrarError(
-                e.message||
+                e.message
+                ||
                 'No fue posible cargar el POS'
             );
         }
@@ -648,17 +432,19 @@
     }
 
     async function cargarConfiguracion(){
-
-        const config=
-            await json('/configuracion/api');
+        const config=await json('/configuracion/api');
 
         porcentajeIvaGlobal=
             Number(config.ivaGeneral||0);
 
-        document.getElementById('texto-iva').textContent=
+        document.getElementById(
+            'texto-iva'
+        ).textContent=
             `Aplicar IVA (${porcentajeIvaGlobal}%)`;
 
-        document.getElementById('porcentaje-iva-info').textContent=
+        document.getElementById(
+            'porcentaje-iva-info'
+        ).textContent=
             `${porcentajeIvaGlobal}%`;
 
         recalcularTotales();
@@ -670,125 +456,132 @@
     }
 
     async function cargarSucursales(){
-
         const datos=
             await json('/api/sucursales');
 
         const s=
-            document.getElementById('sucursal');
+            document.getElementById(
+                'sucursal'
+            );
 
         s.innerHTML=
-            '<option value="">Seleccione sucursal</option>'+
+            '<option value="">Seleccione sucursal</option>'
+            +
             datos
                 .filter(
-                    x=>
-                        !x.estado||
+                    x =>
+                        !x.estado
+                        ||
                         x.estado==='ACTIVA'
                 )
                 .map(
-                    x=>
-                        `<option value="${x.idSucursal}">
-                            ${escapeHtml(x.nombre)}
-                        </option>`
+                    x =>
+                        `<option value="${x.idSucursal}">${escapeHtml(x.nombre)}</option>`
                 )
                 .join('');
     }
 
     async function cargarClientes(){
-
         clientes=
             await json('/api/clientes');
 
         const s=
-            document.getElementById('cliente');
+            document.getElementById(
+                'cliente'
+            );
 
         s.innerHTML=
-            '<option value="">Cliente ocasional / sin registrar</option>'+
+            '<option value="">Cliente ocasional / sin registrar</option>'
+            +
             clientes
                 .map(
-                    x=>
-                        `<option value="${x.id_cliente}">
-                            ${escapeHtml(x.nombreCompleto)}
-                            ${
-                                x.numeroDocumento
-                                    ? ' - '+escapeHtml(x.numeroDocumento)
-                                    : ''
-                            }
-                        </option>`
+                    x =>
+                        `<option value="${x.id_cliente}">`
+                        +
+                        `${escapeHtml(x.nombreCompleto)}`
+                        +
+                        `${x.numeroDocumento?' - '+escapeHtml(x.numeroDocumento):''}`
+                        +
+                        '</option>'
                 )
                 .join('');
     }
 
     async function cargarEmpleados(){
-
         const datos=
             await json('/api/empleados');
 
         const s=
-            document.getElementById('empleado');
+            document.getElementById(
+                'empleado'
+            );
 
         s.innerHTML=
-            '<option value="">Seleccione empleado</option>'+
+            '<option value="">Seleccione empleado</option>'
+            +
             datos
                 .filter(
-                    x=>
-                        !x.estado||
+                    x =>
+                        !x.estado
+                        ||
                         x.estado==='ACTIVO'
                 )
                 .map(
-                    x=>
-                        `<option value="${x.id_empleado}">
-                            ${escapeHtml(x.nombre_completo)}
-                        </option>`
+                    x =>
+                        `<option value="${x.id_empleado}">${escapeHtml(x.nombre_completo)}</option>`
                 )
                 .join('');
     }
 
     function abrirModalProductos(){
+        document.getElementById(
+            'modal-productos'
+        ).classList.remove(
+            'hidden'
+        );
 
-        document
-            .getElementById('modal-productos')
-            .classList
-            .remove('hidden');
-
-        document
-            .getElementById('buscar-producto')
-            .value='';
+        document.getElementById(
+            'buscar-producto'
+        ).value='';
 
         renderProductosModal();
 
         setTimeout(
-            ()=>{
-                document
-                    .getElementById('buscar-producto')
-                    .focus();
-            },
+            () =>
+                document.getElementById(
+                    'buscar-producto'
+                ).focus(),
             50
         );
     }
 
     function cerrarModalProductos(){
-
-        document
-            .getElementById('modal-productos')
-            .classList
-            .add('hidden');
+        document.getElementById(
+            'modal-productos'
+        ).classList.add(
+            'hidden'
+        );
     }
 
     function productosFiltrados(){
-
         const q=
             texto(
-                document
-                    .getElementById('buscar-producto')
-                    .value
+                document.getElementById(
+                    'buscar-producto'
+                ).value
             ).trim();
 
         return productos.filter(
-            p=>
-                (!p.estado||p.estado==='ACTIVO') &&
+            p =>
                 (
-                    !q ||
+                    !p.estado
+                    ||
+                    p.estado==='ACTIVO'
+                )
+                &&
+                (
+                    !q
+                    ||
                     [
                         p.nombreComercial,
                         p.nombreGenerico,
@@ -799,16 +592,14 @@
                         p.presentacion,
                         p.registroInvima
                     ].some(
-                        v=>
-                            texto(v)
-                                .includes(q)
+                        v =>
+                            texto(v).includes(q)
                     )
                 )
         );
     }
 
     function renderProductosModal(){
-
         const lista=
             productosFiltrados();
 
@@ -818,79 +609,60 @@
             );
 
         if(!lista.length){
-
             cont.innerHTML=
-                '<div class="p-12 text-center text-sm text-slate-400">No se encontraron productos.</div>';
+                '<div class="p-12 text-center text-sm text-slate-400">'
+                +
+                'No se encontraron productos.'
+                +
+                '</div>';
 
             return;
         }
 
         cont.innerHTML=
             lista.map(
-                p=>`
+                p =>
+                    `
                     <div class="p-4 flex flex-col lg:flex-row lg:items-center gap-4 hover:bg-slate-50">
-
                         <div class="min-w-0 flex-1">
-
                             <div class="flex flex-wrap items-center gap-2">
-
                                 <h3 class="font-bold text-pillone-dark">
                                     ${escapeHtml(p.nombreComercial)}
                                 </h3>
 
                                 ${
                                     p.requiereFormula
-                                        ? '<span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-semibold">Requiere fórmula</span>'
-                                        : ''
+                                    ||
+                                    p.esControlado
+                                        ?
+                                        '<span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-semibold">Requiere fórmula</span>'
+                                        :
+                                        ''
                                 }
-
                             </div>
 
                             <p class="text-xs text-slate-500 mt-1">
                                 ${escapeHtml(p.nombreGenerico||'')}
-                                ${
-                                    p.concentracion
-                                        ? ' • '+escapeHtml(p.concentracion)
-                                        : ''
-                                }
-                                ${
-                                    p.presentacion
-                                        ? ' • '+escapeHtml(p.presentacion)
-                                        : ''
-                                }
+                                ${p.concentracion?'• '+escapeHtml(p.concentracion):''}
+                                ${p.presentacion?'• '+escapeHtml(p.presentacion):''}
                             </p>
 
                             <p class="text-[11px] text-slate-400 mt-1">
-                                Código:
-                                ${escapeHtml(p.codigoInterno)}
-                                · Barras:
-                                ${escapeHtml(p.codigoBarras)}
-                                ·
-                                ${escapeHtml(p.laboratorio||'')}
+                                Código: ${escapeHtml(p.codigoInterno)}
+                                · Barras: ${escapeHtml(p.codigoBarras||'')}
+                                · Stock: ${Number(p.stockTotal||0)} u.
                             </p>
-
                         </div>
 
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs lg:w-[390px]">
-
                             <div class="bg-slate-50 rounded-xl p-3">
-                                <span class="block text-slate-400">
-                                    Precio unidad
-                                </span>
-
-                                <strong>
-                                    ${dinero(p.precioVenta)}
-                                </strong>
+                                <span class="block text-slate-400">Precio unidad</span>
+                                <strong>${dinero(p.precioVenta)}</strong>
                             </div>
 
                             <div class="bg-slate-50 rounded-xl p-3">
-                                <span class="block text-slate-400">
-                                    Stock
-                                </span>
-
-                                <strong>
-                                    ${Number(p.stockTotal||0)} u.
-                                </strong>
+                                <span class="block text-slate-400">Stock</span>
+                                <strong>${Number(p.stockTotal||0)} u.</strong>
                             </div>
 
                             <button type="button"
@@ -898,80 +670,61 @@
                                     class="rounded-xl bg-pillone-accent text-white font-bold px-4 py-3">
                                 Agregar
                             </button>
-
                         </div>
-
                     </div>
-                `
+                    `
             ).join('');
     }
 
     function agregarProducto(id){
-
-        const p=
-            productos.find(
-                x=>
-                    Number(x.idProducto)===
-                    Number(id)
-            );
+        const p=productos.find(x=>Number(x.idProducto)===Number(id));
 
         if(!p){
             return;
         }
 
-        const existente=
-            carrito.find(
-                x=>
-                    x.idProducto===p.idProducto &&
-                    x.tipoVenta==='UNIDAD'
-            );
+        const existente=carrito.find(
+            x=>x.idProducto===p.idProducto&&x.tipoVenta==='UNIDAD'
+        );
 
         if(existente){
-
-            const max=
-                Math.floor(
-                    Number(p.stockTotal||0)
-                );
-
-            if(existente.cantidad<max){
-                existente.cantidad++;
-            }
-
+            existente.cantidad++;
         }else{
-
             carrito.push({
                 idProducto:p.idProducto,
                 producto:p,
                 tipoVenta:'UNIDAD',
-                cantidad:1
+                cantidad:1,
+                idFormula:null,
+                formulasDisponibles:[],
+                cargandoFormulas:false
             });
         }
 
         cerrarModalProductos();
-
         renderCarrito();
+        cargarFormulasCarrito();
     }
 
     function factorPresentacion(item){
-
         if(item.tipoVenta==='CAJA'){
-
             return Math.max(
                 1,
                 Number(
-                    item.producto
-                        .unidadesPorEmpaque||1
+                    item.producto.unidadesPorEmpaque
+                    ||
+                    1
                 )
             );
         }
 
         if(item.tipoVenta==='SELLO'){
-
             return Math.max(
                 1,
                 Number(
-                    item.producto
-                        .unidadesPorSello||1
+                    item.producto.unidadesPorSello
+                    ||
+                    1
                 )
             );
         }
@@ -980,26 +733,32 @@
     }
 
     function precioPresentacion(item){
-
         const unidad=
             Number(
-                item.producto.precioVenta||0
+                item.producto.precioVenta
+                ||
+                0
             );
 
         if(item.tipoVenta==='CAJA'){
-
             return Number(
-                item.producto.precioVentaEmpaque||0
+                item.producto.precioVentaEmpaque
+                ||
+                0
             )>0
-                ? Number(
+                ?
+                Number(
                     item.producto.precioVentaEmpaque
                 )
-                : unidad*factorPresentacion(item);
+                :
+                unidad
+                *
+                factorPresentacion(item);
         }
 
         if(item.tipoVenta==='SELLO'){
-
-            return unidad*
+            return unidad
+                *
                 factorPresentacion(item);
         }
 
@@ -1007,17 +766,18 @@
     }
 
     function stockPresentacion(item){
-
         return Math.floor(
             Number(
-                item.producto.stockTotal||0
-            )/
+                item.producto.stockTotal
+                ||
+                0
+            )
+            /
             factorPresentacion(item)
         );
     }
 
     function opcionesPresentacion(item){
-
         const p=
             item.producto;
 
@@ -1026,31 +786,30 @@
 
         if(
             Number(
-                p.unidadesPorSello||1
+                p.unidadesPorSello
+                ||
+                1
             )>1
         ){
             html+=
-                `<option value="SELLO">
-                    Sello x ${Number(p.unidadesPorSello)}
-                </option>`;
+                `<option value="SELLO">Sello x ${Number(p.unidadesPorSello)}</option>`;
         }
 
         if(
             Number(
-                p.unidadesPorEmpaque||1
+                p.unidadesPorEmpaque
+                ||
+                1
             )>1
         ){
             html+=
-                `<option value="CAJA">
-                    Caja x ${Number(p.unidadesPorEmpaque)}
-                </option>`;
+                `<option value="CAJA">Caja x ${Number(p.unidadesPorEmpaque)}</option>`;
         }
 
         return html;
     }
 
     function renderCarrito(){
-
         const body=
             document.getElementById(
                 'carrito-body'
@@ -1061,33 +820,36 @@
                 'carrito-vacio'
             );
 
-        document
-            .getElementById(
-                'contador-lineas'
-            )
-            .textContent=
-                `${carrito.length} ${
-                    carrito.length===1
-                        ? 'línea'
-                        : 'líneas'
-                }`;
+        document.getElementById(
+            'contador-lineas'
+        ).textContent=
+            `${carrito.length} ${carrito.length===1?'línea':'líneas'}`;
 
-        vacio
-            .classList
-            .toggle(
-                'hidden',
-                carrito.length>0
-            );
+        vacio.classList.toggle(
+            'hidden',
+            carrito.length>0
+        );
 
         body.innerHTML=
             carrito.map(
-                (item,i)=>`
-                    <tr class="hover:bg-slate-50">
-
+                (item,i) =>
+                    `
+                    <tr>
                         <td class="p-3.5">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="font-semibold text-pillone-dark">
+                                    ${escapeHtml(item.producto.nombreComercial)}
+                                </div>
 
-                            <div class="font-semibold text-pillone-dark">
-                                ${escapeHtml(item.producto.nombreComercial)}
+                                ${
+                                    item.producto.requiereFormula
+                                    ||
+                                    item.producto.esControlado
+                                        ?
+                                        '<span class="text-[9px] px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-bold">FÓRMULA</span>'
+                                        :
+                                        ''
+                                }
                             </div>
 
                             <div class="text-[11px] text-slate-400">
@@ -1095,22 +857,20 @@
                                 ·
                                 ${escapeHtml(item.producto.presentacion||'')}
                             </div>
-
                         </td>
 
                         <td class="p-3.5">
-
                             <select onchange="cambiarTipo(${i},this.value)"
-                                    class="px-2.5 py-2 border border-slate-200 rounded-lg bg-slate-50 text-xs">
-
+                                    class="select-presentacion px-2.5 py-2 border border-slate-200 rounded-lg bg-slate-50 text-xs">
                                 ${opcionesPresentacion(item)}
-
                             </select>
+                        </td>
 
+                        <td class="p-3.5">
+                            ${renderSelectorFormula(item,i)}
                         </td>
 
                         <td class="p-3.5 text-center">
-
                             <span class="font-semibold">
                                 ${stockPresentacion(item)}
                             </span>
@@ -1118,18 +878,15 @@
                             <span class="block text-[10px] text-slate-400">
                                 ${item.tipoVenta.toLowerCase()}(s)
                             </span>
-
                         </td>
 
                         <td class="p-3.5 text-center">
-
                             <input type="number"
                                    min="1"
                                    max="${Math.max(1,stockPresentacion(item))}"
                                    value="${item.cantidad}"
                                    onchange="cambiarCantidad(${i},this.value)"
                                    class="w-20 px-2 py-2 text-center border border-slate-200 rounded-lg">
-
                         </td>
 
                         <td class="p-3.5 text-right font-medium">
@@ -1141,39 +898,33 @@
                         </td>
 
                         <td class="p-3.5 text-center">
-
                             <button type="button"
                                     onclick="eliminarItem(${i})"
-                                    class="text-red-500 hover:bg-red-50 px-2.5 py-2 rounded-lg text-xs font-semibold">
-                                Quitar
+                                    class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100"
+                                    title="Quitar producto">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"></path>
+                                </svg>
                             </button>
-
                         </td>
-
                     </tr>
-                `
+                    `
             ).join('');
 
-        carrito.forEach(
-            (item,i)=>{
+        carrito.forEach((item,i)=>{
+            const fila=body.querySelectorAll('tr')[i];
+            const select=fila?.querySelector('.select-presentacion');
 
-                const select=
-                    body.querySelectorAll(
-                        'select'
-                    )[i];
-
-                if(select){
-                    select.value=
-                        item.tipoVenta;
-                }
+            if(select){
+                select.value=item.tipoVenta;
             }
-        );
+        });
 
         recalcularTotales();
+        actualizarAlertaFormulas();
     }
 
     function cambiarTipo(i,tipo){
-
         carrito[i].tipoVenta=
             tipo;
 
@@ -1182,8 +933,11 @@
                 carrito[i]
             );
 
-        if(carrito[i].cantidad>max){
-
+        if(
+            carrito[i].cantidad
+            >
+            max
+        ){
             carrito[i].cantidad=
                 Math.max(
                     1,
@@ -1195,7 +949,6 @@
     }
 
     function cambiarCantidad(i,v){
-
         let n=
             Math.max(
                 1,
@@ -1221,7 +974,6 @@
     }
 
     function eliminarItem(i){
-
         carrito.splice(
             i,
             1
@@ -1230,34 +982,296 @@
         renderCarrito();
     }
 
+    function requiereFormula(item){
+        return Boolean(item?.producto?.requiereFormula||item?.producto?.esControlado);
+    }
+
+    function renderSelectorFormula(item,i){
+        if(!requiereFormula(item)){
+            return '<span class="text-[11px] text-slate-400">No requerida</span>';
+        }
+
+        const idCliente=document.getElementById('cliente')?.value;
+
+        if(!idCliente){
+            return `
+                <div class="text-[11px] text-amber-700">
+                    Selecciona un cliente registrado.
+                </div>
+            `;
+        }
+
+        if(item.cargandoFormulas){
+            return '<span class="text-[11px] text-slate-400">Buscando fórmulas...</span>';
+        }
+
+        const formulas=item.formulasDisponibles||[];
+
+        if(!formulas.length){
+            return `
+                <div class="space-y-2">
+                    <div class="text-[11px] text-red-600 font-semibold">
+                        No tiene fórmula vigente.
+                    </div>
+                    <button type="button"
+                            onclick="irCrearFormula(${i})"
+                            class="px-3 py-2 rounded-lg bg-amber-600 text-white text-[11px] font-bold">
+                        + Crear fórmula
+                    </button>
+                </div>
+            `;
+        }
+
+        const opciones=formulas.map(f=>{
+            const fecha=f.fechaVencimiento?' · vence '+f.fechaVencimiento:'';
+            const medico=f.nombreMedico?' · '+escapeHtml(f.nombreMedico):'';
+            return `<option value="${f.idFormula}">Fórmula #${f.idFormula}${medico}${fecha}</option>`;
+        }).join('');
+
+        return `
+            <select onchange="seleccionarFormula(${i},this.value)"
+                    class="w-full min-w-[230px] px-2.5 py-2 border border-emerald-200 rounded-lg bg-emerald-50 text-[11px] outline-none">
+                <option value="">Seleccione fórmula</option>
+                ${opciones}
+            </select>
+            <div class="mt-1 text-[10px] text-emerald-700">
+                ${formulas.length===1?'1 fórmula vigente encontrada':formulas.length+' fórmulas vigentes encontradas'}
+            </div>
+        `;
+    }
+
+    async function cambiarClienteVenta(){
+        actualizarDatosCliente();
+
+        carrito.forEach(item=>{
+            item.idFormula=null;
+            item.formulasDisponibles=[];
+        });
+
+        renderCarrito();
+        await cargarFormulasCarrito();
+    }
+
+    async function cargarFormulasCarrito(){
+        const idCliente=document.getElementById('cliente')?.value;
+
+        for(const item of carrito){
+            if(!requiereFormula(item)){
+                item.idFormula=null;
+                item.formulasDisponibles=[];
+                continue;
+            }
+
+            if(!idCliente){
+                item.idFormula=null;
+                item.formulasDisponibles=[];
+                continue;
+            }
+
+            item.cargandoFormulas=true;
+            renderCarrito();
+
+            try{
+                const r=await fetch(
+                    `/api/ventas/formulas-disponibles?clienteId=${encodeURIComponent(idCliente)}&productoId=${encodeURIComponent(item.idProducto)}`
+                );
+
+                const data=await r.json();
+
+                if(!r.ok){
+                    throw new Error('No fue posible consultar las fórmulas.');
+                }
+
+                item.formulasDisponibles=Array.isArray(data)?data:[];
+                item.cargandoFormulas=false;
+
+                if(item.formulasDisponibles.length===1){
+                    item.idFormula=Number(item.formulasDisponibles[0].idFormula);
+                }else if(
+                    item.idFormula
+                    &&
+                    !item.formulasDisponibles.some(f=>Number(f.idFormula)===Number(item.idFormula))
+                ){
+                    item.idFormula=null;
+                }
+
+            }catch(e){
+                item.formulasDisponibles=[];
+                item.idFormula=null;
+                item.cargandoFormulas=false;
+            }
+        }
+
+        renderCarrito();
+
+        carrito.forEach((item,i)=>{
+            if(item.idFormula){
+                const fila=document.querySelectorAll('#carrito-body tr')[i];
+                const selector=fila?.querySelector('select[onchange^="seleccionarFormula"]');
+                if(selector){
+                    selector.value=String(item.idFormula);
+                }
+            }
+        });
+    }
+
+    function seleccionarFormula(i,idFormula){
+        carrito[i].idFormula=idFormula?Number(idFormula):null;
+        actualizarAlertaFormulas();
+    }
+
+    function actualizarAlertaFormulas(){
+        const alerta=document.getElementById('alerta-formula');
+        const textoEl=document.getElementById('texto-formula');
+        const btn=document.getElementById('btn-registrar-formula');
+        const restringidos=carrito.filter(requiereFormula);
+
+        if(!restringidos.length){
+            alerta.classList.add('hidden');
+            btn.classList.add('hidden');
+            return true;
+        }
+
+        alerta.classList.remove('hidden');
+
+        const idCliente=document.getElementById('cliente')?.value;
+
+        if(!idCliente){
+            textoEl.textContent='Hay medicamentos que requieren fórmula. Selecciona un cliente registrado para consultar sus fórmulas.';
+            btn.classList.add('hidden');
+            return false;
+        }
+
+        const sinFormula=restringidos.filter(item=>!item.idFormula);
+
+        if(!sinFormula.length){
+            textoEl.textContent='Todos los medicamentos restringidos tienen una fórmula médica vigente seleccionada.';
+            btn.classList.add('hidden');
+            return true;
+        }
+
+        const primero=sinFormula[0];
+        textoEl.textContent='Falta seleccionar o crear fórmula para: '+sinFormula.map(x=>x.producto.nombreComercial).join(', ')+'.';
+        btn.textContent='Crear fórmula';
+        btn.href='javascript:void(0)';
+        btn.onclick=()=>irCrearFormula(carrito.indexOf(primero));
+        btn.classList.remove('hidden');
+        return false;
+    }
+
+    async function validarFormulasCarrito(){
+        return actualizarAlertaFormulas();
+    }
+
+    function guardarBorradorVenta(){
+        const borrador={
+            carrito:carrito.map(i=>({
+                idProducto:i.idProducto,
+                tipoVenta:i.tipoVenta,
+                cantidad:i.cantidad,
+                idFormula:i.idFormula||null
+            })),
+            cliente:document.getElementById('cliente')?.value||'',
+            sucursal:document.getElementById('sucursal')?.value||'',
+            empleado:document.getElementById('empleado')?.value||'',
+            metodoPago:document.getElementById('metodo-pago')?.value||'EFECTIVO',
+            descuento:document.getElementById('descuento')?.value||'0',
+            aplicaIva:document.getElementById('aplica-iva')?.checked??true
+        };
+
+        localStorage.setItem(BORRADOR_KEY,JSON.stringify(borrador));
+    }
+
+    function restaurarBorrador(){
+        const raw=localStorage.getItem(BORRADOR_KEY);
+
+        if(!raw){
+            return;
+        }
+
+        try{
+            const b=JSON.parse(raw);
+
+            carrito=(b.carrito||[]).map(i=>{
+                const p=productos.find(x=>Number(x.idProducto)===Number(i.idProducto));
+                if(!p){
+                    return null;
+                }
+
+                return {
+                    idProducto:p.idProducto,
+                    producto:p,
+                    tipoVenta:i.tipoVenta||'UNIDAD',
+                    cantidad:Number(i.cantidad||1),
+                    idFormula:i.idFormula?Number(i.idFormula):null,
+                    formulasDisponibles:[],
+                    cargandoFormulas:false
+                };
+            }).filter(Boolean);
+
+            if(b.cliente&&!clienteInicial){
+                document.getElementById('cliente').value=String(b.cliente);
+            }
+
+            if(b.sucursal){
+                document.getElementById('sucursal').value=String(b.sucursal);
+            }
+
+            if(b.empleado){
+                document.getElementById('empleado').value=String(b.empleado);
+            }
+
+            if(b.metodoPago){
+                document.getElementById('metodo-pago').value=b.metodoPago;
+            }
+
+            if(b.descuento!=null){
+                document.getElementById('descuento').value=b.descuento;
+            }
+
+            if(typeof b.aplicaIva==='boolean'){
+                document.getElementById('aplica-iva').checked=b.aplicaIva;
+                aplicaIva=b.aplicaIva;
+            }
+        }catch(e){
+            localStorage.removeItem(BORRADOR_KEY);
+        }
+    }
+
+    function irCrearFormula(i){
+        const item=carrito[i];
+        const idCliente=document.getElementById('cliente')?.value;
+
+        if(!idCliente){
+            mostrarError('Selecciona primero un cliente registrado para crear la fórmula.');
+            return;
+        }
+
+        guardarBorradorVenta();
+
+        window.location.href=
+            `/view/formulas/form?cliente=${encodeURIComponent(idCliente)}&producto=${encodeURIComponent(item.idProducto)}&retorno=ventas`;
+    }
+
     function toggleDomicilio(){
-
         const activo=
-            document
-                .getElementById(
-                    'es-domicilio'
-                )
-                .checked;
+            document.getElementById(
+                'es-domicilio'
+            ).checked;
 
-        document
-            .getElementById(
-                'datos-domicilio'
-            )
-            .classList
-            .toggle(
-                'hidden',
-                !activo
-            );
+        document.getElementById(
+            'datos-domicilio'
+        ).classList.toggle(
+            'hidden',
+            !activo
+        );
 
-        document
-            .getElementById(
-                'fila-costo-domicilio'
-            )
-            .classList
-            .toggle(
-                'hidden',
-                !activo
-            );
+        document.getElementById(
+            'fila-costo-domicilio'
+        ).classList.toggle(
+            'hidden',
+            !activo
+        );
 
         if(activo){
             actualizarDatosCliente();
@@ -1267,23 +1281,18 @@
     }
 
     function actualizarDatosCliente(){
+        const id=
+            document.getElementById(
+                'cliente'
+            ).value;
 
         if(
-            !document
-                .getElementById(
-                    'es-domicilio'
-                )
-                .checked
+            !document.getElementById(
+                'es-domicilio'
+            ).checked
         ){
             return;
         }
-
-        const id=
-            document
-                .getElementById(
-                    'cliente'
-                )
-                .value;
 
         if(!id){
             return;
@@ -1291,8 +1300,9 @@
 
         const cliente=
             clientes.find(
-                x=>
-                    Number(x.id_cliente)===
+                x =>
+                    Number(x.id_cliente)
+                    ===
                     Number(id)
             );
 
@@ -1311,7 +1321,8 @@
             );
 
         if(
-            !direccion.value &&
+            !direccion.value
+            &&
             cliente.direccion
         ){
             direccion.value=
@@ -1319,7 +1330,8 @@
         }
 
         if(
-            !telefono.value &&
+            !telefono.value
+            &&
             cliente.telefono
         ){
             telefono.value=
@@ -1328,25 +1340,23 @@
     }
 
     function cambiarIva(){
-
         aplicaIva=
-            document
-                .getElementById(
-                    'aplica-iva'
-                )
-                .checked;
+            document.getElementById(
+                'aplica-iva'
+            ).checked;
 
         recalcularTotales();
     }
 
     function recalcularTotales(){
-
         const subtotal=
             carrito.reduce(
-                (t,i)=>
-                    t+
+                (t,i) =>
+                    t
+                    +
                     (
-                        precioPresentacion(i)*
+                        precioPresentacion(i)
+                        *
                         i.cantidad
                     ),
                 0
@@ -1356,11 +1366,11 @@
             Math.max(
                 0,
                 Number(
-                    document
-                        .getElementById(
-                            'descuento'
-                        )
-                        ?.value||0
+                    document.getElementById(
+                        'descuento'
+                    )?.value
+                    ||
+                    0
                 )
             );
 
@@ -1378,167 +1388,154 @@
 
         const iva=
             aplicaIva
-                ? base*
-                  (
-                      porcentajeIvaGlobal/
-                      100
-                  )
-                : 0;
+                ?
+                base
+                *
+                (
+                    porcentajeIvaGlobal
+                    /
+                    100
+                )
+                :
+                0;
 
         const esDomicilio=
-            document
-                .getElementById(
-                    'es-domicilio'
-                )
-                ?.checked||
+            document.getElementById(
+                'es-domicilio'
+            )?.checked
+            ||
             false;
 
         const costoDomicilio=
             esDomicilio
-                ? Math.max(
+                ?
+                Math.max(
                     0,
                     Number(
-                        document
-                            .getElementById(
-                                'costo-domicilio'
-                            )
-                            ?.value||0
+                        document.getElementById(
+                            'costo-domicilio'
+                        )?.value
+                        ||
+                        0
                     )
                 )
-                : 0;
+                :
+                0;
 
         const total=
-            base+
-            iva+
+            base
+            +
+            iva
+            +
             costoDomicilio;
 
-        document
-            .getElementById(
-                'subtotal'
-            )
-            .textContent=
-                dinero(subtotal);
+        document.getElementById(
+            'subtotal'
+        ).textContent=
+            dinero(subtotal);
 
-        document
-            .getElementById(
-                'descuento-vista'
-            )
-            .textContent=
-                dinero(descuento);
+        document.getElementById(
+            'descuento-vista'
+        ).textContent=
+            dinero(descuento);
 
-        document
-            .getElementById(
-                'valor-iva'
-            )
-            .textContent=
-                dinero(iva);
+        document.getElementById(
+            'valor-iva'
+        ).textContent=
+            dinero(iva);
 
-        document
-            .getElementById(
-                'costo-domicilio-vista'
-            )
-            .textContent=
-                dinero(costoDomicilio);
+        document.getElementById(
+            'costo-domicilio-vista'
+        ).textContent=
+            dinero(costoDomicilio);
 
-        document
-            .getElementById(
-                'total'
-            )
-            .textContent=
-                dinero(total);
+        document.getElementById(
+            'total'
+        ).textContent=
+            dinero(total);
     }
 
     async function guardarVenta(){
-
         ocultarError();
 
         if(!carrito.length){
-
             return mostrarError(
                 'Agrega al menos un producto.'
             );
         }
 
         const idSucursal=
-            document
-                .getElementById(
-                    'sucursal'
-                )
-                .value;
+            document.getElementById(
+                'sucursal'
+            ).value;
 
         const idEmpleado=
-            document
-                .getElementById(
-                    'empleado'
-                )
-                .value;
+            document.getElementById(
+                'empleado'
+            ).value;
+
+        const idCliente=
+            document.getElementById(
+                'cliente'
+            ).value;
 
         if(!idSucursal){
-
             return mostrarError(
                 'Selecciona una sucursal.'
             );
         }
 
         if(!idEmpleado){
-
             return mostrarError(
                 'Selecciona un empleado.'
             );
         }
 
-        const idCliente=
-            document
-                .getElementById(
-                    'cliente'
-                )
-                .value;
+        if(
+            !(
+                await validarFormulasCarrito()
+            )
+        ){
+            return mostrarError(
+                'Debe seleccionar un cliente con fórmula médica vigente o registrar la fórmula antes de finalizar la venta.'
+            );
+        }
 
         const esDomicilio=
-            document
-                .getElementById(
-                    'es-domicilio'
-                )
-                .checked;
+            document.getElementById(
+                'es-domicilio'
+            ).checked;
 
         const direccionEntrega=
-            document
-                .getElementById(
-                    'direccion-entrega'
-                )
-                .value
-                .trim();
+            document.getElementById(
+                'direccion-entrega'
+            ).value.trim();
 
         const telefonoContacto=
-            document
-                .getElementById(
-                    'telefono-contacto'
-                )
-                .value
-                .trim();
+            document.getElementById(
+                'telefono-contacto'
+            ).value.trim();
 
         const nombreDomiciliario=
-            document
-                .getElementById(
-                    'nombre-domiciliario'
-                )
-                .value
-                .trim();
+            document.getElementById(
+                'nombre-domiciliario'
+            ).value.trim();
 
         const costoDomicilio=
             Math.max(
                 0,
                 Number(
-                    document
-                        .getElementById(
-                            'costo-domicilio'
-                        )
-                        .value||0
+                    document.getElementById(
+                        'costo-domicilio'
+                    ).value
+                    ||
+                    0
                 )
             );
 
         if(
-            esDomicilio &&
+            esDomicilio
+            &&
             !idCliente
         ){
             return mostrarError(
@@ -1547,7 +1544,8 @@
         }
 
         if(
-            esDomicilio &&
+            esDomicilio
+            &&
             !direccionEntrega
         ){
             return mostrarError(
@@ -1556,7 +1554,8 @@
         }
 
         if(
-            esDomicilio &&
+            esDomicilio
+            &&
             !telefonoContacto
         ){
             return mostrarError(
@@ -1565,68 +1564,60 @@
         }
 
         const payload={
-
-            idSucursal:
-                Number(idSucursal),
-
-            idCliente:
-                idCliente
-                    ? Number(idCliente)
-                    : null,
-
-            idEmpleado:
-                Number(idEmpleado),
-
-            descuento:
-                Number(
-                    document
-                        .getElementById(
-                            'descuento'
-                        )
-                        .value||0
-                ),
-
+            idSucursal:Number(idSucursal),
+            idCliente:idCliente
+                ?
+                Number(idCliente)
+                :
+                null,
+            idEmpleado:Number(idEmpleado),
+            descuento:Number(
+                document.getElementById(
+                    'descuento'
+                ).value
+                ||
+                0
+            ),
             aplicaIva:
-                document
-                    .getElementById(
-                        'aplica-iva'
-                    )
-                    .checked,
-
+                document.getElementById(
+                    'aplica-iva'
+                ).checked,
             metodoPago:
-                document
-                    .getElementById(
-                        'metodo-pago'
-                    )
-                    .value,
-
+                document.getElementById(
+                    'metodo-pago'
+                ).value,
             esDomicilio,
-
             direccionEntrega:
                 esDomicilio
-                    ? direccionEntrega
-                    : null,
-
+                    ?
+                    direccionEntrega
+                    :
+                    null,
             telefonoContacto:
                 esDomicilio
-                    ? telefonoContacto
-                    : null,
-
+                    ?
+                    telefonoContacto
+                    :
+                    null,
             nombreDomiciliario:
-                esDomicilio &&
+                esDomicilio
+                &&
                 nombreDomiciliario
-                    ? nombreDomiciliario
-                    : null,
-
+                    ?
+                    nombreDomiciliario
+                    :
+                    null,
             costoDomicilio:
                 esDomicilio
-                    ? costoDomicilio
-                    : 0,
-
+                    ?
+                    costoDomicilio
+                    :
+                    0,
             items:
                 carrito.map(
-                    i=>({
+                    i => ({
                         idProducto:i.idProducto,
+                        idFormula:i.idFormula||null,
                         tipoVenta:i.tipoVenta,
                         cantidad:i.cantidad
                     })
@@ -1639,65 +1630,61 @@
             );
 
         btn.disabled=true;
-        btn.textContent='Procesando...';
+        btn.textContent=
+            'Procesando...';
 
         try{
-
             const r=
                 await fetch(
                     '/api/ventas',
                     {
                         method:'POST',
                         headers:{
-                            'Content-Type':
-                                'application/json'
+                            'Content-Type':'application/json'
                         },
-                        body:
-                            JSON.stringify(
-                                payload
-                            )
+                        body:JSON.stringify(
+                            payload
+                        )
                     }
                 );
 
             const data=
-                await r
-                    .json()
+                await r.json()
                     .catch(
-                        ()=>({})
+                        () => ({})
                     );
 
             if(!r.ok){
-
                 throw new Error(
-                    data.error||
+                    data.error
+                    ||
                     'No se pudo registrar la venta'
                 );
             }
 
             alert(
-                `Venta registrada correctamente\nFactura: ${data.numeroFactura}\nTotal: ${dinero(data.total)}`
+                `Venta registrada correctamente
+    Factura: ${data.numeroFactura}
+    Total: ${dinero(data.total)}`
             );
+
+            localStorage.removeItem(BORRADOR_KEY);
 
             window.location.href=
                 '/view/ventas';
 
         }catch(e){
-
             mostrarError(
                 e.message
             );
-
         }finally{
-
             btn.disabled=false;
-
             btn.textContent=
                 'Cobrar y finalizar venta';
         }
     }
 
     function mostrarError(m){
-
         const e=
             document.getElementById(
                 'mensaje-error'
@@ -1711,13 +1698,11 @@
     }
 
     function ocultarError(){
-
-        document
-            .getElementById(
-                'mensaje-error'
-            )
-            .classList
-            .add('hidden');
+        document.getElementById(
+            'mensaje-error'
+        ).classList.add(
+            'hidden'
+        );
     }
 
     document.addEventListener(
@@ -1727,7 +1712,7 @@
 
     document.addEventListener(
         'keydown',
-        e=>{
+        e => {
             if(e.key==='Escape'){
                 cerrarModalProductos();
             }

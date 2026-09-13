@@ -4,33 +4,35 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "usuarios")
+@Table(name="usuarios")
 @Data
 public class Usuarios {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="id_usuario")
     private Long idUsuario;
 
-    @JoinColumn(name = "id_empleado", nullable = true)
+    @Column(name="id_empleado",nullable=false,unique=true)
     private Long idEmpleado;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_rol", nullable = false)
-    private Roles rol; // Relacionado con Roles
+    @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="id_rol",nullable=false)
+    private Roles rol;
 
-    @Column(name = "username", nullable = false, unique = true, length = 50)
+    @Column(name="username",nullable=false,unique=true,length=50)
     private String username;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(name="password_hash",nullable=false,length=255)
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado")
-    private EstadoUsuario estado = EstadoUsuario.ACTIVO;
+    @Column(name="estado",nullable=false,length=20)
+    private EstadoUsuario estado=EstadoUsuario.ACTIVO;
 
     public enum EstadoUsuario {
-        ACTIVO, BLOQUEADO, INACTIVO
+        ACTIVO,
+        BLOQUEADO,
+        INACTIVO
     }
 }
