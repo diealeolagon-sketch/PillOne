@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devoluciones - PillOne</title>
+    <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+</head>
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen">
+<header th:replace="~{fragments/layout :: topbar('Devoluciones')}"></header>
+
+<div class="flex min-h-[calc(100vh-4rem)]">
+    <aside th:replace="~{fragments/layout :: sidebar('devoluciones')}"></aside>
+
+    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+        <div class="max-w-[1500px] mx-auto space-y-5">
+
+            <div>
+                <p class="text-[11px] uppercase tracking-[.2em] text-pillone-accent font-bold">
+                    Historial
+                </p>
+
+                <h1 class="text-2xl sm:text-3xl font-bold text-pillone-dark">
+                    Devoluciones
+                </h1>
+
+                <p class="text-sm text-slate-500 mt-1">
+                    Esta pantalla es únicamente de consulta. Las devoluciones se originan desde la operación correspondiente.
+                </p>
+            </div>
+
+            <div th:if="${mensaje}"
+                 class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold"
+                 th:text="${mensaje}">
+            </div>
+
+            <div th:if="${error}"
+                 class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold"
+                 th:text="${error}">
+            </div>
+
+            <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <input id="buscar"
+                           type="text"
+                           oninput="filtrar()"
+                           placeholder="Buscar factura, cliente, producto, lote..."
+                           class="w-full sm:w-96 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-pillone-accent text-sm">
+
+                    <span class="text-xs text-slate-500">
+                        Total:
+                        <strong id="contador"
+                                th:text="${#lists.size(devoluciones)}">
+                            0
+                        </strong>
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[1250px] text-sm">
+                        <thead class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
+                        <tr>
+                            <th class="p-3 text-left">Fecha</th>
+                            <th class="p-3 text-left">Origen</th>
+                            <th class="p-3 text-left">Cliente / factura</th>
+                            <th class="p-3 text-left">Producto</th>
+                            <th class="p-3 text-left">Lote</th>
+                            <th class="p-3 text-center">Cantidad</th>
+                            <th class="p-3 text-left">Motivo</th>
+                            <th class="p-3 text-left">Destino producto</th>
+                            <th class="p-3 text-left">Autorizó</th>
+                            <th class="p-3 text-left">Observaciones</th>
+                        </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-slate-100">
+
+                        <tr th:if="${#lists.isEmpty(devoluciones)}">
+                            <td colspan="10"
+                                class="p-10 text-center text-slate-400">
+                                Todavía no hay devoluciones registradas.
+                            </td>
+                        </tr>
+
+                        <tr th:each="d : ${devoluciones}"
+                            class="fila hover:bg-slate-50">
+
+                            <td class="p-3 text-xs text-slate-500"
+                                th:text="${d.fecha_devolucion != null ? #temporals.format(d.fecha_devolucion,'dd/MM/yyyy HH:mm') : '-'}">
+                                -
+                            </td>
+
+                            <td class="p-3">
+                                <span class="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700"
+                                      th:text="${d.tipo_devolucion}">
+                                    CLIENTE
+                                </span>
+
+                                <div th:if="${d.id_domicilio != null}"
+                                     class="text-[10px] text-slate-400 mt-1"
+                                     th:text="${'Domicilio #' + d.id_domicilio}">
+                                </div>
+                            </td>
+
+                            <td class="p-3">
+                                <div class="font-semibold"
+                                     th:text="${d.cliente != null ? d.cliente : '-'}">
+                                    Cliente
+                                </div>
+
+                                <div class="text-[10px] text-pillone-accent"
+                                     th:text="${d.numero_factura != null ? d.numero_factura : (d.numero_factura_proveedor != null ? d.numero_factura_proveedor : '-')}">
+                                    Factura
+                                </div>
+                            </td>
+
+                            <td class="p-3">
+                                <div class="font-semibold"
+                                     th:text="${d.nombre_comercial}">
+                                    Producto
+                                </div>
+
+                                <div class="text-[10px] text-slate-400"
+                                     th:text="${d.codigo_interno}">
+                                    Código
+                                </div>
+                            </td>
+
+                            <td class="p-3"
+                                th:text="${d.numero_lote != null ? d.numero_lote : 'Sin lote histórico'}">
+                                Lote
+                            </td>
+
+                            <td class="p-3 text-center font-bold"
+                                th:text="${d.cantidad}">
+                                0
+                            </td>
+
+                            <td class="p-3 text-xs"
+                                th:text="${#strings.replace(d.motivo,'_',' ')}">
+                                Motivo
+                            </td>
+
+                            <td class="p-3 text-xs"
+                                th:text="${#strings.replace(d.estado_producto,'_',' ')}">
+                                Estado
+                            </td>
+
+                            <td class="p-3 text-xs"
+                                th:text="${d.username}">
+                                Usuario
+                            </td>
+
+                            <td class="p-3 max-w-[250px] text-xs text-slate-500"
+                                th:text="${d.observaciones != null ? d.observaciones : '-'}">
+                                -
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+<script>
+    function filtrar(){
+        const q=(document.getElementById('buscar').value||'').toLowerCase();
+        let n=0;
+
+        document.querySelectorAll('.fila').forEach(f=>{
+            const ok=f.textContent.toLowerCase().includes(q);
+            f.style.display=ok?'':'none';
+
+            if(ok){
+                n++;
+            }
+        });
+
+        document.getElementById('contador').textContent=n;
+    }
+</script>
+</body>
+</html>

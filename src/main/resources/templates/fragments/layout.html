@@ -255,9 +255,11 @@
         </a>
 
         <!-- PERFIL -->
-        <div class="flex items-center gap-2.5 border-l border-white/10 pl-3.5 py-1">
+        <button type="button"
+                onclick="abrirMenuUsuario()"
+                class="flex items-center gap-2.5 border-l border-white/10 pl-3.5 py-1 pr-2 rounded-xl hover:bg-white/10 transition-all group focus:outline-none">
 
-            <div class="w-8 h-8 rounded-xl bg-pillone-accent/20 border border-pillone-accent/40 flex items-center justify-center">
+            <div class="w-8 h-8 rounded-xl bg-pillone-accent/20 border border-pillone-accent/40 flex items-center justify-center group-hover:bg-pillone-accent/30 transition">
 
                 <svg class="w-4 h-4 text-teal-300"
                      fill="none"
@@ -275,13 +277,152 @@
 
             <div class="hidden sm:flex flex-col text-left">
 
-                <span class="text-xs font-semibold text-white leading-tight">
-                    Farmacéutico
+                <span class="text-xs font-semibold text-white leading-tight"
+                      th:text="${session.nombreEmpleado != null ? session.nombreEmpleado : session.username}">
+                    Usuario
                 </span>
 
-                <span class="text-[10px] text-slate-400">
+                <span class="text-[10px] text-slate-400"
+                      th:text="${session.nombreRol != null ? session.nombreRol : 'Sesión activa'}">
                     Sesión activa
                 </span>
+
+            </div>
+
+            <svg class="hidden sm:block w-3.5 h-3.5 text-slate-400 group-hover:text-white transition"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"/>
+
+            </svg>
+
+        </button>
+
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL USUARIO / CERRAR SESIÓN -->
+    <!-- ========================================================= -->
+
+    <div id="modal-usuario"
+         class="fixed inset-0 z-[100] hidden items-center justify-center px-4">
+
+        <div onclick="cerrarMenuUsuario()"
+             class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm">
+        </div>
+
+        <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+
+            <div class="bg-pillone-dark px-5 py-4 flex items-center justify-between">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-10 h-10 rounded-xl bg-pillone-accent/20 border border-pillone-accent/40 flex items-center justify-center">
+
+                        <svg class="w-5 h-5 text-teal-300"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="1.8"
+                                  d="M20 21a8 8 0 00-16 0m8-10a4 4 0 100-8 4 4 0 000 8z"/>
+
+                        </svg>
+
+                    </div>
+
+                    <div>
+
+                        <p class="text-sm font-semibold text-white"
+                           th:text="${session.nombreEmpleado != null ? session.nombreEmpleado : session.username}">
+                            Usuario
+                        </p>
+
+                        <p class="text-[10px] text-slate-400"
+                           th:text="${session.nombreRol != null ? session.nombreRol : 'Sesión activa'}">
+                            Sesión activa
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button type="button"
+                        onclick="cerrarMenuUsuario()"
+                        class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition focus:outline-none"
+                        title="Cerrar ventana">
+
+                    <svg class="w-4 h-4"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"/>
+
+                    </svg>
+
+                </button>
+
+            </div>
+
+            <div class="p-5">
+
+                <div class="mb-5">
+
+                    <h3 class="text-sm font-bold text-pillone-dark">
+                        ¿Quieres cerrar la sesión?
+                    </h3>
+
+                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                        Volverás al login y podrás ingresar con otro usuario.
+                    </p>
+
+                </div>
+
+                <div class="flex flex-col gap-2.5">
+
+                    <form th:action="@{/logout}"
+                          method="post"
+                          class="w-full">
+
+                        <button type="submit"
+                                class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-pillone-dark text-white text-xs font-semibold hover:bg-pillone-darker transition shadow-sm focus:outline-none">
+
+                            <svg class="w-4 h-4"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="1.8"
+                                      d="M15 8l4 4-4 4M19 12H9M13 5V4a2 2 0 00-2-2H5a2 2 0 00-2 2v16a2 2 0 002 2h6a2 2 0 002-2v-1"/>
+
+                            </svg>
+
+                            Cerrar sesión y volver al login
+
+                        </button>
+
+                    </form>
+
+                    <button type="button"
+                            onclick="cerrarMenuUsuario()"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 hover:text-pillone-dark transition focus:outline-none">
+                        Cancelar
+                    </button>
+
+                </div>
 
             </div>
 
@@ -830,6 +971,45 @@
             </a>
 
 
+
+            <!-- ================================================= -->
+            <!-- DOMICILIOS -->
+            <!-- ================================================= -->
+
+            <a th:href="@{/view/domicilios}"
+               data-nav-path="/view/domicilios"
+               class="nav-link text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group">
+
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/>
+                        <circle cx="7" cy="18" r="2" stroke-width="1.8"/>
+                        <circle cx="18" cy="18" r="2" stroke-width="1.8"/>
+                    </svg>
+                </div>
+
+                <span>Domicilios</span>
+            </a>
+
+            <!-- ================================================= -->
+            <!-- DEVOLUCIONES -->
+            <!-- ================================================= -->
+
+            <a th:href="@{/view/devoluciones}"
+               data-nav-path="/view/devoluciones"
+               class="nav-link text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group">
+
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M8 7H4v4M4.5 10A8 8 0 1020 12"/>
+                        <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 8v8M9 13l3 3 3-3"/>
+                    </svg>
+                </div>
+
+                <span>Devoluciones</span>
+            </a>
+
+
             <!-- ================================================= -->
             <!-- PERSONAL Y ACCESOS -->
             <!-- ================================================= -->
@@ -1175,6 +1355,49 @@
 <th:block th:fragment="scripts">
 
     <script>
+
+        window.abrirMenuUsuario = function(){
+
+            const modal =
+                document.getElementById('modal-usuario');
+
+            if(!modal) return;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            document.body.classList.add(
+                'overflow-hidden'
+            );
+        };
+
+
+        window.cerrarMenuUsuario = function(){
+
+            const modal =
+                document.getElementById('modal-usuario');
+
+            if(!modal) return;
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            document.body.classList.remove(
+                'overflow-hidden'
+            );
+        };
+
+
+        document.addEventListener(
+            'keydown',
+            function(event){
+
+                if(event.key === 'Escape'){
+                    window.cerrarMenuUsuario();
+                }
+            }
+        );
+
 
         window.toggleSidebar = function(){
 

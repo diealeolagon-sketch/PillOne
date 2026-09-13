@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -368,6 +369,7 @@
 
     const clienteInicial=/*[[${param.cliente != null ? param.cliente[0] : ''}]]*/ '';
     const BORRADOR_KEY='pilloneVentaBorrador';
+    const RETOMAR_KEY='pilloneRetomarVenta';
 
     const dinero=n=>new Intl.NumberFormat(
         'es-CO',
@@ -401,7 +403,14 @@
                 cargarEmpleados()
             ]);
 
-            restaurarBorrador();
+            const debeRetomar=sessionStorage.getItem(RETOMAR_KEY)==='1';
+
+            if(debeRetomar){
+                restaurarBorrador();
+                sessionStorage.removeItem(RETOMAR_KEY);
+            }else{
+                limpiarVentaNueva();
+            }
 
             if(clienteInicial){
                 document.getElementById('cliente').value=String(clienteInicial);
@@ -1179,11 +1188,11 @@
             aplicaIva:document.getElementById('aplica-iva')?.checked??true
         };
 
-        localStorage.setItem(BORRADOR_KEY,JSON.stringify(borrador));
+        sessionStorage.setItem(BORRADOR_KEY,JSON.stringify(borrador));
     }
 
     function restaurarBorrador(){
-        const raw=localStorage.getItem(BORRADOR_KEY);
+        const raw=sessionStorage.getItem(BORRADOR_KEY);
 
         if(!raw){
             return;
@@ -1234,8 +1243,44 @@
                 aplicaIva=b.aplicaIva;
             }
         }catch(e){
-            localStorage.removeItem(BORRADOR_KEY);
+            sessionStorage.removeItem(BORRADOR_KEY);
         }
+    }
+
+    function limpiarVentaNueva(){
+        carrito=[];
+        sessionStorage.removeItem(BORRADOR_KEY);
+        sessionStorage.removeItem(RETOMAR_KEY);
+
+        const cliente=document.getElementById('cliente');
+        const sucursal=document.getElementById('sucursal');
+        const empleado=document.getElementById('empleado');
+        const metodoPago=document.getElementById('metodo-pago');
+        const descuento=document.getElementById('descuento');
+        const aplicaIvaEl=document.getElementById('aplica-iva');
+        const esDomicilio=document.getElementById('es-domicilio');
+        const direccion=document.getElementById('direccion-entrega');
+        const telefono=document.getElementById('telefono-contacto');
+        const domiciliario=document.getElementById('nombre-domiciliario');
+        const costoDomicilio=document.getElementById('costo-domicilio');
+
+        if(cliente&&!clienteInicial) cliente.value='';
+        if(sucursal) sucursal.value='';
+        if(empleado) empleado.value='';
+        if(metodoPago) metodoPago.value='EFECTIVO';
+        if(descuento) descuento.value='0';
+        if(aplicaIvaEl){
+            aplicaIvaEl.checked=true;
+            aplicaIva=true;
+        }
+        if(esDomicilio) esDomicilio.checked=false;
+        if(direccion) direccion.value='';
+        if(telefono) telefono.value='';
+        if(domiciliario) domiciliario.value='';
+        if(costoDomicilio) costoDomicilio.value='0';
+
+        toggleDomicilio();
+        renderCarrito();
     }
 
     function irCrearFormula(i){
@@ -1248,6 +1293,7 @@
         }
 
         guardarBorradorVenta();
+        sessionStorage.setItem(RETOMAR_KEY,'1');
 
         window.location.href=
             `/view/formulas/form?cliente=${encodeURIComponent(idCliente)}&producto=${encodeURIComponent(item.idProducto)}&retorno=ventas`;
@@ -1668,7 +1714,7 @@
     Total: ${dinero(data.total)}`
             );
 
-            localStorage.removeItem(BORRADOR_KEY);
+            sessionStorage.removeItem(BORRADOR_KEY);
 
             window.location.href=
                 '/view/ventas';

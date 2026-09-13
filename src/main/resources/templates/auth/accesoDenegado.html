@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Acceso denegado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{pillone:{bg:'#F7F7FF',dark:'#07004D',accent:'#208AAE'}}}}}</script>
+</head>
+<body class="min-h-screen bg-pillone-bg flex items-center justify-center p-4 font-sans">
+<div class="max-w-md w-full text-center bg-white border border-slate-200 rounded-2xl shadow-xl p-8">
+    <div class="mx-auto w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l9 16H3L12 3zm0 6v4m0 3h.01"/></svg>
+    </div>
+    <h1 class="mt-4 text-xl font-extrabold text-pillone-dark">Acceso denegado</h1>
+    <p class="text-sm text-slate-500 mt-2">Tu rol no tiene permiso para ingresar a esta sección.</p>
+    <a th:href="@{/view/dashboard}" class="inline-block mt-5 px-5 py-3 rounded-xl bg-pillone-dark text-white font-bold">Volver al dashboard</a>
+</div>
+</body>
+</html>

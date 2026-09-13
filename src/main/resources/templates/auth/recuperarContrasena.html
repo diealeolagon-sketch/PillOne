@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Recuperar contraseña</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>tailwind.config={theme:{extend:{colors:{pillone:{bg:'#F7F7FF',dark:'#07004D',accent:'#208AAE'}},fontFamily:{sans:['Poppins','sans-serif']}}}}</script>
+</head>
+<body class="min-h-screen bg-pillone-bg font-sans flex items-center justify-center p-4">
+<section class="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl p-6 sm:p-8">
+    <div class="w-12 h-12 rounded-xl bg-pillone-accent/10 text-pillone-accent flex items-center justify-center mb-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7l9 6 9-6M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+    </div>
+    <h1 class="text-xl font-extrabold text-pillone-dark">Recuperar contraseña</h1>
+    <p class="text-xs text-slate-500 mt-1 mb-5">Escribe tu usuario o correo. Enviaremos un enlace al correo registrado del empleado.</p>
+    <div th:if="${mensaje}" class="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-700" th:text="${mensaje}"></div>
+    <form th:action="@{/recuperar-contrasena}" method="post" class="space-y-4">
+        <div>
+            <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">Usuario o correo</label>
+            <input name="identificador" required class="w-full px-3.5 py-3 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent" placeholder="usuario o correo@empresa.com">
+        </div>
+        <button class="w-full py-3 rounded-xl bg-pillone-dark text-white font-bold">Enviar enlace de recuperación</button>
+    </form>
+    <a th:href="@{/login}" class="mt-5 inline-flex items-center gap-1 text-xs font-semibold text-pillone-accent">← Volver al login</a>
+</section>
+</body>
+</html>

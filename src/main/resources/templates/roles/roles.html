@@ -3,138 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PillOne - Gestión de Roles</title>
+    <title>PillOne - Roles y Permisos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/png" th:href="@{/img/img.png}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <th:block th:replace="fragments/layout :: styles"></th:block>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        pillone: {
-                            bg: '#F7F7FF',
-                            dark: '#07004D',
-                            darker: '#04002C',
-                            accent: '#208AAE',
-                            text: '#1D1E18'
-                        }
-                    },
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
 </head>
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
-
-<!-- TOPBAR GLOBAL -->
-<header th:replace="fragments/layout :: topbar('Gestión de Roles')"></header>
-
-<!-- CONTENEDOR CENTRAL -->
+<header th:replace="fragments/layout :: topbar('Roles y Permisos')"></header>
 <div class="flex flex-1 relative">
-
     <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden"></div>
-
-    <!-- SIDEBAR GLOBAL -->
     <aside th:replace="fragments/layout :: sidebar('roles')"></aside>
-
-    <!-- AREA PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0">
         <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-
-            <!-- ENCABEZADO -->
             <section class="mb-5">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div>
-                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight">
-                            Módulo de Roles
-                        </h1>
-                        <p class="text-xs text-slate-500 mt-1">
-                            Administre los perfiles de autorización y permisos disponibles en el sistema PillOne.
-                        </p>
+                        <div class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.16em] text-pillone-accent mb-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v5c0 4.6-2.8 8.2-7 10-4.2-1.8-7-5.4-7-10V6l7-3zM9 12l2 2 4-4"/></svg>
+                            Control de acceso
+                        </div>
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight">Roles y Permisos</h1>
+                        <p class="text-xs text-slate-500 mt-1">Defina qué puede consultar, crear, editar o administrar cada perfil del sistema.</p>
                     </div>
-                    <div>
-                        <a th:href="@{/view/roles/form}"
-                           class="inline-flex items-center justify-center gap-2 rounded-lg bg-pillone-accent px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 transition cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                            Nuevo Rol
-                        </a>
-                    </div>
+                    <a th:href="@{/view/roles/form}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-pillone-accent px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+                        Nuevo Rol
+                    </a>
                 </div>
             </section>
 
-            <!-- MENSAJE FLASH (ÉXITO) -->
-            <div th:if="${mensaje}" class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 text-xs font-medium shadow-sm flex items-center gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                <span th:text="${mensaje}">Mensaje de éxito</span>
+            <div th:if="${mensaje}" class="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 font-medium flex items-center gap-2">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                <span th:text="${mensaje}"></span>
+            </div>
+            <div th:if="${error}" class="mb-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-rose-800 font-medium flex items-center gap-2">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+                <span th:text="${error}"></span>
             </div>
 
-            <!-- MENSAJE FLASH (ERROR) -->
-            <div th:if="${error}" class="mb-4 rounded-lg bg-rose-50 border border-rose-200 p-3 text-rose-800 text-xs font-medium shadow-sm flex items-center gap-2">
-                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                <span th:text="${error}">Mensaje de error</span>
-            </div>
+            <section class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Roles registrados</div>
+                    <div class="text-2xl font-extrabold text-pillone-dark mt-1" th:text="${#lists.size(roles)}">0</div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Permisos disponibles</div>
+                    <div class="text-2xl font-extrabold text-pillone-accent mt-1" th:text="${totalPermisos}">0</div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Modelo</div>
+                    <div class="font-bold text-slate-700 mt-2">Permisos por módulo y acción</div>
+                </div>
+            </section>
 
-            <!-- CONTENEDOR DE TABLA -->
-            <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
-
-                <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-white">
-                    <div class="text-xs text-slate-500 font-medium">
-                        Total de roles registrados: <span class="font-bold text-pillone-dark" th:text="${roles.size()}">0</span>
+            <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="relative w-full sm:w-80">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M21 21l-5-5m2-6a8 8 0 11-16 0 8 8 0 0116 0z"/></svg>
+                        </span>
+                        <input id="buscar-rol" oninput="filtrarRoles()" type="text" placeholder="Buscar rol..." class="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
                     </div>
                 </div>
-
-                <!-- TABLA RESPONSIVA -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-xs text-left">
                         <thead>
-                        <tr class="bg-pillone-dark text-white border-b border-slate-100 text-[10px] uppercase tracking-wider">
-                            <th class="px-6 py-3.5 font-bold w-24">ID</th>
-                            <th class="px-6 py-3.5 font-bold">Nombre del Rol</th>
-                            <th class="px-6 py-3.5 text-center font-bold w-32">Acciones</th>
+                        <tr class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
+                            <th class="px-5 py-3.5 w-20">ID</th>
+                            <th class="px-5 py-3.5">Rol</th>
+                            <th class="px-5 py-3.5">Permisos</th>
+                            <th class="px-5 py-3.5">Usuarios</th>
+                            <th class="px-5 py-3.5 text-center w-32">Acciones</th>
                         </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-
-                        <tr th:each="rol : ${roles}" class="hover:bg-pillone-bg/40 transition">
-                            <td class="px-6 py-3.5 font-bold text-pillone-accent" th:text="${rol.idRol}"></td>
-                            <td class="px-6 py-3.5 font-semibold text-slate-700" th:text="${rol.nombre}"></td>
-                            <td class="px-6 py-3.5 text-center">
+                        <tr th:if="${#lists.isEmpty(roles)}">
+                            <td colspan="5" class="p-10 text-center text-slate-400">No hay roles registrados.</td>
+                        </tr>
+                        <tr th:each="rol : ${roles}" class="fila-rol hover:bg-pillone-bg/40 transition">
+                            <td class="px-5 py-3.5 font-bold text-pillone-accent" th:text="${rol.idRol}"></td>
+                            <td class="px-5 py-3.5">
+                                <div class="font-extrabold text-slate-800" th:text="${rol.nombre}"></div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Perfil de autorización</div>
+                            </td>
+                            <td class="px-5 py-3.5">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-bold">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M12 3l7 3v5c0 4.6-2.8 8.2-7 10-4.2-1.8-7-5.4-7-10V6l7-3z"/></svg>
+                                    <span th:text="${rol.cantidadPermisos + ' permisos'}"></span>
+                                </span>
+                            </td>
+                            <td class="px-5 py-3.5">
+                                <span class="font-semibold text-slate-700" th:text="${rol.usuarios != null ? #lists.size(rol.usuarios) : 0}"></span>
+                                <span class="text-slate-400"> usuario(s)</span>
+                            </td>
+                            <td class="px-5 py-3.5">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <!-- Botón Editar -->
-                                    <a th:href="@{/view/roles/edit/{id}(id=${rol.idRol})}"
-                                       class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-pillone-accent transition shadow-xs" title="Editar rol">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    <a th:href="@{/view/roles/edit/{id}(id=${rol.idRol})}" class="p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-white hover:bg-pillone-accent transition" title="Editar rol y permisos">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M4 20l4.5-1 10.268-10.268a2.5 2.5 0 10-3.536-3.536L4.964 15.464 4 20z"/></svg>
                                     </a>
-                                    <!-- Botón Eliminar -->
-                                    <form th:action="@{'/view/roles/delete/' + ${rol.idRol}}" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este rol?');" class="inline-flex">
-                                        <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-rose-600 transition shadow-xs bg-transparent border-0 cursor-pointer" title="Eliminar rol">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    <form th:action="@{/view/roles/delete/{id}(id=${rol.idRol})}" method="post" class="inline" onsubmit="return confirm('¿Eliminar este rol? Solo será posible si no está asignado a usuarios.');">
+                                        <button type="submit" class="p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-white hover:bg-rose-600 transition" title="Eliminar">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>
                                         </button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-
-                        <tr th:if="${roles.empty}">
-                            <td colspan="3" class="px-6 py-12 text-center text-slate-400">
-                                No se encontraron roles registrados en el sistema.
-                            </td>
-                        </tr>
                         </tbody>
                     </table>
                 </div>
-
             </section>
         </main>
-
         <footer th:replace="fragments/layout :: footer"></footer>
     </div>
 </div>
-
 <div th:replace="fragments/layout :: scripts"></div>
-<script th:src="@{/js/script.js}" defer></script>
+<script>
+    function filtrarRoles(){
+        const q=document.getElementById('buscar-rol').value.toLowerCase().trim();
+        document.querySelectorAll('.fila-rol').forEach(f=>f.style.display=f.textContent.toLowerCase().includes(q)?'':'none');
+    }
+</script>
 </body>
 </html>
