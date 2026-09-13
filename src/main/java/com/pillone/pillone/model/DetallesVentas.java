@@ -2,6 +2,7 @@ package com.pillone.pillone.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.math.BigDecimal;
 
 @Data
@@ -24,12 +25,27 @@ public class DetallesVentas {
     @Column(name = "id_lote", nullable = false)
     private Long idLote;
 
+    @Column(name = "tipo_venta", nullable = false)
+    private String tipoVenta = "UNIDAD";
+
     @Column(nullable = false)
     private Integer cantidad;
 
-    @Column(name = "precio_unitario", precision = 12, scale = 2, nullable = false)
+    @Column(name = "unidades_descontadas", nullable = false)
+    private Integer unidadesDescontadas = 1;
+
+    @Column(
+            name = "precio_unitario",
+            precision = 12,
+            scale = 2,
+            nullable = false
+    )
     private BigDecimal precioUnitario;
 
-    @Column(precision = 12, scale = 2, nullable = false)
+    @Column(
+            precision = 12,
+            scale = 2,
+            nullable = false
+    )
     private BigDecimal subtotal;
 }

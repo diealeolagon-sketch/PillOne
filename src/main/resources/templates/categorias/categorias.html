@@ -1,52 +1,251 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Lista de Categorías</title>
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Categorías</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
+    <script>
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
+                        }
+                    },
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body style="font-family: 'Poppins', sans-serif;">
-<div class="container mx-auto mt-5">
-    <h1 class="text-2xl font-bold mb-4">Gestión de Categorías</h1>
 
-    <!-- Mensajes flash -->
-    <div th:if="${mensaje}" class="bg-green-100 text-green-700 p-3 mb-4 rounded" th:text="${mensaje}"></div>
-    <div th:if="${error}" class="bg-red-100 text-red-700 p-3 mb-4 rounded" th:text="${error}"></div>
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
-    <!-- Botón para nuevo -->
-    <a th:href="@{/view/categorias/form}" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 inline-block">Nueva Categoría</a>
+<header th:replace="fragments/layout :: topbar('Gestión de Categorías')"></header>
 
-    <!-- Tabla -->
-    <table class="min-w-full bg-white border border-gray-200 mt-3">
-        <thead>
-        <tr class="bg-gray-100 border-b">
-            <th class="py-2 px-4 border-r">ID</th>
-            <th class="py-2 px-4 border-r">Nombre</th>
-            <th class="py-2 px-4 border-r">Descripción</th>
-            <th class="py-2 px-4">Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="cat : ${categorias}" class="border-b">
-            <td class="py-2 px-4 border-r text-center" th:text="${cat.id}"></td>
-            <td class="py-2 px-4 border-r" th:text="${cat.nombre}"></td>
-            <td class="py-2 px-4 border-r" th:text="${cat.descripcion}"></td>
-            <td class="py-2 px-4 text-center">
-                <a th:href="@{/view/categorias/edit/{id}(id=${cat.id})}" class="text-yellow-600 mr-2">Editar</a>
-                <form th:action="@{/view/categorias/delete/{id}(id=${cat.id})}" method="post" class="inline">
-                    <button type="submit" class="text-red-600" onclick="return confirm('¿Estás seguro de eliminar esta categoría?');">Eliminar</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+<div class="flex flex-1 relative">
+
+    <div id="overlay"
+         onclick="toggleSidebar()"
+         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+    </div>
+
+    <aside th:replace="fragments/layout :: sidebar('categorias')"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+
+                <div>
+
+                    <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase">
+                        Categorías
+                    </h1>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                        Organiza los productos de la farmacia por categoría.
+                    </p>
+
+                </div>
+
+                <a th:href="@{/view/categorias/form}"
+                   class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
+                    + Nueva Categoría
+                </a>
+
+            </div>
+
+            <div th:if="${mensaje}"
+                 class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 font-medium"
+                 th:text="${mensaje}">
+            </div>
+
+            <div th:if="${error}"
+                 class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-medium"
+                 th:text="${error}">
+            </div>
+
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+
+                <div class="p-4 border-b flex flex-col md:flex-row md:items-center gap-3">
+
+                    <input id="buscador"
+                           type="text"
+                           oninput="filtrar()"
+                           placeholder="Buscar categoría..."
+                           class="w-full md:w-80 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
+                    <div class="md:ml-auto text-slate-500">
+                        Total:
+                        <b id="contador"
+                           class="text-pillone-dark"
+                           th:text="${#lists.size(categorias)}">
+                            0
+                        </b>
+                    </div>
+
+                </div>
+
+                <div class="overflow-x-auto">
+
+                    <table class="min-w-full text-xs">
+
+                        <thead>
+
+                        <tr class="bg-pillone-dark text-white text-[10px] uppercase">
+
+                            <th class="px-4 py-3 text-left">
+                                ID
+                            </th>
+
+                            <th class="px-4 py-3 text-left">
+                                Nombre
+                            </th>
+
+                            <th class="px-4 py-3 text-left">
+                                Descripción
+                            </th>
+
+                            <th class="px-4 py-3 text-center">
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody class="divide-y divide-slate-100">
+
+                        <tr th:each="cat : ${categorias}"
+                            class="fila-categoria hover:bg-slate-50 transition">
+
+                            <td class="px-4 py-3">
+
+                                <span class="font-bold text-pillone-accent"
+                                      th:text="${cat.idCategoria}">
+                                </span>
+
+                            </td>
+
+                            <td class="px-4 py-3">
+
+                                <div class="font-semibold text-slate-800"
+                                     th:text="${cat.nombre}">
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-3">
+
+                                <div class="text-slate-500"
+                                     th:text="${cat.descripcion != null && !cat.descripcion.isEmpty() ? cat.descripcion : 'Sin descripción'}">
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-3">
+
+                                <div class="flex justify-center items-center gap-2">
+
+                                    <a th:href="@{/view/categorias/edit/{id}(id=${cat.idCategoria})}"
+                                       class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 font-semibold hover:bg-amber-100 transition">
+                                        Editar
+                                    </a>
+
+                                    <form th:action="@{/view/categorias/delete/{id}(id=${cat.idCategoria})}"
+                                          method="post"
+                                          onsubmit="return confirm('¿Seguro que deseas eliminar esta categoría?');">
+
+                                        <button type="submit"
+                                                class="px-3 py-1.5 rounded-lg bg-red-50 text-red-700 font-semibold hover:bg-red-100 transition">
+                                            Eliminar
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(categorias)}">
+
+                            <td colspan="4"
+                                class="py-12 text-center text-slate-400">
+                                No hay categorías registradas.
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </div>
+
 </div>
+
+<script>
+    function toggleSidebar(){
+        document.querySelector('aside').classList.toggle('-translate-x-full');
+        document.getElementById('overlay').classList.toggle('hidden');
+    }
+
+    function filtrar(){
+        const texto=
+            document.getElementById('buscador')
+                .value
+                .toLowerCase()
+                .trim();
+
+        let visibles=0;
+
+        document.querySelectorAll('.fila-categoria').forEach(fila=>{
+
+            const mostrar=
+                fila.textContent
+                    .toLowerCase()
+                    .includes(texto);
+
+            fila.style.display=
+                mostrar ? '' : 'none';
+
+            if(mostrar){
+                visibles++;
+            }
+        });
+
+        document.getElementById('contador').textContent=
+            visibles;
+    }
+</script>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
 </body>
 </html>

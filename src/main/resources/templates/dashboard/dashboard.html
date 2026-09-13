@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PillOne</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
+    <script>
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
+                        }
+                    },
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .dashboard-scroll{
+            scrollbar-width:thin;
+            scrollbar-color:#cbd5e1 #f8fafc;
+        }
+
+        .dashboard-scroll::-webkit-scrollbar{
+            width:7px;
+            height:7px;
+        }
+
+        .dashboard-scroll::-webkit-scrollbar-track{
+            background:#f8fafc;
+        }
+
+        .dashboard-scroll::-webkit-scrollbar-thumb{
+            background:#cbd5e1;
+            border-radius:20px;
+        }
+
+        .card-hover{
+            transition:transform .2s ease,box-shadow .2s ease;
+        }
+
+        .card-hover:hover{
+            transform:translateY(-2px);
+            box-shadow:0 10px 25px rgba(15,23,42,.07);
+        }
+    </style>
+</head>
+
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
+
+<header th:replace="fragments/layout :: topbar('Dashboard')"></header>
+
+<div class="flex flex-1 relative">
+
+    <div id="overlay"
+         onclick="toggleSidebar()"
+         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+    </div>
+
+    <aside th:replace="fragments/layout :: sidebar('dashboard')"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <main class="flex-1 p-4 sm:p-5 lg:p-6 max-w-[1600px] mx-auto w-full">
+
+            <!-- ENCABEZADO -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
+
+                <div>
+
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-pillone-accent font-bold">
+                        Panel General
+                    </p>
+
+                    <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark">
+                        Resumen de la operación
+                    </h1>
+
+                    <p id="fecha-dashboard"
+                       class="text-xs text-slate-500 mt-1">
+                        Cargando información...
+                    </p>
+
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+
+                    <button type="button"
+                            onclick="cargarDashboard()"
+                            class="px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition">
+                        ↻ Actualizar
+                    </button>
+
+                    <a th:href="@{/view/ventas/form}"
+                       class="px-4 py-2 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
+                        + Nueva Venta
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- ERROR -->
+            <div id="error-dashboard"
+                 class="hidden mb-4 bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+            </div>
+
+            <!-- LOADING -->
+            <div id="loading-dashboard"
+                 class="mb-4 rounded-xl bg-white border border-slate-200 p-4 text-slate-500">
+                Cargando indicadores del dashboard...
+            </div>
+
+            <!-- CONTENIDO -->
+            <div id="contenido-dashboard"
+                 class="hidden">
+
+                <!-- TARJETAS PRINCIPALES -->
+                <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+
+                    <!-- VENTAS -->
+                    <article class="card-hover bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+
+                        <div class="flex items-start justify-between gap-3">
+
+                            <div>
+
+                                <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                                    Ventas de hoy
+                                </p>
+
+                                <h2 id="ventas-hoy"
+                                    class="text-2xl font-extrabold text-pillone-dark mt-2">
+                                    $0
+                                </h2>
+
+                            </div>
+
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-lg">
+                                💰
+                            </div>
+
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between">
+
+                            <span class="text-slate-400">
+                                Transacciones
+                            </span>
+
+                            <b id="cantidad-ventas-hoy"
+                               class="text-pillone-dark">
+                                0
+                            </b>
+
+                        </div>
+
+                    </article>
+
+                    <!-- TICKET -->
+                    <article class="card-hover bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+
+                        <div class="flex items-start justify-between gap-3">
+
+                            <div>
+
+                                <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                                    Ticket promedio
+                                </p>
+
+                                <h2 id="ticket-promedio"
+                                    class="text-2xl font-extrabold text-pillone-dark mt-2">
+                                    $0
+                                </h2>
+
+                            </div>
+
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-lg">
+                                🧾
+                            </div>
+
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100">
+
+                            <span class="text-slate-400">
+                                Promedio por venta realizada hoy
+                            </span>
+
+                        </div>
+
+                    </article>
+
+                    <!-- STOCK -->
+                    <article class="card-hover bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+
+                        <div class="flex items-start justify-between gap-3">
+
+                            <div>
+
+                                <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                                    Stock bajo
+                                </p>
+
+                                <h2 id="stock-bajo"
+                                    class="text-2xl font-extrabold text-amber-600 mt-2">
+                                    0
+                                </h2>
+
+                            </div>
+
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-lg">
+                                📦
+                            </div>
+
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between">
+
+                            <span class="text-slate-400">
+                                Sin stock
+                            </span>
+
+                            <b id="sin-stock"
+                               class="text-red-600">
+                                0
+                            </b>
+
+                        </div>
+
+                    </article>
+
+                    <!-- VENCIMIENTOS -->
+                    <article class="card-hover bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+
+                        <div class="flex items-start justify-between gap-3">
+
+                            <div>
+
+                                <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                                    Vencimientos críticos
+                                </p>
+
+                                <h2 id="lotes-criticos"
+                                    class="text-2xl font-extrabold text-red-600 mt-2">
+                                    0
+                                </h2>
+
+                            </div>
+
+                            <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-lg">
+                                ⚠️
+                            </div>
+
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
+
+                            <span class="text-slate-400">
+                                Lotes vencidos:
+                                <b id="lotes-vencidos"
+                                   class="text-red-600">
+                                    0
+                                </b>
+                            </span>
+
+                            <a th:href="@{/view/alertas/vencimientos}"
+                               class="font-semibold text-pillone-accent">
+                                Ver →
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                </section>
+
+                <!-- GRÁFICO + DOMICILIOS -->
+                <section class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,.7fr)] gap-4 mb-4">
+
+                    <!-- VENTAS SEMANA -->
+                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+
+                            <div>
+
+                                <h2 class="font-bold text-pillone-dark text-sm">
+                                    Ventas de los últimos 7 días
+                                </h2>
+
+                                <p class="text-[10px] text-slate-400 mt-1">
+                                    Total diario de ventas pagadas
+                                </p>
+
+                            </div>
+
+                            <a th:href="@{/view/ventas}"
+                               class="text-[10px] font-bold text-pillone-accent">
+                                Historial →
+                            </a>
+
+                        </div>
+
+                        <div class="p-5 h-[300px]">
+
+                            <canvas id="graficoVentas">
+                            </canvas>
+
+                        </div>
+
+                    </article>
+
+                    <!-- DOMICILIOS -->
+                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                        <div class="px-5 py-4 border-b border-slate-100">
+
+                            <h2 class="font-bold text-pillone-dark text-sm">
+                                Domicilios
+                            </h2>
+
+                            <p class="text-[10px] text-slate-400 mt-1">
+                                Estado actual de las entregas
+                            </p>
+
+                        </div>
+
+                        <div class="p-5 space-y-3">
+
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-amber-50">
+
+                                <div>
+
+                                    <p class="font-semibold text-amber-800">
+                                        Pendientes
+                                    </p>
+
+                                    <p class="text-[10px] text-amber-600">
+                                        Esperando preparación
+                                    </p>
+
+                                </div>
+
+                                <strong id="dom-pendientes"
+                                        class="text-lg text-amber-700">
+                                    0
+                                </strong>
+
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-blue-50">
+
+                                <div>
+
+                                    <p class="font-semibold text-blue-800">
+                                        En preparación
+                                    </p>
+
+                                    <p class="text-[10px] text-blue-600">
+                                        Preparando pedido
+                                    </p>
+
+                                </div>
+
+                                <strong id="dom-preparacion"
+                                        class="text-lg text-blue-700">
+                                    0
+                                </strong>
+
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-purple-50">
+
+                                <div>
+
+                                    <p class="font-semibold text-purple-800">
+                                        En camino
+                                    </p>
+
+                                    <p class="text-[10px] text-purple-600">
+                                        En proceso de entrega
+                                    </p>
+
+                                </div>
+
+                                <strong id="dom-camino"
+                                        class="text-lg text-purple-700">
+                                    0
+                                </strong>
+
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50">
+
+                                <div>
+
+                                    <p class="font-semibold text-emerald-800">
+                                        Entregados hoy
+                                    </p>
+
+                                    <p class="text-[10px] text-emerald-600">
+                                        Completados
+                                    </p>
+
+                                </div>
+
+                                <strong id="dom-entregados"
+                                        class="text-lg text-emerald-700">
+                                    0
+                                </strong>
+
+                            </div>
+
+                            <a th:href="@{/view/domicilios}"
+                               class="block w-full text-center py-2.5 rounded-xl bg-pillone-dark text-white font-bold mt-2">
+                                Gestionar domicilios
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                </section>
+
+                <!-- ALERTAS + PRODUCTOS VENDIDOS + PAGOS -->
+                <section class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
+
+                    <!-- ALERTAS -->
+                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                        <div class="px-5 py-4 border-b border-slate-100">
+
+                            <h2 class="font-bold text-pillone-dark">
+                                Alertas de inventario
+                            </h2>
+
+                            <p class="text-[10px] text-slate-400 mt-1">
+                                Situaciones que requieren atención
+                            </p>
+
+                        </div>
+
+                        <div class="p-5 space-y-2.5">
+
+                            <a th:href="@{/view/alertas/vencimientos}"
+                               class="flex items-center justify-between p-3 rounded-xl hover:bg-red-50 transition">
+
+                                <div>
+                                    <p class="font-semibold text-slate-700">
+                                        Lotes vencidos
+                                    </p>
+                                    <p class="text-[10px] text-slate-400">
+                                        No deben venderse
+                                    </p>
+                                </div>
+
+                                <span id="alerta-vencidos"
+                                      class="px-2.5 py-1 rounded-full bg-red-50 text-red-700 font-bold">
+                                    0
+                                </span>
+
+                            </a>
+
+                            <a th:href="@{/view/alertas/vencimientos}"
+                               class="flex items-center justify-between p-3 rounded-xl hover:bg-amber-50 transition">
+
+                                <div>
+                                    <p class="font-semibold text-slate-700">
+                                        Próximos 30 días
+                                    </p>
+                                    <p class="text-[10px] text-slate-400">
+                                        Vencimiento crítico
+                                    </p>
+                                </div>
+
+                                <span id="alerta-criticos"
+                                      class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 font-bold">
+                                    0
+                                </span>
+
+                            </a>
+
+                            <a th:href="@{/view/alertas/vencimientos}"
+                               class="flex items-center justify-between p-3 rounded-xl hover:bg-blue-50 transition">
+
+                                <div>
+                                    <p class="font-semibold text-slate-700">
+                                        Entre 31 y 90 días
+                                    </p>
+                                    <p class="text-[10px] text-slate-400">
+                                        Próximos a vencer
+                                    </p>
+                                </div>
+
+                                <span id="alerta-proximos"
+                                      class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-bold">
+                                    0
+                                </span>
+
+                            </a>
+
+                            <a th:href="@{/view/productos}"
+                               class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition">
+
+                                <div>
+                                    <p class="font-semibold text-slate-700">
+                                        Stock bajo
+                                    </p>
+                                    <p class="text-[10px] text-slate-400">
+                                        Requiere reposición
+                                    </p>
+                                </div>
+
+                                <span id="alerta-stock"
+                                      class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-bold">
+                                    0
+                                </span>
+
+                            </a>
+
+                            <a th:href="@{/view/productos}"
+                               class="flex items-center justify-between p-3 rounded-xl hover:bg-red-50 transition">
+
+                                <div>
+                                    <p class="font-semibold text-slate-700">
+                                        Sin stock
+                                    </p>
+                                    <p class="text-[10px] text-slate-400">
+                                        Productos agotados
+                                    </p>
+                                </div>
+
+                                <span id="alerta-sin-stock"
+                                      class="px-2.5 py-1 rounded-full bg-red-50 text-red-700 font-bold">
+                                    0
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                    <!-- MÁS VENDIDOS -->
+                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                        <div class="px-5 py-4 border-b border-slate-100">
+
+                            <h2 class="font-bold text-pillone-dark">
+                                Productos más vendidos
+                            </h2>
+
+                            <p class="text-[10px] text-slate-400 mt-1">
+                                Últimos 30 días
+                            </p>
+
+                        </div>
+
+                        <div id="productos-vendidos"
+                             class="p-5 space-y-3">
+                        </div>
+
+                    </article>
+
+                    <!-- MÉTODOS -->
+                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                        <div class="px-5 py-4 border-b border-slate-100">
+
+                            <h2 class="font-bold text-pillone-dark">
+                                Métodos de pago
+                            </h2>
+
+                            <p class="text-[10px] text-slate-400 mt-1">
+                                Últimos 30 días
+                            </p>
+
+                        </div>
+
+                        <div class="p-5 h-[285px]">
+
+                            <canvas id="graficoPagos">
+                            </canvas>
+
+                        </div>
+
+                    </article>
+
+                </section>
+
+                <!-- ÚLTIMAS VENTAS -->
+                <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+
+                        <div>
+
+                            <h2 class="font-bold text-pillone-dark">
+                                Últimas ventas
+                            </h2>
+
+                            <p class="text-[10px] text-slate-400 mt-1">
+                                Actividad reciente del punto de venta
+                            </p>
+
+                        </div>
+
+                        <a th:href="@{/view/ventas}"
+                           class="font-semibold text-pillone-accent">
+                            Ver historial →
+                        </a>
+
+                    </div>
+
+                    <div class="overflow-x-auto dashboard-scroll">
+
+                        <table class="w-full min-w-[850px]">
+
+                            <thead class="bg-slate-50 text-[10px] uppercase text-slate-500">
+
+                            <tr>
+
+                                <th class="text-left px-4 py-3">
+                                    Factura
+                                </th>
+
+                                <th class="text-left px-4 py-3">
+                                    Cliente
+                                </th>
+
+                                <th class="text-left px-4 py-3">
+                                    Fecha
+                                </th>
+
+                                <th class="text-left px-4 py-3">
+                                    Pago
+                                </th>
+
+                                <th class="text-center px-4 py-3">
+                                    Tipo
+                                </th>
+
+                                <th class="text-center px-4 py-3">
+                                    Estado
+                                </th>
+
+                                <th class="text-right px-4 py-3">
+                                    Total
+                                </th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody id="ultimas-ventas"
+                                   class="divide-y divide-slate-100">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </div>
+
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+<script>
+    let graficoVentas=null;
+    let graficoPagos=null;
+
+    const dinero=valor=>{
+        return new Intl.NumberFormat(
+            'es-CO',
+            {
+                style:'currency',
+                currency:'COP',
+                maximumFractionDigits:0
+            }
+        ).format(Number(valor||0));
+    };
+
+    const escapeHtml=valor=>{
+        return String(valor??'').replace(
+            /[&<>'"]/g,
+            c=>({
+                '&':'&amp;',
+                '<':'&lt;',
+                '>':'&gt;',
+                "'":'&#039;',
+                '"':'&quot;'
+            }[c])
+        );
+    };
+
+    function toggleSidebar(){
+        document.querySelector('aside').classList.toggle('-translate-x-full');
+        document.getElementById('overlay').classList.toggle('hidden');
+    }
+
+    async function cargarDashboard(){
+
+        const loading=document.getElementById('loading-dashboard');
+        const contenido=document.getElementById('contenido-dashboard');
+        const error=document.getElementById('error-dashboard');
+
+        loading.classList.remove('hidden');
+        contenido.classList.add('hidden');
+        error.classList.add('hidden');
+
+        try{
+
+            const response=await fetch('/api/dashboard');
+
+            if(!response.ok){
+                throw new Error('No fue posible consultar la información del dashboard.');
+            }
+
+            const data=await response.json();
+
+            pintarResumen(data.resumen||{});
+            pintarDomicilios(data.domicilios||{});
+            pintarAlertas(data.alertas||{});
+            pintarVentasSemana(data.ventasSemana||[]);
+            pintarProductosVendidos(data.productosMasVendidos||[]);
+            pintarMetodosPago(data.metodosPago||[]);
+            pintarUltimasVentas(data.ultimasVentas||[]);
+
+            contenido.classList.remove('hidden');
+
+        }catch(e){
+
+            error.textContent=e.message||'Error cargando dashboard.';
+            error.classList.remove('hidden');
+
+        }finally{
+
+            loading.classList.add('hidden');
+        }
+    }
+
+    function pintarResumen(r){
+
+        document.getElementById('ventas-hoy').textContent=
+            dinero(r.ventasHoy);
+
+        document.getElementById('cantidad-ventas-hoy').textContent=
+            r.cantidadVentasHoy||0;
+
+        document.getElementById('ticket-promedio').textContent=
+            dinero(r.ticketPromedio);
+
+        document.getElementById('stock-bajo').textContent=
+            r.productosStockBajo||0;
+
+        document.getElementById('sin-stock').textContent=
+            r.productosSinStock||0;
+
+        document.getElementById('lotes-criticos').textContent=
+            r.lotesCriticos||0;
+
+        document.getElementById('lotes-vencidos').textContent=
+            r.lotesVencidos||0;
+    }
+
+    function pintarDomicilios(d){
+
+        document.getElementById('dom-pendientes').textContent=
+            d.pendientes||0;
+
+        document.getElementById('dom-preparacion').textContent=
+            d.preparacion||0;
+
+        document.getElementById('dom-camino').textContent=
+            d.camino||0;
+
+        document.getElementById('dom-entregados').textContent=
+            d.entregadosHoy||0;
+    }
+
+    function pintarAlertas(a){
+
+        document.getElementById('alerta-vencidos').textContent=
+            a.vencidos||0;
+
+        document.getElementById('alerta-criticos').textContent=
+            a.criticos||0;
+
+        document.getElementById('alerta-proximos').textContent=
+            a.proximos||0;
+
+        document.getElementById('alerta-stock').textContent=
+            a.stockBajo||0;
+
+        document.getElementById('alerta-sin-stock').textContent=
+            a.sinStock||0;
+    }
+
+    function pintarVentasSemana(lista){
+
+        const ctx=document.getElementById('graficoVentas');
+
+        if(graficoVentas){
+            graficoVentas.destroy();
+        }
+
+        graficoVentas=new Chart(
+            ctx,
+            {
+                type:'line',
+                data:{
+                    labels:lista.map(x=>x.dia),
+                    datasets:[
+                        {
+                            label:'Ventas',
+                            data:lista.map(x=>Number(x.total||0)),
+                            borderWidth:3,
+                            tension:.35,
+                            fill:false,
+                            pointRadius:4,
+                            pointHoverRadius:6
+                        }
+                    ]
+                },
+                options:{
+                    responsive:true,
+                    maintainAspectRatio:false,
+                    plugins:{
+                        legend:{
+                            display:false
+                        },
+                        tooltip:{
+                            callbacks:{
+                                label:function(context){
+                                    return dinero(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales:{
+                        y:{
+                            beginAtZero:true,
+                            ticks:{
+                                callback:function(value){
+                                    return '$'+
+                                        new Intl.NumberFormat(
+                                            'es-CO',
+                                            {
+                                                notation:'compact',
+                                                maximumFractionDigits:1
+                                            }
+                                        ).format(value);
+                                }
+                            },
+                            grid:{
+                                color:'rgba(148,163,184,.12)'
+                            }
+                        },
+                        x:{
+                            grid:{
+                                display:false
+                            }
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+    function pintarProductosVendidos(lista){
+
+        const cont=document.getElementById('productos-vendidos');
+
+        if(!lista.length){
+
+            cont.innerHTML=`
+                <div class="py-10 text-center text-slate-400">
+                    <div class="text-3xl mb-2">📦</div>
+                    <p>No hay ventas para analizar todavía.</p>
+                </div>
+            `;
+
+            return;
+        }
+
+        cont.innerHTML=lista.map(
+            (p,index)=>`
+                <div class="flex items-center gap-3">
+
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center font-bold text-pillone-dark shrink-0">
+                        ${index+1}
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+
+                        <p class="font-semibold text-slate-700 truncate">
+                            ${escapeHtml(p.producto)}
+                        </p>
+
+                        <p class="text-[10px] text-slate-400">
+                            ${escapeHtml(p.codigo||'')}
+                        </p>
+
+                    </div>
+
+                    <div class="text-right shrink-0">
+
+                        <p class="font-bold text-pillone-dark">
+                            ${Number(p.cantidadVendida||0)}
+                        </p>
+
+                        <p class="text-[9px] text-slate-400">
+                            vendidos
+                        </p>
+
+                    </div>
+
+                </div>
+            `
+        ).join('');
+    }
+
+    function pintarMetodosPago(lista){
+
+        const ctx=document.getElementById('graficoPagos');
+
+        if(graficoPagos){
+            graficoPagos.destroy();
+        }
+
+        const nombres={
+            EFECTIVO:'Efectivo',
+            TARJETA_DEBITO:'Débito',
+            TARJETA_CREDITO:'Crédito',
+            TRANSFERENCIA:'Transferencia',
+            NEQUI_DAVIPLATA:'Nequi / Davi',
+            PAGO_MIXTO:'Mixto'
+        };
+
+        graficoPagos=new Chart(
+            ctx,
+            {
+                type:'doughnut',
+                data:{
+                    labels:lista.map(
+                        x=>nombres[x.metodo]||x.metodo
+                    ),
+                    datasets:[
+                        {
+                            data:lista.map(
+                                x=>Number(x.total||0)
+                            ),
+                            borderWidth:2
+                        }
+                    ]
+                },
+                options:{
+                    responsive:true,
+                    maintainAspectRatio:false,
+                    cutout:'68%',
+                    plugins:{
+                        legend:{
+                            position:'bottom',
+                            labels:{
+                                boxWidth:10,
+                                boxHeight:10,
+                                font:{
+                                    size:10
+                                }
+                            }
+                        },
+                        tooltip:{
+                            callbacks:{
+                                label:function(context){
+                                    return context.label+
+                                        ': '+
+                                        dinero(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+    function pintarUltimasVentas(lista){
+
+        const body=document.getElementById('ultimas-ventas');
+
+        if(!lista.length){
+
+            body.innerHTML=`
+                <tr>
+                    <td colspan="7"
+                        class="px-4 py-12 text-center text-slate-400">
+                        No hay ventas registradas.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        body.innerHTML=lista.map(
+            v=>{
+
+                const fecha=v.fecha
+                    ? new Date(v.fecha).toLocaleString(
+                        'es-CO',
+                        {
+                            dateStyle:'short',
+                            timeStyle:'short'
+                        }
+                    )
+                    : '-';
+
+                const tipoClase=
+                    v.tipoVenta==='DOMICILIO'
+                        ? 'bg-purple-50 text-purple-700'
+                        : 'bg-blue-50 text-blue-700';
+
+                const estadoClase=
+                    v.estado==='PAGADA'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : v.estado==='ANULADA'
+                            ? 'bg-red-50 text-red-700'
+                            : 'bg-amber-50 text-amber-700';
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+
+                        <td class="px-4 py-3">
+                            <span class="font-bold text-pillone-accent">
+                                ${escapeHtml(v.factura)}
+                            </span>
+                        </td>
+
+                        <td class="px-4 py-3">
+                            <span class="font-medium text-slate-700">
+                                ${escapeHtml(v.cliente)}
+                            </span>
+                        </td>
+
+                        <td class="px-4 py-3 text-slate-500 whitespace-nowrap">
+                            ${fecha}
+                        </td>
+
+                        <td class="px-4 py-3 text-slate-500">
+                            ${formatearMetodo(v.metodoPago)}
+                        </td>
+
+                        <td class="px-4 py-3 text-center">
+
+                            <span class="px-2 py-1 rounded-full text-[9px] font-bold ${tipoClase}">
+                                ${v.tipoVenta==='DOMICILIO'?'Domicilio':'Mostrador'}
+                            </span>
+
+                        </td>
+
+                        <td class="px-4 py-3 text-center">
+
+                            <span class="px-2 py-1 rounded-full text-[9px] font-bold ${estadoClase}">
+                                ${escapeHtml(v.estado)}
+                            </span>
+
+                        </td>
+
+                        <td class="px-4 py-3 text-right font-bold text-pillone-dark whitespace-nowrap">
+                            ${dinero(v.total)}
+                        </td>
+
+                    </tr>
+                `;
+            }
+        ).join('');
+    }
+
+    function formatearMetodo(metodo){
+
+        const nombres={
+            EFECTIVO:'Efectivo',
+            TARJETA_DEBITO:'Tarjeta débito',
+            TARJETA_CREDITO:'Tarjeta crédito',
+            TRANSFERENCIA:'Transferencia',
+            NEQUI_DAVIPLATA:'Nequi / Daviplata',
+            PAGO_MIXTO:'Pago mixto'
+        };
+
+        return nombres[metodo]||metodo||'-';
+    }
+
+    function colocarFecha(){
+
+        const ahora=new Date();
+
+        document.getElementById('fecha-dashboard').textContent=
+            ahora.toLocaleDateString(
+                'es-CO',
+                {
+                    weekday:'long',
+                    year:'numeric',
+                    month:'long',
+                    day:'numeric'
+                }
+            );
+    }
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function(){
+
+            colocarFecha();
+            cargarDashboard();
+        }
+    );
+</script>
+
+</body>
+</html>

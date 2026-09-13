@@ -2,6 +2,7 @@ package com.pillone.pillone.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -15,35 +16,59 @@ public class Ventas {
     @Column(name = "id_venta")
     private Long idVenta;
 
-    @Column(name = "id_sucursal", nullable = false)
-    private Long idSucursal;
+    @ManyToOne
+    @JoinColumn(name = "id_sucursal", nullable = false)
+    private Sucursales sucursal;
 
     @Column(name = "numero_factura", nullable = false, length = 50)
     private String numeroFactura;
 
-    @Column(name = "id_cliente")
-    private Long idCliente;
+    @ManyToOne
+    @JoinColumn(name = "id_cliente")
+    private Clientes cliente;
 
-    @Column(name = "id_empleado", nullable = false)
-    private Long idEmpleado;
+    @ManyToOne
+    @JoinColumn(name = "id_empleado", nullable = false)
+    private Empleados empleado;
 
     @Column(name = "fecha_venta")
     private LocalDateTime fechaVenta = LocalDateTime.now();
 
-    @Column(precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2, nullable = false)
     private BigDecimal subtotal = BigDecimal.ZERO;
 
-    @Column(precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2, nullable = false)
     private BigDecimal descuento = BigDecimal.ZERO;
 
-    @Column(name = "impuesto_iva", precision = 12, scale = 2)
+    @Column(name = "aplica_iva", nullable = false)
+    private Boolean aplicaIva = true;
+
+    @Column(
+            name = "porcentaje_iva",
+            precision = 5,
+            scale = 2,
+            nullable = false
+    )
+    private BigDecimal porcentajeIva = BigDecimal.ZERO;
+
+    @Column(
+            name = "impuesto_iva",
+            precision = 12,
+            scale = 2,
+            nullable = false
+    )
     private BigDecimal impuestoIva = BigDecimal.ZERO;
 
-    @Column(precision = 12, scale = 2)
+    @Column(
+            precision = 12,
+            scale = 2,
+            nullable = false
+    )
     private BigDecimal total = BigDecimal.ZERO;
 
     @Column(name = "metodo_pago")
     private String metodoPago = "EFECTIVO";
 
+    @Column(name = "estado")
     private String estado = "PAGADA";
 }

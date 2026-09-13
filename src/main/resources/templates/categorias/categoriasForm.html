@@ -1,41 +1,172 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+
     <meta charset="UTF-8">
-    <title>Formulario de Categoría</title>
-    <!-- Tailwind CSS -->
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>PillOne - Categoría</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" th:href="@{/img/img.png}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
+    <script>
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
+                        }
+                    },
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
 </head>
-<body style="font-family: 'Poppins', sans-serif;">
-<div class="container mx-auto mt-5 max-w-lg">
-    <h1 class="text-2xl font-bold mb-4" th:text="${categoria.id == null ? 'Nueva Categoría' : 'Editar Categoría'}"></h1>
 
-    <form th:action="@{/view/categorias/save}" th:object="${categoria}" method="post" class="bg-white p-6 border rounded shadow">
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
-        <!-- Campo oculto para el ID en caso de edición -->
-        <input type="hidden" th:field="*{id}" />
+<header th:replace="fragments/layout :: topbar('Gestión de Categorías')"></header>
 
-        <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2">Nombre:</label>
-            <input type="text" th:field="*{nombre}" class="w-full border px-3 py-2 rounded" required />
-        </div>
+<div class="flex flex-1 relative">
 
-        <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2">Descripción:</label>
-            <textarea th:field="*{descripcion}" class="w-full border px-3 py-2 rounded"></textarea>
-        </div>
+    <div id="overlay"
+         onclick="toggleSidebar()"
+         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+    </div>
 
-        <div class="flex justify-between">
-            <a th:href="@{/view/categorias}" class="bg-gray-500 text-white px-4 py-2 rounded">Cancelar</a>
-            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Guardar</button>
-        </div>
-    </form>
+    <aside th:replace="fragments/layout :: sidebar('categorias')"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto w-full">
+
+            <section class="mb-5">
+
+                <div class="flex items-center justify-between gap-4">
+
+                    <div>
+
+                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase"
+                            th:text="${categoria.idCategoria != null ? 'Editar Categoría' : 'Nueva Categoría'}">
+                            Categoría
+                        </h1>
+
+                        <p class="text-xs text-slate-500 mt-1">
+                            Define una categoría para organizar los productos.
+                        </p>
+
+                    </div>
+
+                    <a th:href="@{/view/categorias}"
+                       class="px-3 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold hover:bg-slate-300 transition">
+                        ← Volver
+                    </a>
+
+                </div>
+
+            </section>
+
+            <div th:if="${error}"
+                 class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-medium"
+                 th:text="${error}">
+            </div>
+
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+
+                <form th:action="@{/view/categorias/save}"
+                      th:object="${categoria}"
+                      method="post"
+                      class="p-6">
+
+                    <input type="hidden"
+                           th:field="*{idCategoria}">
+
+                    <div class="mb-5">
+
+                        <label class="block font-semibold text-slate-700 mb-1">
+                            Nombre
+                            <span class="text-red-500">*</span>
+                        </label>
+
+                        <input type="text"
+                               th:field="*{nombre}"
+                               required
+                               maxlength="100"
+                               placeholder="Ej. Analgésicos y Antiinflamatorios"
+                               class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20">
+
+                        <div th:if="${#fields.hasErrors('nombre')}"
+                             th:errors="*{nombre}"
+                             class="text-red-500 text-[10px] mt-1">
+                        </div>
+
+                    </div>
+
+                    <div class="mb-6">
+
+                        <label class="block font-semibold text-slate-700 mb-1">
+                            Descripción
+                        </label>
+
+                        <textarea th:field="*{descripcion}"
+                                  rows="4"
+                                  placeholder="Descripción de la categoría..."
+                                  class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 resize-none">
+                        </textarea>
+
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+
+                        <a th:href="@{/view/categorias}"
+                           class="px-4 py-2.5 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="px-5 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition"
+                                th:text="${categoria.idCategoria != null ? 'Guardar Cambios' : 'Crear Categoría'}">
+                            Guardar
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </main>
+
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </div>
+
 </div>
+
+<script>
+    function toggleSidebar(){
+        document.querySelector('aside').classList.toggle('-translate-x-full');
+        document.getElementById('overlay').classList.toggle('hidden');
+    }
+</script>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
 </body>
 </html>

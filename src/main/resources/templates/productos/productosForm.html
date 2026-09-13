@@ -8,297 +8,630 @@
     <link rel="icon" type="image/png" th:href="@{/img/img.png}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <th:block th:replace="fragments/layout :: styles"></th:block>
+
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        pillone: {
-                            bg: '#F7F7FF',
-                            dark: '#07004D',
-                            darker: '#04002C',
-                            accent: '#208AAE',
-                            text: '#1D1E18'
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
                         }
                     },
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
+                    }
                 }
             }
         }
     </script>
 </head>
+
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
-<!-- TOPBAR GLOBAL -->
 <header th:replace="fragments/layout :: topbar('Gestión de Productos')"></header>
 
-<!-- CONTENEDOR CENTRAL -->
 <div class="flex flex-1 relative">
 
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden"></div>
+    <div id="overlay"
+         onclick="toggleSidebar()"
+         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+    </div>
 
-    <!-- SIDEBAR GLOBAL -->
     <aside th:replace="fragments/layout :: sidebar('productos')"></aside>
 
-    <!-- AREA PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0">
+
         <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto w-full">
 
             <!-- ENCABEZADO -->
             <section class="mb-5">
-                <div class="flex items-center justify-between">
+
+                <div class="flex items-center justify-between gap-4">
+
                     <div>
+
                         <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight"
                             th:text="${producto.idProducto != null ? 'Editar Producto' : 'Nuevo Producto'}">
                             Gestión de Producto
                         </h1>
+
                         <p class="text-xs text-slate-500 mt-1">
-                            Complete los campos necesarios para registrar o actualizar la información del producto e inventario.
+                            Registre la ficha general del producto. El inventario real se administra por lotes.
                         </p>
+
                     </div>
-                    <div>
-                        <a th:href="@{/view/productos}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold hover:bg-slate-300 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                            Volver
-                        </a>
-                    </div>
+
+                    <a th:href="@{/view/productos}"
+                       class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold hover:bg-slate-300 transition">
+                        ← Volver
+                    </a>
+
                 </div>
+
             </section>
+
+            <!-- ERROR -->
+            <div th:if="${error}"
+                 class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-medium"
+                 th:text="${error}">
+            </div>
 
             <!-- FORMULARIO -->
             <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <form th:action="@{/view/productos/save}" th:object="${producto}" method="post" class="p-6 space-y-6">
 
-                    <!-- Campo oculto para ID en caso de edición -->
-                    <input type="hidden" th:field="*{idProducto}" />
+                <form th:action="@{/view/productos/save}"
+                      th:object="${producto}"
+                      method="post"
+                      class="p-6 space-y-6">
 
-                    <!-- SECCIÓN 1: IDENTIFICACIÓN -->
+                    <!-- ID PARA EDICIÓN -->
+                    <input type="hidden"
+                           th:field="*{idProducto}">
+
+                    <!-- 1. IDENTIFICACIÓN -->
                     <div>
-                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+
+                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100">
                             1. Identificación y Códigos
                         </h3>
+
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Código Interno <span class="text-rose-500">*</span></label>
-                                <input type="text" th:field="*{codigoInterno}" required placeholder="Ej. PROD-001"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Código Interno *
+                                </label>
+
+                                <input type="text"
+                                       th:field="*{codigoInterno}"
+                                       required
+                                       placeholder="Ej. PROD-001"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Código de Barras <span class="text-rose-500">*</span></label>
-                                <input type="text" th:field="*{codigoBarras}" required placeholder="Ej. 770123456789"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Código de Barras *
+                                </label>
+
+                                <input type="text"
+                                       th:field="*{codigoBarras}"
+                                       required
+                                       placeholder="Ej. 770123456789"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Estado</label>
-                                <select th:field="*{estado}" class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                                    <option value="ACTIVO">ACTIVO</option>
-                                    <option value="INACTIVO">INACTIVO</option>
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Estado
+                                </label>
+
+                                <select th:field="*{estado}"
+                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
+                                    <option value="ACTIVO">
+                                        ACTIVO
+                                    </option>
+
+                                    <option value="INACTIVO">
+                                        INACTIVO
+                                    </option>
+
                                 </select>
+
                             </div>
+
                         </div>
+
                     </div>
 
-                    <!-- SECCIÓN 2: INFORMACIÓN FARMACÉUTICA -->
+                    <!-- 2. INFORMACIÓN -->
                     <div>
-                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+
+                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100">
                             2. Información Comercial y Farmacéutica
                         </h3>
+
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
                             <div class="sm:col-span-2">
-                                <label class="block font-semibold text-slate-700 mb-1">Nombre Comercial <span class="text-rose-500">*</span></label>
-                                <input type="text" th:field="*{nombreComercial}" required placeholder="Ej. Dolex Fast"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Nombre Genérico</label>
-                                <input type="text" th:field="*{nombreGenerico}" placeholder="Ej. Acetaminofén"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Laboratorio</label>
-                                <input type="text" th:field="*{laboratorio}" placeholder="Ej. GSK"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Presentación</label>
-                                <input type="text" th:field="*{presentacion}" placeholder="Ej. Caja x 100 Tabletas"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Concentración</label>
-                                <input type="text" th:field="*{concentracion}" placeholder="Ej. 500mg"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Registro Invima <span class="text-rose-500">*</span></label>
-                                <input type="text" th:field="*{registroInvima}" required placeholder="Ej. 2020M-0001234"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Nombre Comercial *
+                                </label>
+
+                                <input type="text"
+                                       th:field="*{nombreComercial}"
+                                       required
+                                       placeholder="Ej. Dolex Fast"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
 
-                            <!-- SELECTOR DE CATEGORÍA (Ajustado a id_categoria según Categorias.java) -->
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Categoría <span class="text-rose-500">*</span></label>
-                                <select th:field="*{idCategoria}" required class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                                    <option value="">Seleccione una categoría...</option>
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Nombre Genérico
+                                </label>
+
+                                <input type="text"
+                                       th:field="*{nombreGenerico}"
+                                       placeholder="Ej. Acetaminofén"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
+                            </div>
+
+                            <div>
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Laboratorio
+                                </label>
+
+                                <input type="text"
+                                       th:field="*{laboratorio}"
+                                       placeholder="Ej. GSK"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
+                            </div>
+
+                            <div>
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Presentación
+                                </label>
+
+                                <input type="text"
+                                       th:field="*{presentacion}"
+                                       placeholder="Ej. Caja x 100 Tabletas"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
+                            </div>
+
+                            <div>
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Concentración
+                                </label>
+
+                                <input type="text"
+                                       th:field="*{concentracion}"
+                                       placeholder="Ej. 500mg"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
+                            </div>
+
+                            <div>
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Registro Invima *
+                                </label>
+
+                                <input type="text"
+                                       th:field="*{registroInvima}"
+                                       required
+                                       placeholder="Ej. 2020M-0001234"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
+                            </div>
+
+                            <!-- CATEGORÍA CORREGIDA -->
+                            <div>
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Categoría *
+                                </label>
+
+                                <select th:field="*{idCategoria}"
+                                        required
+                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
+                                    <option value="">
+                                        Seleccione una categoría
+                                    </option>
+
                                     <option th:each="cat : ${categorias}"
-                                            th:value="${cat.id_categoria}"
+                                            th:value="${cat.idCategoria}"
                                             th:text="${cat.nombre}">
                                     </option>
+
                                 </select>
+
                             </div>
 
-                            <!-- SELECTOR DE PROVEEDOR (Ajustado a id_proveedor y razon_social según Proveedores.java) -->
+                            <!-- PROVEEDOR -->
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Proveedor <span class="text-rose-500">*</span></label>
-                                <select th:field="*{idProveedor}" required class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
-                                    <option value="">Seleccione un proveedor...</option>
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Proveedor *
+                                </label>
+
+                                <select th:field="*{idProveedor}"
+                                        required
+                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
+                                    <option value="">
+                                        Seleccione un proveedor
+                                    </option>
+
                                     <option th:each="prov : ${proveedores}"
                                             th:value="${prov.id_proveedor}"
                                             th:text="${prov.razon_social}">
                                     </option>
+
                                 </select>
+
                             </div>
 
+                            <!-- DESCRIPCIÓN -->
                             <div class="sm:col-span-3">
-                                <label class="block font-semibold text-slate-700 mb-1">Descripción</label>
-                                <textarea th:field="*{descripcion}" rows="2" placeholder="Detalles adicionales del producto..."
-                                          class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition"></textarea>
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Descripción
+                                </label>
+
+                                <textarea th:field="*{descripcion}"
+                                          rows="2"
+                                          placeholder="Detalles adicionales..."
+                                          class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                </textarea>
+
                             </div>
+
                         </div>
+
                     </div>
 
-                    <!-- SECCIÓN 3: PRECIOS Y JERARQUÍA DE EMPAQUE -->
+                    <!-- 3. PRECIOS Y EMPAQUE -->
                     <div>
-                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+
+                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100">
                             3. Costos, Precios y Jerarquía de Empaque
                         </h3>
+
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Precio Compra (Unidad) <span class="text-rose-500">*</span></label>
-                                <input type="number" step="any" th:field="*{precioCompra}" required placeholder="0.00"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Precio Compra (Unidad) *
+                                </label>
+
+                                <input type="number"
+                                       min="0"
+                                       step="any"
+                                       th:field="*{precioCompra}"
+                                       required
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Precio Venta (Unidad) <span class="text-rose-500">*</span></label>
-                                <input type="number" step="any" th:field="*{precioVenta}" required placeholder="0.00"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Precio Venta (Unidad) *
+                                </label>
+
+                                <input type="number"
+                                       min="0"
+                                       step="any"
+                                       th:field="*{precioVenta}"
+                                       required
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Sellos por Caja</label>
-                                <input type="number" th:field="*{sellosPorCaja}" id="sellosPorCaja" oninput="calcularEmpaque()" placeholder="Ej. 10"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Sellos por Caja
+                                </label>
+
+                                <input type="number"
+                                       min="1"
+                                       th:field="*{sellosPorCaja}"
+                                       id="sellosPorCaja"
+                                       oninput="calcularEmpaque()"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Unidades por Sello</label>
-                                <input type="number" th:field="*{unidadesPorSello}" id="unidadesPorSello" oninput="calcularEmpaque()" placeholder="Ej. 10"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Unidades por Sello
+                                </label>
+
+                                <input type="number"
+                                       min="1"
+                                       th:field="*{unidadesPorSello}"
+                                       id="unidadesPorSello"
+                                       oninput="calcularEmpaque()"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Unidades Totales Empaque (Automático)</label>
-                                <input type="number" th:field="*{unidadesPorEmpaque}" id="unidadesPorEmpaque" readonly placeholder="1"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 font-bold outline-none">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Unidades por Caja
+                                </label>
+
+                                <input type="number"
+                                       th:field="*{unidadesPorEmpaque}"
+                                       id="unidadesPorEmpaque"
+                                       readonly
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 font-bold">
+
+                                <p class="text-[10px] text-slate-400 mt-1">
+                                    Se calcula automáticamente: sellos × unidades por sello.
+                                </p>
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Precio Compra Empaque</label>
-                                <input type="number" step="any" th:field="*{precioCompraEmpaque}" placeholder="0.00"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Precio Compra Caja
+                                </label>
+
+                                <input type="number"
+                                       min="0"
+                                       step="any"
+                                       th:field="*{precioCompraEmpaque}"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Precio Venta Empaque</label>
-                                <input type="number" step="any" th:field="*{precioVentaEmpaque}" placeholder="0.00"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Precio Venta Caja
+                                </label>
+
+                                <input type="number"
+                                       min="0"
+                                       step="any"
+                                       th:field="*{precioVentaEmpaque}"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                         </div>
+
                     </div>
 
-                    <!-- SECCIÓN 4: INVENTARIO Y RESTRICCIONES -->
+                    <!-- 4. INVENTARIO -->
                     <div>
-                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+
+                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100">
                             4. Inventario, Ubicación y Restricciones
                         </h3>
+
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+
+                            <!-- STOCK SOLO LECTURA -->
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Stock Total</label>
-                                <input type="number" th:field="*{stockTotal}" placeholder="0"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Stock Total
+                                </label>
+
+                                <input type="number"
+                                       th:field="*{stockTotal}"
+                                       readonly
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 font-bold">
+
+                                <p class="text-[10px] text-slate-400 mt-1">
+                                    Se calcula automáticamente sumando el stock disponible de los lotes.
+                                </p>
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Stock Mínimo</label>
-                                <input type="number" th:field="*{stockMinimo}" placeholder="0"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Stock Mínimo
+                                </label>
+
+                                <input type="number"
+                                       min="0"
+                                       th:field="*{stockMinimo}"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Ubicación en Estante</label>
-                                <input type="text" th:field="*{ubicacionEstante}" placeholder="Ej. Estante 3 - Nivel 2"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    Ubicación en Estante
+                                </label>
+
+                                <input type="text"
+                                       th:field="*{ubicacionEstante}"
+                                       placeholder="Ej. Estante 3 - Nivel 2"
+                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                             </div>
+
                         </div>
 
-                        <!-- Checkboxes de propiedades -->
+                        <!-- RESTRICCIONES -->
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4">
+
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" th:field="*{requiereFormula}" class="w-4 h-4 text-pillone-accent rounded border-slate-300 focus:ring-pillone-accent">
-                                <span class="font-medium text-slate-700">Requiere Fórmula</span>
+
+                                <input type="checkbox"
+                                       th:field="*{requiereFormula}"
+                                       class="w-4 h-4 accent-[#208AAE]">
+
+                                <span>
+                                    Requiere Fórmula
+                                </span>
+
                             </label>
+
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" th:field="*{esVentaLibre}" class="w-4 h-4 text-pillone-accent rounded border-slate-300 focus:ring-pillone-accent">
-                                <span class="font-medium text-slate-700">Venta Libre</span>
+
+                                <input type="checkbox"
+                                       th:field="*{esVentaLibre}"
+                                       class="w-4 h-4 accent-[#208AAE]">
+
+                                <span>
+                                    Venta Libre
+                                </span>
+
                             </label>
+
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" th:field="*{esControlado}" class="w-4 h-4 text-pillone-accent rounded border-slate-300 focus:ring-pillone-accent">
-                                <span class="font-medium text-slate-700">Es Controlado</span>
+
+                                <input type="checkbox"
+                                       th:field="*{esControlado}"
+                                       class="w-4 h-4 accent-[#208AAE]">
+
+                                <span>
+                                    Es Controlado
+                                </span>
+
                             </label>
+
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" th:field="*{requiereRefrigeracion}" class="w-4 h-4 text-pillone-accent rounded border-slate-300 focus:ring-pillone-accent">
-                                <span class="font-medium text-slate-700">Refrigeración</span>
+
+                                <input type="checkbox"
+                                       th:field="*{requiereRefrigeracion}"
+                                       class="w-4 h-4 accent-[#208AAE]">
+
+                                <span>
+                                    Refrigeración
+                                </span>
+
                             </label>
+
                         </div>
 
                         <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Restricciones de Venta</label>
-                            <input type="text" th:field="*{restriccionesVenta}" placeholder="Ej. Mayores de edad, venta exclusiva con receta médica retenida..."
-                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent focus:ring-2 focus:ring-pillone-accent/20 bg-slate-50/50 transition">
+
+                            <label class="block font-semibold text-slate-700 mb-1">
+                                Restricciones de Venta
+                            </label>
+
+                            <input type="text"
+                                   th:field="*{restriccionesVenta}"
+                                   placeholder="Ej. Venta con receta médica..."
+                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+
                         </div>
+
                     </div>
 
-                    <!-- BOTONES DE ACCIÓN -->
+                    <!-- MENSAJE LOTES -->
+                    <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800">
+
+                        <p class="font-bold">
+                            ¿Dónde registro el inventario?
+                        </p>
+
+                        <p class="mt-1">
+                            Primero guarda el producto. Luego, desde la lista de Productos, utiliza
+                            <b>+ Lote</b> para registrar el número de lote, vencimiento y la cantidad recibida.
+                        </p>
+
+                        <p class="mt-1 text-[10px] text-blue-600">
+                            El stock del producto no se escribe manualmente: se obtiene de los lotes disponibles.
+                        </p>
+
+                    </div>
+
+                    <!-- BOTONES -->
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
-                        <a th:href="@{/view/productos}" class="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition">
+
+                        <a th:href="@{/view/productos}"
+                           class="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition">
                             Cancelar
                         </a>
-                        <button type="submit" class="px-6 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 shadow-sm transition">
-                            Guardar Producto
+
+                        <button type="submit"
+                                class="px-6 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 shadow-sm transition">
+
+                            <span th:text="${producto.idProducto != null ? 'Guardar Cambios' : 'Guardar Producto'}">
+                                Guardar Producto
+                            </span>
+
                         </button>
+
                     </div>
 
                 </form>
+
             </section>
 
         </main>
-        <!-- FOOTER -->
+
         <footer th:replace="~{fragments/layout :: footer}"></footer>
+
     </div>
+
 </div>
 
 <script>
-    function toggleSidebar() {
-        const sidebar = document.querySelector('aside');
-        const overlay = document.getElementById('overlay');
+    function toggleSidebar(){
+        const sidebar=document.querySelector('aside');
+        const overlay=document.getElementById('overlay');
+
         sidebar.classList.toggle('-translate-x-full');
         overlay.classList.toggle('hidden');
     }
 
-    function calcularEmpaque() {
-        const sellos = parseInt(document.getElementById('sellosPorCaja').value) || 0;
-        const unidades = parseInt(document.getElementById('unidadesPorSello').value) || 0;
-        const total = sellos * unidades;
-        document.getElementById('unidadesPorEmpaque').value = total > 0 ? total : 1;
+    function calcularEmpaque(){
+        const sellos=
+            parseInt(
+                document.getElementById('sellosPorCaja').value
+            )||1;
+
+        const unidades=
+            parseInt(
+                document.getElementById('unidadesPorSello').value
+            )||1;
+
+        document.getElementById('unidadesPorEmpaque').value=
+            sellos*unidades;
     }
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        calcularEmpaque
+    );
 </script>
+
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 
 </body>

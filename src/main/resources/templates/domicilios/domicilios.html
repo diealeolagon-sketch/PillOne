@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0">
+
+    <title>PillOne - Domicilios</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
+    <script>
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
+                        }
+                    },
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-pillone-bg font-sans text-pillone-text min-h-screen flex flex-col text-xs">
+
+<div th:replace="fragments/layout :: topbar('Domicilios')"></div>
+
+<div class="flex flex-1 relative min-h-[calc(100vh-4rem)]">
+
+    <div th:replace="fragments/layout :: sidebar('domicilios')"></div>
+
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+            <section class="mb-5">
+
+                <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase">
+                    Domicilios
+                </h1>
+
+                <p class="text-xs text-slate-500 mt-1">
+                    Seguimiento, entrega y evidencia de los pedidos a domicilio.
+                </p>
+
+            </section>
+
+            <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+
+                <div class="bg-white border border-slate-200 rounded-xl p-4">
+
+                    <p class="text-slate-500">
+                        Pendientes
+                    </p>
+
+                    <p id="cPendientes"
+                       class="text-xl font-bold text-pillone-dark">
+                        0
+                    </p>
+
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl p-4">
+
+                    <p class="text-slate-500">
+                        En camino
+                    </p>
+
+                    <p id="cCamino"
+                       class="text-xl font-bold text-pillone-dark">
+                        0
+                    </p>
+
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl p-4">
+
+                    <p class="text-slate-500">
+                        Entregados
+                    </p>
+
+                    <p id="cEntregados"
+                       class="text-xl font-bold text-pillone-dark">
+                        0
+                    </p>
+
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl p-4">
+
+                    <p class="text-slate-500">
+                        Por cobrar
+                    </p>
+
+                    <p id="cPorCobrar"
+                       class="text-xl font-bold text-red-600">
+                        0
+                    </p>
+
+                </div>
+
+            </section>
+
+            <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+
+                <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+
+                    <input
+                            id="buscar"
+                            oninput="render()"
+                            placeholder="Buscar factura, cliente, teléfono..."
+                            class="w-full md:w-80 px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
+                    <select
+                            id="filtroEstado"
+                            onchange="render()"
+                            class="px-4 py-2.5 rounded-lg border border-slate-200 bg-white">
+
+                        <option value="">
+                            Todos los estados
+                        </option>
+
+                        <option value="PENDIENTE">
+                            Pendiente
+                        </option>
+
+                        <option value="EN_PREPARACION">
+                            En preparación
+                        </option>
+
+                        <option value="EN_CAMINO">
+                            En camino
+                        </option>
+
+                        <option value="ENTREGADO">
+                            Entregado
+                        </option>
+
+                        <option value="CANCELADO">
+                            Cancelado
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="overflow-x-auto">
+
+                    <table class="min-w-full text-left">
+
+                        <thead>
+
+                        <tr class="bg-pillone-dark text-white uppercase text-[10px] tracking-wider">
+
+                            <th class="px-4 py-3">
+                                Factura
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Cliente
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Dirección
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Teléfono
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Domiciliario
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Estado
+                            </th>
+
+                            <th class="px-4 py-3">
+                                Pago
+                            </th>
+
+                            <th class="px-4 py-3 text-center">
+                                Acción
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody
+                                id="tabla"
+                                class="divide-y divide-slate-100">
+
+                        <tr>
+
+                            <td
+                                    colspan="8"
+                                    class="text-center py-10 text-slate-400">
+
+                                Cargando domicilios...
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL ENTREGA -->
+
+<div
+        id="modal"
+        class="hidden fixed inset-0 z-50 bg-black/50 p-4 items-center justify-center">
+
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+
+        <div class="bg-pillone-dark text-white px-5 py-4 flex justify-between items-center">
+
+            <div>
+
+                <h2 class="font-bold text-base">
+                    Confirmar entrega
+                </h2>
+
+                <p
+                        id="modalFactura"
+                        class="text-[11px] text-white/70">
+                </p>
+
+            </div>
+
+            <button
+                    type="button"
+                    onclick="cerrarModal()"
+                    class="text-xl leading-none">
+
+                ×
+
+            </button>
+
+        </div>
+
+        <form
+                id="formEntrega"
+                class="p-5 space-y-4">
+
+            <input
+                    type="hidden"
+                    id="idDomicilio">
+
+
+            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3">
+
+                <p
+                        class="font-semibold text-pillone-dark"
+                        id="modalCliente">
+
+                    -
+
+                </p>
+
+                <p
+                        class="text-slate-500 mt-1"
+                        id="modalDireccion">
+
+                    -
+
+                </p>
+
+            </div>
+
+
+            <label class="flex items-center justify-between border border-slate-200 rounded-xl p-3 cursor-pointer">
+
+                <div>
+
+                    <p class="font-bold text-pillone-dark">
+                        ¿El pedido quedó pagado?
+                    </p>
+
+                    <p class="text-[11px] text-slate-500">
+                        Actívalo solo si recibiste o confirmaste el pago.
+                    </p>
+
+                </div>
+
+                <input
+                        id="pagado"
+                        type="checkbox"
+                        class="w-5 h-5 accent-[#208AAE]">
+
+            </label>
+
+
+            <div>
+
+                <label class="block font-semibold mb-1">
+
+                    Foto de evidencia
+
+                    <span class="font-normal text-slate-400">
+                        (opcional)
+                    </span>
+
+                </label>
+
+                <input
+                        id="foto"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        class="w-full border border-slate-200 rounded-lg p-2 bg-slate-50">
+
+                <p class="text-[10px] text-slate-400 mt-1">
+                    JPG, PNG o WEBP. Máximo 5 MB.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <label class="block font-semibold mb-1">
+
+                    Observaciones
+
+                    <span class="font-normal text-slate-400">
+                        (opcional)
+                    </span>
+
+                </label>
+
+                <textarea
+                        id="observaciones"
+                        maxlength="500"
+                        rows="3"
+                        placeholder="Ej: recibió el cliente, se dejó en portería..."
+                        class="w-full border border-slate-200 rounded-lg p-3 outline-none focus:border-pillone-accent"></textarea>
+
+            </div>
+
+
+            <div
+                    id="mensajeModal"
+                    class="hidden rounded-lg p-3 text-xs">
+            </div>
+
+
+            <div class="flex justify-end gap-2 pt-1">
+
+                <button
+                        type="button"
+                        onclick="cerrarModal()"
+                        class="px-4 py-2.5 rounded-lg border border-slate-200 font-semibold">
+
+                    Cancelar
+
+                </button>
+
+                <button
+                        type="submit"
+                        class="px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold">
+
+                    Confirmar entrega
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    let domicilios=[];
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        cargar
+    );
+
+
+    async function cargar(){
+
+        const tabla=
+            document.getElementById("tabla");
+
+        try{
+
+            const response=
+                await fetch("/api/domicilios");
+
+            if(!response.ok){
+
+                throw new Error(
+                    "Error HTTP "+response.status
+                );
+
+            }
+
+            domicilios=
+                await response.json();
+
+            actualizarContadores();
+
+            render();
+
+        }catch(error){
+
+            console.error(error);
+
+            tabla.innerHTML=`
+                <tr>
+                    <td
+                        colspan="8"
+                        class="text-center py-10 text-red-500">
+
+                        No fue posible cargar los domicilios.
+
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+
+    function valor(obj,...keys){
+
+        for(const key of keys){
+
+            if(
+                obj &&
+                obj[key]!=null
+            ){
+
+                return obj[key];
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+
+    function actualizarContadores(){
+
+        document.getElementById(
+            "cPendientes"
+        ).textContent=
+
+            domicilios.filter(
+                d=>
+                    d.estado==="PENDIENTE" ||
+                    d.estado==="EN_PREPARACION"
+            ).length;
+
+
+        document.getElementById(
+            "cCamino"
+        ).textContent=
+
+            domicilios.filter(
+                d=>d.estado==="EN_CAMINO"
+            ).length;
+
+
+        document.getElementById(
+            "cEntregados"
+        ).textContent=
+
+            domicilios.filter(
+                d=>d.estado==="ENTREGADO"
+            ).length;
+
+
+        document.getElementById(
+            "cPorCobrar"
+        ).textContent=
+
+            domicilios.filter(
+                d=>
+                    d.estado==="ENTREGADO" &&
+                    !d.pagado
+            ).length;
+
+    }
+
+
+    function render(){
+
+        const buscar=
+            document.getElementById("buscar")
+            .value
+            .toLowerCase();
+
+        const estado=
+            document.getElementById(
+                "filtroEstado"
+            ).value;
+
+
+        const lista=
+            domicilios.filter(d=>{
+
+                const factura=
+                    valor(
+                        d.venta,
+                        "numeroFactura"
+                    ) || "";
+
+                const cliente=
+                    valor(
+                        d.cliente,
+                        "nombreCompleto",
+                        "nombre_completo"
+                    ) || "";
+
+                const contenido=`
+                    ${factura}
+                    ${cliente}
+                    ${d.telefonoContacto || ""}
+                    ${d.direccionEntrega || ""}
+                    ${d.nombreDomiciliario || ""}
+                `.toLowerCase();
+
+                return(
+                    contenido.includes(buscar) &&
+                    (!estado || d.estado===estado)
+                );
+
+            });
+
+
+        const tabla=
+            document.getElementById("tabla");
+
+
+        if(lista.length===0){
+
+            tabla.innerHTML=`
+                <tr>
+                    <td
+                        colspan="8"
+                        class="text-center py-10 text-slate-400">
+
+                        No hay domicilios para mostrar.
+
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        tabla.innerHTML=
+            lista.map(d=>{
+
+                const factura=
+                    valor(
+                        d.venta,
+                        "numeroFactura"
+                    ) || "-";
+
+                const cliente=
+                    valor(
+                        d.cliente,
+                        "nombreCompleto",
+                        "nombre_completo"
+                    ) || "-";
+
+
+                const pago=
+                    d.pagado
+                    ?
+                    `
+                    <span class="px-2 py-1 rounded bg-emerald-50 text-emerald-700 font-semibold">
+                        PAGADO
+                    </span>
+                    `
+                    :
+                    `
+                    <span class="px-2 py-1 rounded bg-red-50 text-red-700 font-semibold">
+                        PENDIENTE
+                    </span>
+                    `;
+
+
+                let accion="";
+
+
+                if(d.estado==="ENTREGADO"){
+
+                    if(d.evidenciaEntrega){
+
+                        accion=`
+                            <a
+                                href="${d.evidenciaEntrega}"
+                                target="_blank"
+                                class="px-2 py-1.5 rounded bg-slate-100 text-pillone-dark font-semibold">
+
+                                Ver evidencia
+
+                            </a>
+                        `;
+
+                    }else{
+
+                        accion=`
+                            <span class="text-slate-400">
+                                Cerrado
+                            </span>
+                        `;
+
+                    }
+
+                }else{
+
+                    accion=`
+                        <button
+                            onclick="abrirModal(${d.idDomicilio})"
+                            class="px-3 py-1.5 rounded bg-pillone-accent text-white font-bold">
+
+                            Entregar
+
+                        </button>
+                    `;
+
+                }
+
+
+                return `
+                    <tr class="hover:bg-pillone-bg/40 transition">
+
+                        <td class="px-4 py-3 font-bold text-pillone-accent">
+                            ${factura}
+                        </td>
+
+                        <td class="px-4 py-3 font-medium">
+                            ${cliente}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            ${d.direccionEntrega || "-"}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            ${d.telefonoContacto || "-"}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            ${d.nombreDomiciliario || "Sin asignar"}
+                        </td>
+
+                        <td class="px-4 py-3">
+
+                            <span class="px-2 py-1 rounded bg-slate-100 font-semibold">
+                                ${formatearEstado(d.estado)}
+                            </span>
+
+                        </td>
+
+                        <td class="px-4 py-3">
+                            ${pago}
+                        </td>
+
+                        <td class="px-4 py-3 text-center">
+                            ${accion}
+                        </td>
+
+                    </tr>
+                `;
+
+            }).join("");
+
+    }
+
+
+    function formatearEstado(estado){
+
+        const estados={
+
+            PENDIENTE:"PENDIENTE",
+
+            EN_PREPARACION:"EN PREPARACIÓN",
+
+            EN_CAMINO:"EN CAMINO",
+
+            ENTREGADO:"ENTREGADO",
+
+            CANCELADO:"CANCELADO"
+
+        };
+
+        return estados[estado] || estado || "-";
+
+    }
+
+
+    function abrirModal(id){
+
+        const domicilio=
+            domicilios.find(
+                d=>d.idDomicilio===id
+            );
+
+        if(!domicilio){
+            return;
+        }
+
+
+        document.getElementById(
+            "idDomicilio"
+        ).value=id;
+
+
+        document.getElementById(
+            "modalFactura"
+        ).textContent=
+
+            valor(
+                domicilio.venta,
+                "numeroFactura"
+            ) || "";
+
+
+        document.getElementById(
+            "modalCliente"
+        ).textContent=
+
+            valor(
+                domicilio.cliente,
+                "nombreCompleto",
+                "nombre_completo"
+            ) || "-";
+
+
+        document.getElementById(
+            "modalDireccion"
+        ).textContent=
+
+            domicilio.direccionEntrega || "-";
+
+
+        document.getElementById(
+            "pagado"
+        ).checked=
+
+            !!domicilio.pagado;
+
+
+        document.getElementById(
+            "foto"
+        ).value="";
+
+
+        document.getElementById(
+            "observaciones"
+        ).value=
+
+            domicilio.observacionesEntrega || "";
+
+
+        document.getElementById(
+            "mensajeModal"
+        ).classList.add("hidden");
+
+
+        const modal=
+            document.getElementById("modal");
+
+        modal.classList.remove("hidden");
+
+        modal.classList.add("flex");
+
+    }
+
+
+    function cerrarModal(){
+
+        const modal=
+            document.getElementById("modal");
+
+        modal.classList.add("hidden");
+
+        modal.classList.remove("flex");
+
+    }
+
+
+    document.getElementById(
+        "formEntrega"
+    ).addEventListener(
+        "submit",
+        async function(event){
+
+            event.preventDefault();
+
+
+            const id=
+                document.getElementById(
+                    "idDomicilio"
+                ).value;
+
+
+            const formData=
+                new FormData();
+
+
+            formData.append(
+                "pagado",
+                document.getElementById(
+                    "pagado"
+                ).checked
+            );
+
+
+            formData.append(
+                "observaciones",
+                document.getElementById(
+                    "observaciones"
+                ).value
+            );
+
+
+            const foto=
+                document.getElementById(
+                    "foto"
+                ).files[0];
+
+
+            if(foto){
+
+                formData.append(
+                    "foto",
+                    foto
+                );
+
+            }
+
+
+            try{
+
+                const response=
+                    await fetch(
+                        `/api/domicilios/${id}/entregar`,
+                        {
+                            method:"POST",
+                            body:formData
+                        }
+                    );
+
+
+                const data=
+                    await response
+                        .json()
+                        .catch(()=>({}));
+
+
+                if(!response.ok){
+
+                    mostrarError(
+                        data.error ||
+                        "No fue posible cerrar la entrega."
+                    );
+
+                    return;
+
+                }
+
+
+                cerrarModal();
+
+                await cargar();
+
+
+            }catch(error){
+
+                console.error(error);
+
+                mostrarError(
+                    "Error de conexión al confirmar la entrega."
+                );
+
+            }
+
+        }
+    );
+
+
+    function mostrarError(texto){
+
+        const mensaje=
+            document.getElementById(
+                "mensajeModal"
+            );
+
+        mensaje.textContent=texto;
+
+        mensaje.className=
+            "rounded-lg p-3 text-xs bg-red-50 text-red-700 border border-red-200";
+
+    }
+
+</script>
+
+
+<div th:replace="fragments/layout :: scripts"></div>
+
+</body>
+
+</html>

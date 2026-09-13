@@ -45,7 +45,7 @@ public class VentasView {
     @GetMapping("/view/ventas/form")
     public String form(Model model) {
         model.addAttribute("venta", new Ventas());
-        cargarListas(model);
+        cargarListas(model); // Crucial para que lleguen sucursales, clientes y empleados
         return "ventas/ventasForm";
     }
 

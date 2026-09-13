@@ -1,13 +1,15 @@
-package com.pillone.pillone.controller; // Ajusta según tu paquete base
+package com.pillone.pillone.controller;
 
 import com.pillone.pillone.model.ConfiguracionGlobal;
 import com.pillone.pillone.repository.ConfiguracionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -17,29 +19,90 @@ public class ConfiguracionGlobalController {
     @Autowired
     private ConfiguracionRepository configuracionRepository;
 
-    // 1. Mostrar la vista con los datos actuales
+    // =====================================================
+    // VISTA DE CONFIGURACIÓN
+    // =====================================================
     @GetMapping
     public String verConfiguracion(Model model) {
-        // Buscamos el registro con ID 1 por defecto, si no existe inicializamos uno vacío
-        ConfiguracionGlobal config = configuracionRepository.findById(1L).orElse(new ConfiguracionGlobal());
+        ConfiguracionGlobal config = configuracionRepository.findById(1L)
+                .orElseGet(() -> crearConfiguracionInicial());
+
         model.addAttribute("configuracion", config);
 
-        // Métodos de pago globales soportados por el sistema de ventas/POS
         List<String> metodosPagoDisponibles = List.of(
-                "EFECTIVO", "TARJETA_DEBITO", "TARJETA_CREDITO", "TRANSFERENCIA", "NEQUI_DAVIPLATA", "PAGO_MIXTO"
+                "EFECTIVO",
+                "TARJETA_DEBITO",
+                "TARJETA_CREDITO",
+                "TRANSFERENCIA",
+                "NEQUI_DAVIPLATA",
+                "PAGO_MIXTO"
         );
+
         model.addAttribute("metodosPago", metodosPagoDisponibles);
 
-        return "configuracion/configuracion"; // Ruta del archivo HTML en templates
+        return "configuracion/configuracion";
     }
 
-    // 2. Procesar el formulario de actualización
+    // =====================================================
+    // GUARDAR CONFIGURACIÓN GLOBAL
+    // =====================================================
     @PostMapping("/guardar")
-    public String guardarConfiguracion(@ModelAttribute ConfiguracionGlobal configuracion, RedirectAttributes redirectAttributes) {
-        configuracion.setId(1L); // Forzamos siempre el ID 1 para asegurar la persistencia en el registro único global
+    public String guardarConfiguracion(
+            @ModelAttribute ConfiguracionGlobal configuracion,
+            RedirectAttributes redirectAttributes) {
+
+        configuracion.setId(1L);
+
+        if (configuracion.getIvaGeneral() == null) {
+            configuracion.setIvaGeneral(new BigDecimal("19.00"));
+        }
+
+        if (configuracion.getIvaGeneral().compareTo(BigDecimal.ZERO) < 0) {
+            configuracion.setIvaGeneral(BigDecimal.ZERO);
+        }
+
+        if (configuracion.getIvaGeneral().compareTo(new BigDecimal("100")) > 0) {
+            configuracion.setIvaGeneral(new BigDecimal("100.00"));
+        }
+
         configuracionRepository.save(configuracion);
 
-        redirectAttributes.addFlashAttribute("mensaje", "¡Configuración del sistema actualizada con éxito!");
+        redirectAttributes.addFlashAttribute(
+                "mensaje",
+                "¡Configuración del sistema actualizada con éxito!"
+        );
+
         return "redirect:/configuracion";
+    }
+
+    // =====================================================
+    // API PARA QUE EL POS LEA CONFIGURACIÓN GLOBAL
+    // =====================================================
+    @GetMapping("/api")
+    @ResponseBody
+    public ResponseEntity<ConfiguracionGlobal> obtenerConfiguracionApi() {
+
+        ConfiguracionGlobal config = configuracionRepository.findById(1L)
+                .orElseGet(() -> crearConfiguracionInicial());
+
+        return ResponseEntity.ok(config);
+    }
+
+    // =====================================================
+    // CONFIGURACIÓN INICIAL
+    // SOLO SE USA SI POR ALGÚN MOTIVO NO EXISTE ID = 1
+    // =====================================================
+    private ConfiguracionGlobal crearConfiguracionInicial() {
+
+        ConfiguracionGlobal config = new ConfiguracionGlobal();
+
+        config.setId(1L);
+        config.setNombreFarmacia("FarmaSoft Plus S.A.S.");
+        config.setNit("900123456-7");
+        config.setIvaGeneral(new BigDecimal("19.00"));
+        config.setMoneda("COP");
+        config.setTiempoAlertaVencimientoDias(60);
+
+        return configuracionRepository.save(config);
     }
 }

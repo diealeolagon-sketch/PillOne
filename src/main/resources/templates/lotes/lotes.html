@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PillOne - Lotes</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <th:block th:replace="fragments/layout :: styles"></th:block>
+
+    <script>
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        pillone:{
+                            bg:'#F7F7FF',
+                            dark:'#07004D',
+                            darker:'#04002C',
+                            accent:'#208AAE',
+                            text:'#1D1E18'
+                        }
+                    },
+                    fontFamily:{
+                        sans:['Poppins','sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
+
+<header th:replace="fragments/layout :: topbar('Gestión de Lotes')"></header>
+
+<div class="flex flex-1 relative">
+
+    <div id="overlay"
+         onclick="toggleSidebar()"
+         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+    </div>
+
+    <aside th:replace="fragments/layout :: sidebar('productos')"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+
+                <div>
+
+                    <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase">
+                        Lotes e Inventario
+                    </h1>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                        Control de inventario, vencimientos y disponibilidad por lote.
+                    </p>
+
+                </div>
+
+                <a th:href="${productoId != null ? '/view/lotes/form?productoId='+productoId : '/view/lotes/form'}"
+                   class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
+
+                    + Nuevo Lote
+
+                </a>
+
+            </div>
+
+            <div th:if="${mensaje}"
+                 class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 font-medium"
+                 th:text="${mensaje}">
+            </div>
+
+            <div th:if="${error}"
+                 class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-medium"
+                 th:text="${error}">
+            </div>
+
+            <div th:if="${loteId != null}"
+                 class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+
+                <div class="font-bold text-amber-800">
+                    ⚠ Lote seleccionado
+                </div>
+
+                <div class="text-[11px] text-amber-700 mt-1">
+                    Llegaste directamente a este lote desde una alerta.
+                </div>
+
+            </div>
+
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+
+                <div class="p-4 border-b flex flex-col md:flex-row md:items-center gap-3">
+
+                    <input id="buscador"
+                           onkeyup="filtrar()"
+                           type="text"
+                           placeholder="Buscar producto, lote, estado..."
+                           autocomplete="off"
+                           class="w-full md:w-80 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
+                    <select id="filtroProducto"
+                            onchange="filtrarProducto(this.value)"
+                            class="w-full md:w-72 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+
+                        <option value="">
+                            Todos los productos
+                        </option>
+
+                        <option th:each="p : ${productos}"
+                                th:value="${p.idProducto}"
+                                th:selected="${productoId != null && productoId == p.idProducto}"
+                                th:text="${p.nombreComercial}">
+                        </option>
+
+                    </select>
+
+                    <a th:href="@{/view/alertas/vencimientos}"
+                       class="px-3 py-2 rounded-lg bg-amber-50 text-amber-700 font-semibold border border-amber-100 hover:bg-amber-100 transition">
+
+                        ⚠ Alertas
+
+                    </a>
+
+                    <a th:href="@{/view/productos}"
+                       class="md:ml-auto px-3 py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition">
+
+                        ← Productos
+
+                    </a>
+
+                </div>
+
+                <div th:if="${productoSeleccionado != null}"
+                     class="px-4 py-4 bg-blue-50 border-b border-blue-100">
+
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+
+                        <div>
+
+                            <div class="font-bold text-blue-950 text-sm"
+                                 th:text="${productoSeleccionado.nombreComercial}">
+                            </div>
+
+                            <div class="text-[10px] text-blue-700 mt-1">
+                                Configuración del empaque
+                            </div>
+
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+                            <div class="bg-white rounded-lg border border-blue-100 px-3 py-2">
+
+                                <div class="text-[9px] uppercase text-slate-400 font-semibold">
+                                    Sellos por caja
+                                </div>
+
+                                <div class="font-extrabold text-pillone-dark"
+                                     th:text="${productoSeleccionado.sellosPorCaja != null ? productoSeleccionado.sellosPorCaja : 1}">
+                                </div>
+
+                            </div>
+
+                            <div class="bg-white rounded-lg border border-blue-100 px-3 py-2">
+
+                                <div class="text-[9px] uppercase text-slate-400 font-semibold">
+                                    Unidades por sello
+                                </div>
+
+                                <div class="font-extrabold text-pillone-dark"
+                                     th:text="${productoSeleccionado.unidadesPorSello != null ? productoSeleccionado.unidadesPorSello : 1}">
+                                </div>
+
+                            </div>
+
+                            <div class="bg-white rounded-lg border border-blue-100 px-3 py-2">
+
+                                <div class="text-[9px] uppercase text-slate-400 font-semibold">
+                                    Unidades por caja
+                                </div>
+
+                                <div class="font-extrabold text-pillone-dark"
+                                     th:text="${productoSeleccionado.unidadesPorEmpaque != null ? productoSeleccionado.unidadesPorEmpaque : 1}">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="overflow-x-auto">
+
+                    <table class="min-w-full text-xs">
+
+                        <thead>
+
+                        <tr class="bg-pillone-dark text-white text-[10px] uppercase">
+
+                            <th class="px-4 py-3 text-left">
+                                Producto / Lote
+                            </th>
+
+                            <th class="px-4 py-3 text-left">
+                                Empaque
+                            </th>
+
+                            <th class="px-4 py-3 text-center">
+                                Cajas
+                            </th>
+
+                            <th class="px-4 py-3 text-center">
+                                Sellos
+                            </th>
+
+                            <th class="px-4 py-3 text-center">
+                                Unidades
+                            </th>
+
+                            <th class="px-4 py-3 text-left">
+                                Vencimiento
+                            </th>
+
+                            <th class="px-4 py-3 text-center">
+                                Estado
+                            </th>
+
+                            <th class="px-4 py-3 text-center">
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="tabla-lotes"
+                               class="divide-y divide-slate-100">
+
+                        <tr th:each="f : ${filas}"
+                            class="fila-lote hover:bg-slate-50 transition"
+                            th:id="${'lote-'+f.lote.idLote}"
+                            th:classappend="${loteId != null && loteId == f.lote.idLote ? ' bg-amber-50 ring-2 ring-inset ring-amber-300' : ''}">
+
+                            <td class="px-4 py-3">
+
+                                <div th:if="${loteId != null && loteId == f.lote.idLote}"
+                                     class="inline-flex mb-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[9px] font-bold">
+
+                                    ⚠ LOTE SELECCIONADO
+
+                                </div>
+
+                                <div class="font-bold text-slate-800"
+                                     th:text="${f.producto != null ? f.producto.nombreComercial : 'Producto no encontrado'}">
+                                </div>
+
+                                <div class="text-[10px] text-slate-400"
+                                     th:text="${f.producto != null && f.producto.concentracion != null ? f.producto.concentracion : ''}">
+                                </div>
+
+                                <div class="mt-1 text-[10px]">
+
+                                    Lote:
+
+                                    <span class="font-bold text-pillone-accent"
+                                          th:text="${f.lote.numeroLote}">
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-3">
+
+                                <div class="font-semibold text-slate-700"
+                                     th:text="${f.sellosPorCaja+' sello(s) por caja'}">
+                                </div>
+
+                                <div class="text-[10px] text-slate-500"
+                                     th:text="${f.unidadesPorSello+' unidad(es) por sello'}">
+                                </div>
+
+                                <div class="text-[10px] font-semibold text-pillone-accent"
+                                     th:text="${f.unidadesPorCaja+' unidad(es) por caja'}">
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-3 text-center">
+
+                                <div class="inline-flex flex-col min-w-[65px] rounded-lg bg-blue-50 border border-blue-100 px-3 py-2">
+
+                                    <span class="text-lg font-extrabold text-pillone-dark"
+                                          th:text="${f.totalCajasCompletas}">
+                                        0
+                                    </span>
+
+                                    <span class="text-[9px] text-blue-600 uppercase font-semibold">
+                                        cajas
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-3 text-center">
+
+                                <div class="inline-flex flex-col min-w-[65px] rounded-lg bg-emerald-50 border border-emerald-100 px-3 py-2">
+
+                                    <span class="text-lg font-extrabold text-pillone-dark"
+                                          th:text="${f.totalSellosCompletos}">
+                                        0
+                                    </span>
+
+                                    <span class="text-[9px] text-emerald-700 uppercase font-semibold">
+                                        sellos
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-3 text-center">
+
+                                <div class="inline-flex flex-col min-w-[65px] rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
+
+                                    <span class="text-lg font-extrabold text-pillone-dark"
+                                          th:text="${f.totalUnidades}">
+                                        0
+                                    </span>
+
+                                    <span class="text-[9px] text-slate-500 uppercase font-semibold">
+                                        unidades
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-3">
+
+                                <div class="font-semibold"
+                                     th:text="${f.lote.fechaVencimiento}">
+                                </div>
+
+                                <div class="text-[10px] text-slate-400 mt-1"
+                                     th:text="${'Stock inicial: '+f.lote.cantidadInicial+' unidades'}">
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-3 text-center">
+
+                                <span class="px-2 py-1 rounded-full text-[10px] font-bold"
+                                      th:classappend="${
+                                        f.lote.estado == 'DISPONIBLE'
+                                        ? 'bg-emerald-50 text-emerald-700'
+                                        : (
+                                            f.lote.estado == 'PROXIMO_A_VENCER'
+                                            ? 'bg-amber-50 text-amber-700'
+                                            : (
+                                                f.lote.estado == 'VENCIDO'
+                                                ? 'bg-red-50 text-red-700'
+                                                : 'bg-slate-100 text-slate-700'
+                                            )
+                                        )
+                                      }"
+                                      th:text="${#strings.replace(f.lote.estado,'_',' ')}">
+                                </span>
+
+                                <div class="text-[9px] text-slate-400 mt-2"
+                                     th:text="${f.cajasDesglose+' caja(s) + '+f.sellosDesglose+' sello(s) + '+f.unidadesDesglose+' unidad(es)'}">
+                                </div>
+
+                            </td>
+
+                            <td class="px-4 py-3">
+
+                                <div class="flex flex-col gap-1.5 min-w-[125px]">
+
+                                    <!-- RETIRAR -->
+                                    <form th:if="${f.lote.estado == 'DISPONIBLE' || f.lote.estado == 'PROXIMO_A_VENCER'}"
+                                          th:action="@{/view/lotes/{id}/retirar(id=${f.lote.idLote})}"
+                                          method="post"
+                                          onsubmit="return prepararAccion(this,'retirar');">
+
+                                        <input th:if="${productoId != null}"
+                                               type="hidden"
+                                               name="productoIdActual"
+                                               th:value="${productoId}">
+
+                                        <button type="submit"
+                                                class="w-full px-3 py-1.5 rounded-lg bg-red-50 text-red-700 font-semibold hover:bg-red-100 transition">
+
+                                            Retirar
+
+                                        </button>
+
+                                    </form>
+
+                                    <!-- REACTIVAR -->
+                                    <form th:if="${f.lote.estado == 'RETIRADO'}"
+                                          th:action="@{/view/lotes/{id}/reactivar(id=${f.lote.idLote})}"
+                                          method="post"
+                                          onsubmit="return prepararAccion(this,'reactivar');">
+
+                                        <input th:if="${productoId != null}"
+                                               type="hidden"
+                                               name="productoIdActual"
+                                               th:value="${productoId}">
+
+                                        <button type="submit"
+                                                class="w-full px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-semibold hover:bg-emerald-100 transition">
+
+                                            Reactivar
+
+                                        </button>
+
+                                    </form>
+
+                                    <!-- ELIMINAR -->
+                                    <form th:if="${f.lote.estado == 'VENCIDO' && f.puedeEliminar}"
+                                          th:action="@{/view/lotes/{id}/eliminar(id=${f.lote.idLote})}"
+                                          method="post"
+                                          onsubmit="return prepararAccion(this,'eliminar');">
+
+                                        <input th:if="${productoId != null}"
+                                               type="hidden"
+                                               name="productoIdActual"
+                                               th:value="${productoId}">
+
+                                        <button type="submit"
+                                                class="w-full px-3 py-1.5 rounded-lg bg-red-600 text-white font-bold hover:bg-red-700 transition">
+
+                                            Eliminar
+
+                                        </button>
+
+                                    </form>
+
+                                    <!-- HISTÓRICO PROTEGIDO -->
+                                    <div th:if="${f.lote.estado == 'VENCIDO' && !f.puedeEliminar}"
+                                         class="rounded-lg bg-slate-50 border border-slate-200 px-2 py-2 text-center">
+
+                                        <div class="text-[9px] font-bold text-slate-600">
+                                            Histórico protegido
+                                        </div>
+
+                                        <div class="text-[8px] text-slate-400 mt-0.5">
+                                            Tiene registros asociados y no puede eliminarse.
+                                        </div>
+
+                                    </div>
+
+                                    <div th:if="${f.lote.estado == 'DEVUELTO'}"
+                                         class="text-center text-[9px] text-slate-400 font-semibold">
+
+                                        Lote devuelto
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(filas)}">
+
+                            <td colspan="8"
+                                class="text-center py-10 text-slate-400">
+
+                                No hay lotes registrados para esta selección.
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </div>
+
+</div>
+
+<script>
+    const STORAGE_BUSQUEDA='pillone_busqueda_lotes';
+    const STORAGE_RUTA='pillone_ruta_lotes';
+
+    function toggleSidebar(){
+        document.querySelector('aside').classList.toggle('-translate-x-full');
+        document.getElementById('overlay').classList.toggle('hidden');
+    }
+
+    function filtrar(){
+        const buscador=document.getElementById('buscador');
+
+        if(!buscador){
+            return;
+        }
+
+        const texto=buscador.value;
+        const q=texto.toLowerCase().trim();
+
+        sessionStorage.setItem(
+            STORAGE_BUSQUEDA,
+            texto
+        );
+
+        document.querySelectorAll('.fila-lote').forEach(fila=>{
+            const coincide=
+                fila.textContent
+                    .toLowerCase()
+                    .includes(q);
+
+            fila.style.display=
+                coincide
+                    ? ''
+                    : 'none';
+        });
+    }
+
+    function filtrarProducto(valor){
+        /*
+         * Si el usuario cambia manualmente de producto,
+         * limpiamos la búsqueda anterior.
+         */
+        sessionStorage.removeItem(
+            STORAGE_BUSQUEDA
+        );
+
+        if(valor){
+            window.location.href=
+                '/view/lotes?productoId='+
+                encodeURIComponent(valor);
+        }else{
+            window.location.href=
+                '/view/lotes';
+        }
+    }
+
+    function guardarContexto(){
+        const buscador=
+            document.getElementById('buscador');
+
+        if(buscador){
+            sessionStorage.setItem(
+                STORAGE_BUSQUEDA,
+                buscador.value
+            );
+        }
+
+        sessionStorage.setItem(
+            STORAGE_RUTA,
+            window.location.pathname+
+            window.location.search
+        );
+    }
+
+    function prepararAccion(form,tipo){
+        let mensaje='';
+
+        if(tipo==='eliminar'){
+            mensaje=
+                'ATENCIÓN: este lote vencido se eliminará definitivamente. '+
+                'Esta acción no se puede deshacer. ¿Deseas continuar?';
+        }
+
+        if(tipo==='retirar'){
+            mensaje=
+                '¿Seguro que deseas retirar este lote? '+
+                'Dejará de estar disponible para ventas.';
+        }
+
+        if(tipo==='reactivar'){
+            mensaje=
+                '¿Deseas reactivar este lote?';
+        }
+
+        if(!confirm(mensaje)){
+            return false;
+        }
+
+        guardarContexto();
+
+        return true;
+    }
+
+    function restaurarBusqueda(){
+        const busquedaGuardada=
+            sessionStorage.getItem(
+                STORAGE_BUSQUEDA
+            );
+
+        const buscador=
+            document.getElementById(
+                'buscador'
+            );
+
+        if(busquedaGuardada!==null && buscador){
+            buscador.value=
+                busquedaGuardada;
+
+            filtrar();
+        }
+    }
+
+    function resaltarLote(){
+        const params=
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const loteId=
+            params.get('loteId');
+
+        if(!loteId){
+            return;
+        }
+
+        const fila=
+            document.getElementById(
+                'lote-'+loteId
+            );
+
+        if(fila){
+            setTimeout(()=>{
+                fila.scrollIntoView({
+                    behavior:'smooth',
+                    block:'center'
+                });
+            },150);
+        }
+    }
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function(){
+            restaurarBusqueda();
+            resaltarLote();
+        }
+    );
+</script>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+</body>
+</html>
