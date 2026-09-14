@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `compras` (
   CONSTRAINT `compras_ibfk_1` FOREIGN KEY (`id_sucursal`) REFERENCES `sucursales` (`id_sucursal`),
   CONSTRAINT `compras_ibfk_2` FOREIGN KEY (`id_proveedor`) REFERENCES `proveedores` (`id_proveedor`),
   CONSTRAINT `compras_ibfk_3` FOREIGN KEY (`id_empleado`) REFERENCES `empleados` (`id_empleado`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `compras` (`id_compra`, `id_sucursal`, `numero_factura_proveedor`, `id_proveedor`, `id_empleado`, `fecha_compra`, `subtotal`, `impuestos`, `total`, `forma_pago`, `estado`) VALUES
 	(1, 1, 'FAC-TQ-90812', 3, 1, '2026-07-01 10:30:00', 1625000.00, 308750.00, 1933750.00, 'CREDITO_PROVEEDOR', 'RECIBIDA'),
@@ -98,6 +98,8 @@ CREATE TABLE IF NOT EXISTS `detalles_compras` (
   `id_detalle_compra` int NOT NULL AUTO_INCREMENT,
   `id_compra` int NOT NULL,
   `id_producto` int NOT NULL,
+  `tipo_presentacion` enum('CAJA','SELLO','UNIDAD') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'CAJA',
+  `factor_conversion` int NOT NULL DEFAULT '1',
   `cantidad` int NOT NULL,
   `precio_unitario` decimal(12,2) NOT NULL,
   `subtotal` decimal(12,2) NOT NULL,
@@ -106,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `detalles_compras` (
   KEY `id_producto` (`id_producto`),
   CONSTRAINT `detalles_compras_ibfk_1` FOREIGN KEY (`id_compra`) REFERENCES `compras` (`id_compra`) ON DELETE CASCADE,
   CONSTRAINT `detalles_compras_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `detalles_compras` (`id_detalle_compra`, `id_compra`, `id_producto`, `tipo_presentacion`, `factor_conversion`, `cantidad`, `precio_unitario`, `subtotal`) VALUES
 	(1, 1, 1, 'CAJA', 1, 150, 4500.00, 675000.00),
@@ -138,6 +140,7 @@ CREATE TABLE IF NOT EXISTS `detalles_ventas` (
   `id_detalle_venta` int NOT NULL AUTO_INCREMENT,
   `id_venta` int NOT NULL,
   `id_producto` int NOT NULL,
+  `id_formula` int DEFAULT NULL,
   `id_lote` int NOT NULL,
   `tipo_venta` enum('UNIDAD','SELLO','CAJA') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'UNIDAD',
   `cantidad` int NOT NULL,
@@ -148,23 +151,28 @@ CREATE TABLE IF NOT EXISTS `detalles_ventas` (
   KEY `id_venta` (`id_venta`),
   KEY `id_producto` (`id_producto`),
   KEY `id_lote` (`id_lote`),
+  KEY `fk_detalle_venta_formula` (`id_formula`),
   CONSTRAINT `detalles_ventas_ibfk_1` FOREIGN KEY (`id_venta`) REFERENCES `ventas` (`id_venta`) ON DELETE CASCADE,
   CONSTRAINT `detalles_ventas_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
-  CONSTRAINT `detalles_ventas_ibfk_3` FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  CONSTRAINT `detalles_ventas_ibfk_3` FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`),
+  CONSTRAINT `fk_detalle_venta_formula` FOREIGN KEY (`id_formula`) REFERENCES `formulas_medicas` (`id_formula`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `detalles_ventas` (`id_detalle_venta`, `id_venta`, `id_producto`, `id_lote`, `tipo_venta`, `cantidad`, `unidades_descontadas`, `precio_unitario`, `subtotal`) VALUES
-	(1, 1, 1, 1, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(2, 1, 3, 4, 'UNIDAD', 1, 1, 26000.00, 26000.00),
-	(3, 2, 2, 3, 'UNIDAD', 1, 1, 22000.00, 22000.00),
-	(4, 3, 1, 1, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(5, 4, 1, 1, 'SELLO', 1, 12, 102000.00, 102000.00),
-	(6, 4, 2, 3, 'UNIDAD', 1, 1, 22000.00, 22000.00),
-	(7, 4, 4, 5, 'SELLO', 4, 40, 70000.00, 280000.00),
-	(8, 5, 1, 1, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(9, 6, 1, 13, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(10, 7, 1, 11, 'SELLO', 2, 24, 102000.00, 204000.00),
-	(11, 8, 1, 11, 'UNIDAD', 1, 1, 8500.00, 8500.00);
+INSERT INTO `detalles_ventas` (`id_detalle_venta`, `id_venta`, `id_producto`, `id_formula`, `id_lote`, `tipo_venta`, `cantidad`, `unidades_descontadas`, `precio_unitario`, `subtotal`) VALUES
+	(1, 1, 1, NULL, 1, 'UNIDAD', 1, 1, 8500.00, 8500.00),
+	(2, 1, 3, NULL, 4, 'UNIDAD', 1, 1, 26000.00, 26000.00),
+	(3, 2, 2, NULL, 3, 'UNIDAD', 1, 1, 22000.00, 22000.00),
+	(4, 3, 1, NULL, 1, 'UNIDAD', 1, 1, 8500.00, 8500.00),
+	(5, 4, 1, NULL, 1, 'SELLO', 1, 12, 102000.00, 102000.00),
+	(6, 4, 2, NULL, 3, 'UNIDAD', 1, 1, 22000.00, 22000.00),
+	(7, 4, 4, NULL, 5, 'SELLO', 4, 40, 70000.00, 280000.00),
+	(8, 5, 1, NULL, 1, 'UNIDAD', 1, 1, 8500.00, 8500.00),
+	(9, 6, 1, NULL, 13, 'UNIDAD', 1, 1, 8500.00, 8500.00),
+	(10, 7, 1, NULL, 11, 'SELLO', 2, 24, 102000.00, 204000.00),
+	(11, 8, 1, NULL, 11, 'UNIDAD', 1, 1, 8500.00, 8500.00),
+	(12, 9, 1, NULL, 11, 'SELLO', 1, 12, 102000.00, 102000.00),
+	(13, 10, 1, NULL, 11, 'UNIDAD', 1, 1, 8500.00, 8500.00),
+	(14, 11, 1, NULL, 11, 'UNIDAD', 1, 1, 8500.00, 8500.00);
 
 CREATE TABLE IF NOT EXISTS `devoluciones` (
   `id_devolucion` int NOT NULL AUTO_INCREMENT,
@@ -173,6 +181,7 @@ CREATE TABLE IF NOT EXISTS `devoluciones` (
   `id_venta` int DEFAULT NULL,
   `id_compra` int DEFAULT NULL,
   `id_producto` int NOT NULL,
+  `id_lote` int DEFAULT NULL,
   `cantidad` int NOT NULL,
   `motivo` enum('PRODUCTO_DEFECTUOSO','ERROR_ENTREGA','PROXIMO_A_VENCER','VENCIDO','RETIRO_MERCADO','EMPAQUE_DANADO') COLLATE utf8mb4_unicode_ci NOT NULL,
   `estado_producto` enum('APTO_PARA_REINGRESO','DESECHADO','DEVUELTO_A_FABRICA') COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -185,13 +194,17 @@ CREATE TABLE IF NOT EXISTS `devoluciones` (
   KEY `id_compra` (`id_compra`),
   KEY `id_producto` (`id_producto`),
   KEY `id_usuario_regente` (`id_usuario_regente`),
+  KEY `idx_devoluciones_lote` (`id_lote`),
   CONSTRAINT `devoluciones_ibfk_1` FOREIGN KEY (`id_sucursal`) REFERENCES `sucursales` (`id_sucursal`),
   CONSTRAINT `devoluciones_ibfk_2` FOREIGN KEY (`id_venta`) REFERENCES `ventas` (`id_venta`),
   CONSTRAINT `devoluciones_ibfk_3` FOREIGN KEY (`id_compra`) REFERENCES `compras` (`id_compra`),
   CONSTRAINT `devoluciones_ibfk_4` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
-  CONSTRAINT `devoluciones_ibfk_5` FOREIGN KEY (`id_usuario_regente`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  CONSTRAINT `devoluciones_ibfk_5` FOREIGN KEY (`id_usuario_regente`) REFERENCES `usuarios` (`id_usuario`),
+  CONSTRAINT `fk_devoluciones_lote` FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+INSERT INTO `devoluciones` (`id_devolucion`, `id_sucursal`, `tipo_devolucion`, `id_venta`, `id_compra`, `id_producto`, `id_lote`, `cantidad`, `motivo`, `estado_producto`, `fecha_devolucion`, `id_usuario_regente`, `observaciones`) VALUES
+	(1, 1, 'CLIENTE', 10, NULL, 1, 11, 1, 'ERROR_ENTREGA', 'APTO_PARA_REINGRESO', '2026-09-13 17:55:34', 1, 'El cleinte nunca salio');
 
 CREATE TABLE IF NOT EXISTS `domicilios` (
   `id_domicilio` int NOT NULL AUTO_INCREMENT,
@@ -213,14 +226,17 @@ CREATE TABLE IF NOT EXISTS `domicilios` (
   KEY `id_cliente` (`id_cliente`),
   CONSTRAINT `domicilios_ibfk_1` FOREIGN KEY (`id_venta`) REFERENCES `ventas` (`id_venta`),
   CONSTRAINT `domicilios_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `domicilios` (`id_domicilio`, `id_venta`, `id_cliente`, `direccion_entrega`, `telefono_contacto`, `nombre_domiciliario`, `costo_domicilio`, `pagado`, `fecha_pago`, `estado`, `fecha_hora_salida`, `fecha_hora_entrega`, `evidencia_entrega`, `observaciones_entrega`) VALUES
 	(1, 1, 1, 'Calle 25 # 14-30 Apt 302', '3157894512', 'Marmato Motos Express', 4000.00, 0, NULL, 'ENTREGADO', NULL, NULL, NULL, NULL),
-	(2, 5, 1, 'Calle 25 # 14-30', '3157894512', 'Javier', 2500.00, 0, NULL, 'PENDIENTE', NULL, NULL, NULL, NULL),
-	(3, 6, 1, 'Calle 25 # 14-30', '3157894512', NULL, 0.00, 0, NULL, 'PENDIENTE', NULL, NULL, NULL, NULL),
+	(2, 5, 1, 'Calle 25 # 14-30', '3157894512', 'Javier', 2500.00, 1, '2026-09-13 17:38:44', 'ENTREGADO', '2026-09-13 17:23:45', '2026-09-13 17:38:44', '/uploads/domicilios/domicilio_2_89feafde-43f7-462c-a776-750e17ad6215.png', NULL),
+	(3, 6, 1, 'Calle 25 # 14-30', '3157894512', NULL, 0.00, 0, NULL, 'CANCELADO', '2026-09-13 17:23:50', NULL, '/uploads/domicilios/domicilio_3_98b69d3c-9c83-47da-a674-2550258c0e4d.png', NULL),
 	(4, 7, 1, 'Calle 25 # 14-30', '3157894512', 'Diego', 2000.00, 1, '2026-09-13 09:45:40', 'ENTREGADO', NULL, '2026-09-13 09:45:40', '/uploads/domicilios/domicilio_4_1789310740416.png', 'blablabla'),
-	(5, 8, 1, 'Calle 25 # 14-30', '3157894512', 'Digo', 2000.00, 0, NULL, 'PENDIENTE', NULL, NULL, NULL, NULL);
+	(5, 8, 1, 'Calle 25 # 14-30', '3157894512', 'Digo', 2000.00, 0, NULL, 'ENTREGADO', '2026-09-13 17:08:58', '2026-09-13 17:09:07', NULL, NULL),
+	(6, 9, 2, 'Carrera 10 # 5-12', '3124567890', 'Diego', 3000.00, 0, NULL, 'CANCELADO', NULL, NULL, NULL, NULL),
+	(7, 10, 1, 'Calle 25 # 14-30', '3157894512', 'Javier', 3000.00, 0, NULL, 'CANCELADO', '2026-09-13 17:54:57', NULL, NULL, 'Domicilio devuelto completamente'),
+	(8, 11, 2, 'Carrera 10 # 5-12', '3124567890', 'Diego', 3000.00, 0, NULL, 'EN_CAMINO', '2026-09-13 20:19:19', NULL, NULL, NULL);
 
 CREATE TABLE IF NOT EXISTS `empleados` (
   `id_empleado` int NOT NULL AUTO_INCREMENT,
@@ -236,16 +252,18 @@ CREATE TABLE IF NOT EXISTS `empleados` (
   `estado` enum('ACTIVO','INACTIVO') COLLATE utf8mb4_unicode_ci DEFAULT 'ACTIVO',
   PRIMARY KEY (`id_empleado`),
   UNIQUE KEY `numero_documento` (`numero_documento`),
+  UNIQUE KEY `uk_empleados_correo` (`correo`),
   KEY `id_sucursal` (`id_sucursal`),
   CONSTRAINT `empleados_ibfk_1` FOREIGN KEY (`id_sucursal`) REFERENCES `sucursales` (`id_sucursal`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `empleados` (`id_empleado`, `id_sucursal`, `nombre_completo`, `tipo_documento`, `numero_documento`, `telefono`, `direccion`, `correo`, `cargo`, `salario`, `estado`) VALUES
 	(1, 1, 'Luz Marina Bermúdez', 'CC', '31892014', '3115678901', 'Calle 12 # 4-15', 'luz.bermudez@farmasoft.com', 'Administrador General', 4500000.00, 'ACTIVO'),
 	(2, 1, 'Jonathan Smith Pérez', 'CC', '1115938201', '3174561230', 'Cra 15 # 22-08', 'jonathan.perez@farmasoft.com', 'Regente de Farmacia', 3200000.00, 'ACTIVO'),
 	(3, 1, 'Sandra Patricia Osorio', 'CC', '66982014', '3148901234', 'Calle 40 # 18-90', 'sandra.osorio@farmasoft.com', 'Auxiliar de Farmacia', 1800000.00, 'ACTIVO'),
 	(4, 1, 'Kevin Alexis Quintero', 'CC', '1112938471', '3201237894', 'Cra 27 # 8-33', 'kevin.quintero@farmasoft.com', 'Vendedor / Cajero', 1600000.00, 'ACTIVO'),
-	(5, 1, 'Diego Alejandro Olaya Gonzalez', 'CC', '1117352098', '3228991339', 'Carrera 27a # 10 a 04', 'diealeolagon@gmail.com', 'Jefe', 10000000.00, 'ACTIVO');
+	(5, 1, 'Diego Alejandro Olaya Gonzalez', 'CC', '1117352098', '3228991339', 'Carrera 27a # 10 a 04', 'diealeolagon@gmail.com', 'Jefe', 10000000.00, 'ACTIVO'),
+	(6, 1, 'Javier Millei', 'CC', '1232134', '3228991339', 'Carrera 27a # 10 a 04', 'a@gmail.com', 'domiciliario', 2000000.00, 'ACTIVO');
 
 CREATE TABLE IF NOT EXISTS `formulas_medicas` (
   `id_formula` int NOT NULL AUTO_INCREMENT,
@@ -277,7 +295,7 @@ CREATE TABLE IF NOT EXISTS `lotes` (
   PRIMARY KEY (`id_lote`),
   KEY `id_producto` (`id_producto`),
   CONSTRAINT `lotes_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `lotes` (`id_lote`, `id_producto`, `numero_lote`, `fecha_fabricacion`, `fecha_vencimiento`, `cantidad_inicial`, `cantidad_actual`, `estado`) VALUES
 	(1, 1, 'LOTE-DOL-2026-A', '2026-09-01', '2027-09-30', 100, 86, 'DISPONIBLE'),
@@ -290,12 +308,13 @@ INSERT INTO `lotes` (`id_lote`, `id_producto`, `numero_lote`, `fecha_fabricacion
 	(8, 1, '3', '2026-09-25', '2027-09-18', 100, 100, 'DISPONIBLE'),
 	(9, 8, 'diego', '2026-09-30', '2027-06-11', 100, 100, 'DISPONIBLE'),
 	(10, 14, 'lote b', '2026-09-03', '2026-10-28', 4000, 4000, 'PROXIMO_A_VENCER'),
-	(11, 1, 'lote 1', '2026-09-12', '2026-09-13', 2400, 2375, 'PROXIMO_A_VENCER'),
+	(11, 1, 'lote 1', '2026-09-12', '2026-09-13', 2400, 2362, 'VENCIDO'),
 	(12, 3, 'lote 3', '2026-09-12', '2026-09-25', 100, 100, 'PROXIMO_A_VENCER'),
 	(13, 1, 'lote c', '2026-09-12', '2026-09-12', 600, 599, 'VENCIDO'),
 	(23, 5, 'TEST-VENCIDO-005', '2025-04-10', '2026-04-10', 60, 40, 'VENCIDO'),
 	(24, 8, 'lote 10', '2026-09-13', '2026-09-30', 8280, 8280, 'PROXIMO_A_VENCER'),
-	(25, 15, 'lote 0111', '2026-09-13', '2026-09-30', 4000, 4000, 'PROXIMO_A_VENCER');
+	(25, 15, 'lote 0111', '2026-09-13', '2026-09-30', 4000, 4000, 'PROXIMO_A_VENCER'),
+	(26, 16, 'lote Clonacepan 2', '2026-09-14', '2026-11-06', 16000, 16000, 'PROXIMO_A_VENCER');
 
 CREATE TABLE IF NOT EXISTS `movimientos_inventario` (
   `id_movimiento` int NOT NULL AUTO_INCREMENT,
@@ -318,11 +337,84 @@ CREATE TABLE IF NOT EXISTS `movimientos_inventario` (
   CONSTRAINT `movimientos_inventario_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
   CONSTRAINT `movimientos_inventario_ibfk_3` FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`),
   CONSTRAINT `movimientos_inventario_ibfk_4` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `movimientos_inventario` (`id_movimiento`, `id_sucursal`, `tipo_movimiento`, `id_producto`, `id_lote`, `cantidad`, `existencia_anterior`, `nueva_existencia`, `fecha_movimiento`, `id_usuario`, `motivo`) VALUES
 	(1, 1, 'ENTRADA_COMPRA', 1, 1, 100, 0, 100, '2026-09-12 17:51:21', 1, 'Carga inicial por compra FAC-TQ-90812'),
-	(2, 1, 'SALIDA_VENTA', 1, 1, 1, 100, 99, '2026-09-12 17:51:21', 4, 'Venta según Factura FARM-00001');
+	(2, 1, 'SALIDA_VENTA', 1, 1, 1, 100, 99, '2026-09-12 17:51:21', 4, 'Venta según Factura FARM-00001'),
+	(3, 1, 'DEVOLUCION_CLIENTE', 1, 11, 1, 2362, 2363, '2026-09-13 17:55:33', 1, 'Reingreso por devolución de domicilio #7 / devolución #1');
+
+CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
+  `id_token` bigint NOT NULL AUTO_INCREMENT,
+  `id_usuario` int NOT NULL,
+  `token_hash` char(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fecha_creacion` datetime NOT NULL,
+  `fecha_expiracion` datetime NOT NULL,
+  `usado` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_token`),
+  UNIQUE KEY `uk_password_reset_token_hash` (`token_hash`),
+  KEY `idx_password_reset_usuario` (`id_usuario`),
+  KEY `idx_password_reset_expiracion` (`fecha_expiracion`),
+  CONSTRAINT `fk_password_reset_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE IF NOT EXISTS `permisos` (
+  `id_permiso` int NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `modulo` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `descripcion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `orden` int NOT NULL DEFAULT '0',
+  `activo` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id_permiso`),
+  UNIQUE KEY `uk_permiso_codigo` (`codigo`),
+  KEY `idx_permiso_modulo` (`modulo`)
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `permisos` (`id_permiso`, `codigo`, `nombre`, `modulo`, `descripcion`, `orden`, `activo`) VALUES
+	(1, 'DASHBOARD_VER', 'Ver dashboard', 'Dashboard', 'Consultar indicadores y resumen principal.', 10, 1),
+	(2, 'PRODUCTOS_VER', 'Ver productos', 'Catálogo y Stock', 'Consultar catálogo, precios y datos de productos.', 20, 1),
+	(3, 'PRODUCTOS_CREAR', 'Crear productos', 'Catálogo y Stock', 'Registrar nuevos productos o medicamentos.', 21, 1),
+	(4, 'PRODUCTOS_EDITAR', 'Editar productos', 'Catálogo y Stock', 'Modificar información de productos.', 22, 1),
+	(5, 'PRODUCTOS_ELIMINAR', 'Eliminar productos', 'Catálogo y Stock', 'Eliminar productos cuando las reglas del sistema lo permitan.', 23, 1),
+	(6, 'CATEGORIAS_VER', 'Ver categorías', 'Catálogo y Stock', 'Consultar categorías de productos.', 30, 1),
+	(7, 'CATEGORIAS_GESTIONAR', 'Gestionar categorías', 'Catálogo y Stock', 'Crear, editar o eliminar categorías.', 31, 1),
+	(8, 'LOTES_VER', 'Ver lotes e inventario', 'Inventario', 'Consultar lotes, existencias y vencimientos.', 40, 1),
+	(9, 'LOTES_CREAR', 'Registrar lotes', 'Inventario', 'Registrar nuevos lotes de inventario.', 41, 1),
+	(10, 'LOTES_RETIRAR', 'Retirar o reactivar lotes', 'Inventario', 'Cambiar disponibilidad de lotes.', 42, 1),
+	(11, 'ALERTAS_VER', 'Ver alertas de vencimiento', 'Inventario', 'Consultar productos próximos a vencer o vencidos.', 43, 1),
+	(12, 'VENTAS_VER', 'Ver historial de ventas', 'Dispensación / POS', 'Consultar ventas y su detalle.', 50, 1),
+	(13, 'VENTAS_CREAR', 'Crear ventas', 'Dispensación / POS', 'Registrar nuevas ventas y facturación.', 51, 1),
+	(14, 'VENTAS_ANULAR', 'Anular ventas', 'Dispensación / POS', 'Anular ventas según las reglas del sistema.', 52, 1),
+	(15, 'FORMULAS_VER', 'Ver fórmulas médicas', 'Fórmulas Médicas', 'Consultar fórmulas registradas.', 60, 1),
+	(16, 'FORMULAS_CREAR', 'Registrar fórmulas', 'Fórmulas Médicas', 'Crear fórmulas médicas para clientes.', 61, 1),
+	(17, 'FORMULAS_EDITAR', 'Editar fórmulas', 'Fórmulas Médicas', 'Actualizar datos de fórmulas médicas.', 62, 1),
+	(18, 'PROVEEDORES_VER', 'Ver proveedores', 'Proveedores y Compras', 'Consultar directorio de proveedores.', 70, 1),
+	(19, 'PROVEEDORES_CREAR', 'Crear proveedores', 'Proveedores y Compras', 'Registrar nuevos proveedores.', 71, 1),
+	(20, 'PROVEEDORES_EDITAR', 'Editar proveedores', 'Proveedores y Compras', 'Actualizar información de proveedores.', 72, 1),
+	(21, 'PROVEEDORES_INACTIVAR', 'Inactivar proveedores', 'Proveedores y Compras', 'Inactivar proveedores cuando no puedan eliminarse.', 73, 1),
+	(22, 'COMPRAS_VER', 'Ver órdenes de compra', 'Proveedores y Compras', 'Consultar pedidos y compras a proveedores.', 80, 1),
+	(23, 'COMPRAS_CREAR', 'Crear órdenes de compra', 'Proveedores y Compras', 'Crear pedidos a proveedores.', 81, 1),
+	(24, 'COMPRAS_EDITAR', 'Editar órdenes de compra', 'Proveedores y Compras', 'Editar pedidos dentro del periodo permitido.', 82, 1),
+	(25, 'COMPRAS_RECIBIR', 'Recibir mercancía', 'Proveedores y Compras', 'Registrar recepción y entrada de mercancía.', 83, 1),
+	(26, 'COMPRAS_CANCELAR', 'Cancelar órdenes', 'Proveedores y Compras', 'Cancelar pedidos pendientes.', 84, 1),
+	(27, 'CLIENTES_VER', 'Ver clientes', 'Pacientes / Clientes', 'Consultar clientes y su historial.', 90, 1),
+	(28, 'CLIENTES_CREAR', 'Crear clientes', 'Pacientes / Clientes', 'Registrar nuevos clientes.', 91, 1),
+	(29, 'CLIENTES_EDITAR', 'Editar clientes', 'Pacientes / Clientes', 'Actualizar información de clientes.', 92, 1),
+	(30, 'DOMICILIOS_VER', 'Ver domicilios', 'Domicilios', 'Consultar domicilios registrados.', 100, 1),
+	(31, 'DOMICILIOS_GESTIONAR', 'Gestionar domicilios', 'Domicilios', 'Asignar, actualizar estado y registrar entregas.', 101, 1),
+	(32, 'DEVOLUCIONES_VER', 'Ver devoluciones', 'Devoluciones', 'Consultar devoluciones de cliente o proveedor.', 110, 1),
+	(33, 'DEVOLUCIONES_GESTIONAR', 'Gestionar devoluciones', 'Devoluciones', 'Registrar y autorizar devoluciones.', 111, 1),
+	(34, 'EMPLEADOS_VER', 'Ver empleados', 'Personal y Accesos', 'Consultar personal y cuentas de acceso.', 120, 1),
+	(35, 'EMPLEADOS_GESTIONAR', 'Gestionar empleados y accesos', 'Personal y Accesos', 'Crear o editar empleados, usuarios y roles asignados.', 121, 1),
+	(36, 'ROLES_VER', 'Ver roles y permisos', 'Personal y Accesos', 'Consultar roles y permisos disponibles.', 130, 1),
+	(37, 'ROLES_GESTIONAR', 'Gestionar roles y permisos', 'Personal y Accesos', 'Crear, editar o eliminar roles y configurar permisos.', 131, 1),
+	(38, 'REPORTES_VER', 'Ver reportes', 'Reportes', 'Consultar reportes del sistema.', 140, 1),
+	(39, 'SUCURSALES_VER', 'Ver sucursales', 'Configuración', 'Consultar sucursales.', 150, 1),
+	(40, 'SUCURSALES_GESTIONAR', 'Gestionar sucursales', 'Configuración', 'Crear o modificar sucursales.', 151, 1),
+	(41, 'CONFIGURACION_VER', 'Ver configuración', 'Configuración', 'Consultar parámetros generales.', 152, 1),
+	(42, 'CONFIGURACION_EDITAR', 'Editar configuración', 'Configuración', 'Modificar parámetros generales de PillOne.', 153, 1);
 
 CREATE TABLE IF NOT EXISTS `productos` (
   `id_producto` int NOT NULL AUTO_INCREMENT,
@@ -336,7 +428,7 @@ CREATE TABLE IF NOT EXISTS `productos` (
   `laboratorio` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `registro_invima` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `id_categoria` int NOT NULL,
-  `id_proveedor` int NOT NULL,
+  `id_proveedor` int DEFAULT NULL,
   `precio_compra` decimal(12,2) NOT NULL,
   `precio_venta` decimal(12,2) NOT NULL,
   `precio_venta_tableta` decimal(12,2) DEFAULT NULL,
@@ -361,10 +453,10 @@ CREATE TABLE IF NOT EXISTS `productos` (
   KEY `id_proveedor` (`id_proveedor`),
   CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`),
   CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`id_proveedor`) REFERENCES `proveedores` (`id_proveedor`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `productos` (`id_producto`, `codigo_interno`, `codigo_barras`, `nombre_comercial`, `nombre_generico`, `descripcion`, `presentacion`, `concentracion`, `laboratorio`, `registro_invima`, `id_categoria`, `id_proveedor`, `precio_compra`, `precio_venta`, `precio_venta_tableta`, `unidades_por_empaque`, `sellos_por_caja`, `unidades_por_sello`, `precio_compra_empaque`, `precio_venta_empaque`, `stock_total`, `stock_minimo`, `ubicacion_estante`, `requiere_formula`, `es_venta_libre`, `es_controlado`, `requiere_refrigeracion`, `restricciones_venta`, `estado`) VALUES
-	(1, 'PROD-001', '770200100101', 'Dolex Forte', 'Acetaminofén + Cafeína', 'Analgésico y antipirético para dolores intensos', 'Caja x 12 Tabletas', '500mg / 65mg', 'GSK / TQ', 'INVIMA 2018M-0001234', 1, 3, 4500.00, 8500.00, NULL, 12, 1, 12, 50000.00, 95000.00, 2611, 20, 'Estante A1', 0, 1, 0, 0, NULL, 'ACTIVO'),
+	(1, 'PROD-001', '770200100101', 'Dolex Forte', 'Acetaminofén + Cafeína', 'Analgésico y antipirético para dolores intensos', 'Caja x 12 Tabletas', '500mg / 65mg', 'GSK / TQ', 'INVIMA 2018M-0001234', 1, 3, 4500.00, 8500.00, NULL, 12, 1, 12, 50000.00, 95000.00, 236, 20, 'Estante A1', 0, 1, 0, 0, NULL, 'ACTIVO'),
 	(2, 'PROD-002', '770200100102', 'Amoxicilina Genfar', 'Amoxicilina', 'Antibiótico bactericida de amplio espectro', 'Caja x 50 Cápsulas', '500 mg', 'Genfar', 'INVIMA 2020M-0015678', 2, 2, 12000.00, 22000.00, NULL, 50, 1, 50, 550000.00, 1000000.00, 79, 15, 'Estante B2 (Restringido)', 1, 0, 0, 0, NULL, 'ACTIVO'),
 	(3, 'PROD-003', '770200100103', 'Apronax', 'Naproxeno Sódico', 'Antiinflamatorio no esteroideo de alivio prolongado', 'Caja x 10 Tabletas', '550 mg', 'Bayer', 'INVIMA 2019M-0009876', 1, 4, 15000.00, 26000.00, NULL, 10, 1, 10, 140000.00, 240000.00, 145, 10, 'Estante A2', 0, 1, 0, 0, NULL, 'ACTIVO'),
 	(4, 'PROD-004', '770200100104', 'Loratadina Procaps', 'Loratadina', 'Antihistamínico no sedante', 'Caja x 10 Tabletas', '10 mg', 'Procaps', 'INVIMA 2021M-0011223', 3, 1, 3000.00, 7000.00, NULL, 10, 1, 10, 28000.00, 65000.00, 80, 15, 'Estante C1', 0, 1, 0, 0, NULL, 'ACTIVO'),
@@ -372,7 +464,8 @@ INSERT INTO `productos` (`id_producto`, `codigo_interno`, `codigo_barras`, `nomb
 	(6, 'PROD-006', '770200100106', 'Insulina Lantus', 'Insulina Glargina', 'Insulina de acción prolongada', 'Caja x 5 Plumas soloSTAR 3ml', '100 UI/ml', 'Sanofi', 'INVIMA 2017M-0004512', 2, 1, 110000.00, 165000.00, NULL, 5, 1, 5, 520000.00, 800000.00, 12, 5, 'Nevera Principal (2-8°C)', 1, 0, 0, 1, NULL, 'ACTIVO'),
 	(8, '001', '1272877382', 'amoxicilina', 'amoxicilina', 'm', 'caja por 200', '500mg', 'genfar', '11877823', 6, 4, 1.00, 2.00, NULL, 276, 12, 23, 12.00, 37.00, 8380, 10, 'pacillo 1', 0, 1, 0, 0, 'a', 'ACTIVO'),
 	(14, '00101', '12728773823', 'amoxicilina', 'amoxicilina', '1', 'caja por 200', '500mg', 'genfar', '118778231', 7, 4, 10.00, 20.00, NULL, 200, 10, 20, 300.00, 400.00, 4000, 10, 'pacillo 1', 0, 1, 0, 0, '', 'ACTIVO'),
-	(15, 'codigo1', 'codigoDeBarras', 'Clonacepam', 'Clonacepam', 'aaaaaaaa', 'caja 10 tabletas', '500mg', 'Genfar', '199132registro', 7, 1, 10.00, 20.00, 100.00, 100, 10, 10, 200.00, 300.00, 4000, 50, 'estante 2', 0, 1, 0, 0, 'ninguna', 'ACTIVO');
+	(15, 'codigo1', 'codigoDeBarras', 'Clonacepam', 'Clonacepam', 'aaaaaaaa', 'caja 10 tabletas', '500mg', 'Genfar', '199132registro', 7, 1, 10.00, 20.00, 100.00, 100, 10, 10, 200.00, 300.00, 4000, 50, 'estante 2', 0, 1, 0, 0, 'ninguna', 'ACTIVO'),
+	(16, '0001111', 'codigoDeBarras2', 'Clonacepam2', 'Clonacepam2', 'diego', 'caja 10 tabletas', '500mg', 'Genfar', '199132registro22', 1, 1, 500.00, 1000.00, 12000.00, 400, 20, 20, 30000.00, 45000.00, 16000, 10, 'estante 24', 1, 0, 0, 0, 'solo con formula', 'ACTIVO');
 
 CREATE TABLE IF NOT EXISTS `proveedores` (
   `id_proveedor` int NOT NULL AUTO_INCREMENT,
@@ -399,13 +492,134 @@ CREATE TABLE IF NOT EXISTS `roles` (
   `nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id_rol`),
   UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `roles` (`id_rol`, `nombre`) VALUES
 	(1, 'ADMINISTRADOR'),
 	(2, 'FARMACEUTICO_REGENTE'),
 	(3, 'VENDEDOR'),
-	(4, 'AUXILIAR_FARMACIA');
+	(4, 'AUXILIAR_FARMACIA'),
+	(5, 'DOMICILIARIO');
+
+CREATE TABLE IF NOT EXISTS `roles_permisos` (
+  `id_rol` int NOT NULL,
+  `id_permiso` int NOT NULL,
+  PRIMARY KEY (`id_rol`,`id_permiso`),
+  KEY `idx_roles_permisos_permiso` (`id_permiso`),
+  CONSTRAINT `fk_roles_permisos_permiso` FOREIGN KEY (`id_permiso`) REFERENCES `permisos` (`id_permiso`) ON DELETE CASCADE,
+  CONSTRAINT `fk_roles_permisos_rol` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `roles_permisos` (`id_rol`, `id_permiso`) VALUES
+	(1, 1),
+	(1, 2),
+	(1, 3),
+	(1, 4),
+	(1, 5),
+	(1, 6),
+	(1, 7),
+	(1, 8),
+	(1, 9),
+	(1, 10),
+	(1, 11),
+	(1, 12),
+	(1, 13),
+	(1, 14),
+	(1, 15),
+	(1, 16),
+	(1, 17),
+	(1, 18),
+	(1, 19),
+	(1, 20),
+	(1, 21),
+	(1, 22),
+	(1, 23),
+	(1, 24),
+	(1, 25),
+	(1, 26),
+	(1, 27),
+	(1, 28),
+	(1, 29),
+	(1, 30),
+	(1, 31),
+	(1, 32),
+	(1, 33),
+	(1, 34),
+	(1, 35),
+	(1, 36),
+	(1, 37),
+	(1, 38),
+	(1, 39),
+	(1, 40),
+	(1, 41),
+	(1, 42),
+	(2, 1),
+	(2, 2),
+	(2, 3),
+	(2, 4),
+	(2, 6),
+	(2, 7),
+	(2, 8),
+	(2, 9),
+	(2, 10),
+	(2, 11),
+	(2, 12),
+	(2, 13),
+	(2, 14),
+	(2, 15),
+	(2, 16),
+	(2, 17),
+	(2, 18),
+	(2, 19),
+	(2, 20),
+	(2, 21),
+	(2, 22),
+	(2, 23),
+	(2, 24),
+	(2, 25),
+	(2, 26),
+	(2, 27),
+	(2, 28),
+	(2, 29),
+	(2, 30),
+	(2, 31),
+	(2, 32),
+	(2, 33),
+	(2, 38),
+	(3, 1),
+	(3, 2),
+	(3, 8),
+	(3, 11),
+	(3, 12),
+	(3, 13),
+	(3, 15),
+	(3, 16),
+	(3, 27),
+	(3, 28),
+	(3, 29),
+	(3, 30),
+	(3, 31),
+	(4, 1),
+	(4, 2),
+	(4, 6),
+	(4, 8),
+	(4, 9),
+	(4, 11),
+	(4, 12),
+	(4, 13),
+	(4, 15),
+	(4, 16),
+	(4, 18),
+	(4, 22),
+	(4, 25),
+	(4, 27),
+	(4, 28),
+	(4, 29),
+	(4, 30),
+	(4, 31),
+	(5, 30),
+	(5, 31),
+	(5, 38);
 
 CREATE TABLE IF NOT EXISTS `sucursales` (
   `id_sucursal` int NOT NULL AUTO_INCREMENT,
@@ -438,14 +652,15 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   KEY `id_rol` (`id_rol`),
   CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_empleado`) REFERENCES `empleados` (`id_empleado`) ON DELETE CASCADE,
   CONSTRAINT `usuarios_ibfk_2` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `usuarios` (`id_usuario`, `id_empleado`, `id_rol`, `username`, `password_hash`, `estado`) VALUES
-	(1, 1, 1, 'admin', '$2a$10$wT3yKkXG1z/9W8Z3E9s2.e.yG9v5uL7Qf1u1u1u1u1u1u1u1u1u1u', 'ACTIVO'),
-	(2, 2, 2, 'regente01', '$2a$10$wT3yKkXG1z/9W8Z3E9s2.e.yG9v5uL7Qf1u1u1u1u1u1u1u1u1u1u', 'ACTIVO'),
-	(3, 3, 4, 'sandra.aux', '$2a$10$wT3yKkXG1z/9W8Z3E9s2.e.yG9v5uL7Qf1u1u1u1u1u1u1u1u1u1u', 'ACTIVO'),
-	(4, 4, 3, 'kevin.vendedor', '$2a$10$wT3yKkXG1z/9W8Z3E9s2.e.yG9v5uL7Qf1u1u1u1u1u1u1u1u1u1u', 'ACTIVO'),
-	(5, 5, 1, 'Diego_Olaya', 'PBKDF2$210000$n5oldGBLtj0InehPnCA98w==$eJTaQEx5PiNfw/fDc1kbGZvnI+r6wE9EBA0GbZC8+ng=', 'ACTIVO');
+	(1, 1, 1, 'admin', 'PBKDF2$210000$cGlsbG9uZS1hZG1pbi0wMQ==$OU5app0HXnrka1v3tTRWYCqX4UefNIgtF1sUtYk+AfU=', 'ACTIVO'),
+	(2, 2, 2, 'regente01', 'PBKDF2$210000$cGlsbG9uZS1yZWdlbnRlMDE=$6jUD8jCb+Rh/mO4VOpx1qRmSTBqmFcS0KRou1Frj7Pw=', 'ACTIVO'),
+	(3, 3, 4, 'sandra.aux', 'PBKDF2$210000$cGlsbG9uZS1zYW5kcmEwMQ==$iz6aHSCRykisiFmPZBP+CcIdmHwG3laSfx0XCBGruqo=', 'ACTIVO'),
+	(4, 4, 3, 'kevin.vendedor', 'PBKDF2$210000$cGlsbG9uZS1rZXZpbjAwMQ==$oc+rhAuxqrAaEr67ACT7s2wr80fclgkYxzTubJXxlqw=', 'ACTIVO'),
+	(5, 5, 1, 'Diego_Olaya', 'PBKDF2$210000$cGlsbG9uZS1kaWVnbzAwMQ==$FDC9xyYTuAN/PPsvo/H8i9oiFJwtXkuPj8H9lEHx5AY=', 'ACTIVO'),
+	(6, 6, 5, 'domiciliario', 'PBKDF2$210000$mTq+/VXewXo+IAxX4GUBsw==$xQtzBoW/CLK2vS4LIqTRVwDukTUbceAY7ENC3Wxz8r4=', 'ACTIVO');
 
 CREATE TABLE IF NOT EXISTS `ventas` (
   `id_venta` int NOT NULL AUTO_INCREMENT,
@@ -470,7 +685,7 @@ CREATE TABLE IF NOT EXISTS `ventas` (
   CONSTRAINT `ventas_ibfk_1` FOREIGN KEY (`id_sucursal`) REFERENCES `sucursales` (`id_sucursal`),
   CONSTRAINT `ventas_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`),
   CONSTRAINT `ventas_ibfk_3` FOREIGN KEY (`id_empleado`) REFERENCES `empleados` (`id_empleado`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `ventas` (`id_venta`, `id_sucursal`, `numero_factura`, `id_cliente`, `id_empleado`, `fecha_venta`, `subtotal`, `descuento`, `aplica_iva`, `porcentaje_iva`, `impuesto_iva`, `total`, `metodo_pago`, `estado`) VALUES
 	(1, 1, 'FARM-00001', 1, 4, '2026-07-27 09:10:00', 34500.00, 0.00, 1, 19.00, 6555.00, 41055.00, 'NEQUI_DAVIPLATA', 'PAGADA'),
@@ -480,7 +695,23 @@ INSERT INTO `ventas` (`id_venta`, `id_sucursal`, `numero_factura`, `id_cliente`,
 	(5, 1, 'FARM-20260912193623389', 1, 1, '2026-09-12 19:36:23', 8500.00, 0.00, 1, 19.00, 1615.00, 12615.00, 'EFECTIVO', 'PAGADA'),
 	(6, 1, 'FARM-20260912220613571', 1, 1, '2026-09-12 22:06:14', 8500.00, 0.00, 1, 19.00, 1615.00, 10115.00, 'EFECTIVO', 'PAGADA'),
 	(7, 1, 'FARM-20260913094428841', 1, 1, '2026-09-13 09:44:29', 204000.00, 0.00, 1, 19.00, 38760.00, 244760.00, 'EFECTIVO', 'PAGADA'),
-	(8, 1, 'FARM-20260913113118724', 1, 2, '2026-09-13 11:31:19', 8500.00, 0.00, 1, 19.00, 1615.00, 12115.00, 'EFECTIVO', 'PAGADA');
+	(8, 1, 'FARM-20260913113118724', 1, 2, '2026-09-13 11:31:19', 8500.00, 0.00, 1, 19.00, 1615.00, 12115.00, 'EFECTIVO', 'PAGADA'),
+	(9, 1, 'FARM-20260913141716144', 2, 1, '2026-09-13 14:17:16', 102000.00, 0.00, 1, 19.00, 19380.00, 124380.00, 'TARJETA_DEBITO', 'PAGADA'),
+	(10, 1, 'FARM-20260913175444814', 1, 1, '2026-09-13 17:54:45', 8500.00, 0.00, 1, 19.00, 1615.00, 13115.00, 'EFECTIVO', 'PAGADA'),
+	(11, 3, 'FARM-20260913201856708', 2, 1, '2026-09-13 20:18:57', 8500.00, 0.00, 1, 19.00, 1615.00, 13115.00, 'EFECTIVO', 'PAGADA');
+
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `trg_asignar_proveedor_habitual_detalle_compra` AFTER INSERT ON `detalles_compras` FOR EACH ROW BEGIN
+    UPDATE productos p
+    JOIN compras c ON c.id_compra=NEW.id_compra
+    SET p.id_proveedor=c.id_proveedor
+    WHERE p.id_producto=NEW.id_producto
+      AND p.id_proveedor IS NULL
+      AND c.estado<>'CANCELADA';
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
