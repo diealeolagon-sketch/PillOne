@@ -169,14 +169,6 @@ public class ProductosView {
             return "productos/productosForm";
         }
 
-        if(producto.getCodigoInterno()!=null){
-
-            producto.setCodigoInterno(
-                    producto.getCodigoInterno()
-                            .trim()
-            );
-        }
-
         if(producto.getCodigoBarras()!=null){
 
             producto.setCodigoBarras(
@@ -234,45 +226,6 @@ public class ProductosView {
         }
 
         /*
-         * VALIDACIÓN CÓDIGO INTERNO
-         */
-        if(producto.getCodigoInterno()!=null &&
-                !producto.getCodigoInterno().isBlank()){
-
-            boolean existeCodigo;
-
-            if(producto.getIdProducto()==null){
-
-                existeCodigo=
-                        productosRepository
-                                .existsByCodigoInternoIgnoreCase(
-                                        producto.getCodigoInterno()
-                                );
-
-            }else{
-
-                existeCodigo=
-                        productosRepository
-                                .existsByCodigoInternoIgnoreCaseAndIdProductoNot(
-                                        producto.getCodigoInterno(),
-                                        producto.getIdProducto()
-                                );
-            }
-
-            if(existeCodigo){
-
-                model.addAttribute(
-                        "error",
-                        "El código interno ya está registrado en otro producto."
-                );
-
-                cargarListas(model);
-
-                return "productos/productosForm";
-            }
-        }
-
-        /*
          * VALIDACIÓN CÓDIGO DE BARRAS
          */
         if(producto.getCodigoBarras()!=null &&
@@ -309,6 +262,10 @@ public class ProductosView {
 
                 return "productos/productosForm";
             }
+        }
+
+        if(producto.getPorcentajeIva()==null || producto.getPorcentajeIva().signum()<0){
+            producto.setPorcentajeIva(java.math.BigDecimal.ZERO);
         }
 
         try{

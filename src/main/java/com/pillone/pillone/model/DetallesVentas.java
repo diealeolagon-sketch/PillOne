@@ -40,6 +40,9 @@ public class DetallesVentas {
     @Column(name = "subtotal", nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
 
+    @Column(name = "porcentaje_iva", nullable = false, precision = 5, scale = 2)
+    private BigDecimal porcentajeIva = BigDecimal.ZERO;
+
     public DetallesVentas(){}
 
     public Long getIdDetalleVenta(){return idDetalleVenta;}
@@ -71,4 +74,6 @@ public class DetallesVentas {
 
     public BigDecimal getSubtotal(){return subtotal;}
     public void setSubtotal(BigDecimal subtotal){this.subtotal=subtotal;}
+    public BigDecimal getPorcentajeIva(){return porcentajeIva;}
+    public void setPorcentajeIva(BigDecimal porcentajeIva){this.porcentajeIva=porcentajeIva;}
 }

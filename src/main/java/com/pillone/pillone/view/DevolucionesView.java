@@ -9,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.UUID;
 
 import java.util.List;
 import java.util.Map;
@@ -69,6 +73,7 @@ public class DevolucionesView {
             @RequestParam String motivo,
             @RequestParam String estadoProducto,
             @RequestParam(required=false) String observaciones,
+            @RequestParam MultipartFile fotoDevolucion,
             HttpSession session,
             RedirectAttributes ra
     ){
@@ -160,6 +165,7 @@ public class DevolucionesView {
             d.setEstadoProducto(estadoN);
             d.setIdUsuarioRegente(idUsuario);
             d.setObservaciones(limpiar(observaciones));
+            d.setEvidenciaDevolucion(guardarEvidencia(fotoDevolucion,idDomicilio));
             repo.saveAndFlush(d);
 
             if("APTO_PARA_REINGRESO".equals(estadoN)){
@@ -198,6 +204,24 @@ public class DevolucionesView {
             ra.addFlashAttribute("error",e.getMessage()==null?"No fue posible registrar la devolución.":e.getMessage());
             return "redirect:/view/domicilios";
         }
+    }
+
+    private String guardarEvidencia(MultipartFile foto,Long idDomicilio) throws IOException{
+        if(foto==null||foto.isEmpty()) throw new IllegalArgumentException("Debes subir una foto de evidencia de la devolución.");
+        if(foto.getSize()>5L*1024*1024) throw new IllegalArgumentException("La evidencia no puede superar 5 MB.");
+        String tipo=foto.getContentType();
+        if(tipo==null||!Set.of("image/jpeg","image/png","image/webp").contains(tipo))
+            throw new IllegalArgumentException("La evidencia debe ser JPG, PNG o WEBP.");
+        String ext=".jpg";
+        String original=foto.getOriginalFilename();
+        if(original!=null&&original.lastIndexOf('.')>=0) ext=original.substring(original.lastIndexOf('.')).toLowerCase();
+        Path dir=Paths.get("uploads","devoluciones").toAbsolutePath().normalize();
+        Files.createDirectories(dir);
+        String nombre="devolucion_"+idDomicilio+"_"+UUID.randomUUID()+ext;
+        Path destino=dir.resolve(nombre).normalize();
+        if(!destino.startsWith(dir)) throw new IllegalArgumentException("Nombre de archivo inválido.");
+        Files.copy(foto.getInputStream(),destino,StandardCopyOption.REPLACE_EXISTING);
+        return "/uploads/devoluciones/"+nombre;
     }
 
     private int calcularUnidadesPendientes(Long idVenta){

@@ -197,19 +197,7 @@
                             1. Identificación y Códigos
                         </h3>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">
-                                    Código Interno *
-                                </label>
-
-                                <input type="text"
-                                       th:field="*{codigoInterno}"
-                                       required
-                                       placeholder="Ej. PROD-001"
-                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
-                            </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                             <div>
                                 <label class="block font-semibold text-slate-700 mb-1">
@@ -429,11 +417,33 @@
                                        min="0"
                                        step="any"
                                        th:field="*{precioVenta}"
+                                       id="precioVenta"
+                                       oninput="calcularIvaProducto()"
                                        required
                                        placeholder="Ej. 3500"
                                        class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    IVA del Producto (%) *
+                                </label>
+                                <input type="number" min="0" max="100" step="0.01"
+                                       th:field="*{porcentajeIva}" id="porcentajeIva"
+                                       oninput="calcularIvaProducto()" required
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
+                                <p class="ui-field-help">0 para excluido, 5 o 19 según corresponda.</p>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">
+                                    IVA incluido en el precio
+                                </label>
+                                <input type="text" id="valorIvaProducto" readonly
+                                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-bold text-xs">
+                                <p class="ui-field-help">El precio de venta ingresado arriba ya incluye este IVA.</p>
+                            </div>
 
                             <!-- PRECIO VENTA TABLETA -->
                             <div>
@@ -738,10 +748,18 @@
             sellos*unidades;
     }
 
-    document.addEventListener(
-        'DOMContentLoaded',
-        calcularEmpaque
-    );
+    function calcularIvaProducto(){
+        const precio=Math.max(0,Number(document.getElementById('precioVenta')?.value||0));
+        const tasa=Math.max(0,Number(document.getElementById('porcentajeIva')?.value||0));
+        const iva=tasa>0 ? precio-(precio/(1+(tasa/100))) : 0;
+        const campo=document.getElementById('valorIvaProducto');
+        if(campo){ campo.value=new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:2}).format(iva); }
+    }
+
+    document.addEventListener('DOMContentLoaded',()=>{
+        calcularEmpaque();
+        calcularIvaProducto();
+    });
 </script>
 
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>

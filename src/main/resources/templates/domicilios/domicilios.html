@@ -93,10 +93,79 @@
             transform:translateY(-1px);
         }
 
-        .modal-sheet{
-            max-height:92vh;
-            overflow-y:auto;
+        /* MODALES: alto seguro + scroll interno sin tocar funcionalidad */
+        #modal-entrega,
+        #modal-devolucion,
+        #modal-evidencia{
+            overflow:hidden;
+            overscroll-behavior:contain;
+            padding-top:max(1rem, env(safe-area-inset-top));
+            padding-bottom:max(1rem, env(safe-area-inset-bottom));
         }
+
+        .modal-sheet{
+            width:100%;
+            max-height:calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            display:flex;
+            flex-direction:column;
+            overflow:hidden;
+            overscroll-behavior:contain;
+        }
+
+        .modal-sheet > form{
+            width:100%;
+            max-height:inherit;
+            min-height:0;
+            display:flex;
+            flex-direction:column;
+            overflow:hidden;
+        }
+
+        .modal-sheet > form > .p-5.border-b{
+            flex:0 0 auto;
+        }
+
+        .modal-sheet > form > .p-5.space-y-4{
+            flex:1 1 auto;
+            min-height:0;
+            overflow-y:auto;
+            overscroll-behavior:contain;
+            -webkit-overflow-scrolling:touch;
+            scrollbar-gutter:stable;
+        }
+
+        .modal-sheet > form > .modal-footer{
+            flex:0 0 auto;
+        }
+
+        /* Visor de evidencia dentro de la misma página */
+        .evidence-sheet{
+            width:100%;
+            max-width:56rem;
+            max-height:calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            display:flex;
+            flex-direction:column;
+            overflow:hidden;
+        }
+
+        .evidence-body{
+            flex:1 1 auto;
+            min-height:0;
+            overflow:auto;
+            overscroll-behavior:contain;
+            -webkit-overflow-scrolling:touch;
+        }
+
+        #imagen-evidencia{
+            display:block;
+            width:auto;
+            max-width:100%;
+            height:auto;
+            max-height:calc(100dvh - 8.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            object-fit:contain;
+            margin:auto;
+        }
+
 
         @media(max-width:767px){
             body{
@@ -264,7 +333,12 @@
             #modal-entrega,
             #modal-devolucion{
                 align-items:flex-end!important;
-                padding:0!important;
+                padding-top:max(.5rem, env(safe-area-inset-top))!important;
+                padding-right:0!important;
+                padding-bottom:env(safe-area-inset-bottom)!important;
+                padding-left:0!important;
+                overflow:hidden!important;
+                overscroll-behavior:contain;
             }
 
             #modal-entrega>div,
@@ -272,12 +346,20 @@
                 max-width:none!important;
                 width:100%!important;
                 border-radius:1.25rem 1.25rem 0 0!important;
-                max-height:94vh;
+                max-height:calc(100dvh - max(.5rem, env(safe-area-inset-top)) - env(safe-area-inset-bottom));
+                overflow:hidden!important;
             }
 
             .modal-sheet{
-                max-height:94vh;
-                overflow-y:auto;
+                max-height:calc(100dvh - max(.5rem, env(safe-area-inset-top)) - env(safe-area-inset-bottom));
+                overflow:hidden!important;
+            }
+
+            .modal-sheet > form > .p-5.space-y-4{
+                overflow-y:auto!important;
+                overscroll-behavior:contain;
+                -webkit-overflow-scrolling:touch;
+                padding-bottom:1.25rem;
             }
 
             .modal-footer{
@@ -367,9 +449,9 @@
 
         @media(max-width:767px){
             .delivery-pagination{
-                position:sticky;
-                bottom:0;
-                z-index:7;
+                position:static;
+                bottom:auto;
+                z-index:1;
                 flex-direction:column;
                 align-items:stretch;
                 gap:.6rem;
@@ -433,271 +515,451 @@
             }
         }
 
+
+        /* MODAL DETALLE DEL DOMICILIO */
+        #modal-detalle-domicilio{
+            overflow:hidden;
+            overscroll-behavior:contain;
+            padding-top:max(1rem, env(safe-area-inset-top));
+            padding-bottom:max(1rem, env(safe-area-inset-bottom));
+        }
+
+        .delivery-detail-sheet{
+            width:100%;
+            max-width:34rem;
+            max-height:calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            display:flex;
+            flex-direction:column;
+            overflow:hidden;
+        }
+
+        .delivery-detail-body{
+            flex:1 1 auto;
+            min-height:0;
+            overflow-y:auto;
+            overscroll-behavior:contain;
+            -webkit-overflow-scrolling:touch;
+        }
+
+        .delivery-detail-grid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:.75rem;
+        }
+
+        .delivery-detail-item{
+            padding:.85rem;
+            border:1px solid var(--ui-border);
+            border-radius:.9rem;
+            background:#FAFBFE;
+            min-width:0;
+        }
+
+        .delivery-detail-item.full{
+            grid-column:1/-1;
+        }
+
+        .delivery-detail-label{
+            display:block;
+            font-size:.62rem;
+            line-height:1rem;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:.05em;
+            color:#98A2B3;
+            margin-bottom:.2rem;
+        }
+
+        .delivery-detail-value{
+            display:block;
+            font-size:.78rem;
+            line-height:1.2rem;
+            font-weight:600;
+            color:var(--pillone-dark);
+            word-break:break-word;
+        }
+
+        @media(max-width:767px){
+            /* Tarjeta móvil resumida: solo lo esencial en pantalla */
+            .delivery-table tr.fila td:nth-child(3),
+            .delivery-table tr.fila td:nth-child(4),
+            .delivery-table tr.fila td:nth-child(5),
+            .delivery-table tr.fila td:nth-child(6),
+            .delivery-table tr.fila td:nth-child(8){
+                display:none!important;
+            }
+
+            .delivery-table tr.fila{
+                padding:0!important;
+                border-radius:1rem;
+            }
+
+            .delivery-table tr.fila td:nth-child(1){
+                padding:.85rem .9rem .5rem!important;
+                border-bottom:0!important;
+                background:#fff!important;
+            }
+
+            .delivery-table tr.fila td:nth-child(2){
+                display:flex!important;
+                padding:.35rem .9rem .7rem!important;
+                background:#fff!important;
+                border-bottom:1px solid #F0F1F5;
+            }
+
+            .delivery-table tr.fila td:nth-child(7){
+                display:flex!important;
+                padding:.7rem .9rem!important;
+                background:#FCFCFE;
+            }
+
+            .delivery-table tr.fila td:nth-child(1)::before,
+            .delivery-table tr.fila td:nth-child(2)::before,
+            .delivery-table tr.fila td:nth-child(7)::before{
+                flex:0 0 5rem;
+            }
+
+            .delivery-table tr.fila td:last-child{
+                padding:.75rem .9rem .9rem!important;
+            }
+
+            .delivery-table tr.fila td:last-child>div{
+                grid-template-columns:repeat(2,minmax(0,1fr))!important;
+            }
+
+            .delivery-table tr.fila td:last-child .mobile-view-button{
+                grid-column:1/-1;
+                min-height:2.9rem;
+                font-size:.75rem;
+                background:#EEF7FB;
+                color:var(--pillone-accent);
+                border:1px solid rgba(32,138,174,.18);
+            }
+
+            .delivery-table tr.fila td:last-child .mobile-view-button svg{
+                width:1rem;
+                height:1rem;
+            }
+
+            #modal-detalle-domicilio{
+                align-items:flex-end!important;
+                padding-top:max(.5rem, env(safe-area-inset-top))!important;
+                padding-right:0!important;
+                padding-bottom:env(safe-area-inset-bottom)!important;
+                padding-left:0!important;
+            }
+
+            .delivery-detail-sheet{
+                max-width:none;
+                max-height:calc(100dvh - max(.5rem, env(safe-area-inset-top)) - env(safe-area-inset-bottom));
+                border-radius:1.25rem 1.25rem 0 0!important;
+            }
+
+            .delivery-detail-grid{
+                grid-template-columns:1fr;
+                gap:.6rem;
+            }
+
+            .delivery-detail-item.full{
+                grid-column:auto;
+            }
+
+            .delivery-detail-body{
+                padding-bottom:1.25rem!important;
+            }
+        }
+
     </style>
 
 </head>
-<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen">
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col">
 <header th:replace="~{fragments/layout :: topbar('Domicilios')}"></header>
 
-<div class="flex min-h-[calc(100vh-4rem)] delivery-shell">
+<div class="flex flex-1 relative delivery-shell">
     <aside th:replace="~{fragments/layout :: sidebar('domicilios')}"></aside>
 
-    <main class="delivery-main flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
-        <div class="max-w-[1600px] mx-auto space-y-5">
+    <div class="flex-1 flex flex-col min-w-0">
+        <main class="delivery-main flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+            <div class="max-w-[1600px] mx-auto space-y-5">
 
-            <div>
-                <p class="text-[10px] uppercase tracking-[.16em] text-pillone-accent font-bold">Operación</p>
-                <h1 class="text-2xl sm:text-[30px] leading-tight font-bold text-pillone-dark">Gestión de domicilios</h1>
-                <p class="text-sm text-slate-500 mt-1">
-                    Los domicilios nacen desde Ventas. Aquí solo se controla preparación, salida, entrega o devolución.
-                </p>
-            </div>
-
-            <div th:if="${mensaje}" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold" th:text="${mensaje}"></div>
-            <div th:if="${error}" class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold" th:text="${error}"></div>
-
-            <section class="delivery-summary grid grid-cols-2 lg:grid-cols-5 gap-3">
-                <div class="delivery-stat rounded-xl p-4">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Total</p>
-                    <p class="text-2xl font-bold text-pillone-dark" th:text="${#lists.size(domicilios)}">0</p>
+                <div>
+                    <p class="text-[10px] uppercase tracking-[.16em] text-pillone-accent font-bold">Operación</p>
+                    <h1 class="text-2xl sm:text-[30px] leading-tight font-bold text-pillone-dark">Gestión de domicilios</h1>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Los domicilios nacen desde Ventas. Aquí solo se controla preparación, salida, entrega o devolución.
+                    </p>
                 </div>
 
-                <div class="delivery-stat rounded-xl p-4">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Pendientes</p>
-                    <p class="text-2xl font-bold text-amber-600" th:text="${#lists.size(domicilios.?[estado == 'PENDIENTE'])}">0</p>
-                </div>
+                <div th:if="${mensaje}" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold" th:text="${mensaje}"></div>
+                <div th:if="${error}" class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold" th:text="${error}"></div>
 
-                <div class="delivery-stat rounded-xl p-4">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Preparación</p>
-                    <p class="text-2xl font-bold text-blue-600" th:text="${#lists.size(domicilios.?[estado == 'EN_PREPARACION'])}">0</p>
-                </div>
-
-                <div class="delivery-stat rounded-xl p-4">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">En camino</p>
-                    <p class="text-2xl font-bold text-violet-600" th:text="${#lists.size(domicilios.?[estado == 'EN_CAMINO'])}">0</p>
-                </div>
-
-                <div class="delivery-stat rounded-xl p-4">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Entregados</p>
-                    <p class="text-2xl font-bold text-emerald-600" th:text="${#lists.size(domicilios.?[estado == 'ENTREGADO'])}">0</p>
-                </div>
-
-                <div id="paginacion-domicilios"
-                     class="delivery-pagination hidden">
-                    <div id="paginacion-info"
-                         class="pagination-meta">
-                        Mostrando 0 de 0 registros
+                <section class="delivery-summary grid grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div class="delivery-stat rounded-xl p-4">
+                        <p class="text-[10px] uppercase text-slate-400 font-bold">Total</p>
+                        <p class="text-2xl font-bold text-pillone-dark" th:text="${#lists.size(domicilios)}">0</p>
                     </div>
 
-                    <div class="pagination-controls">
-                        <button type="button"
-                                id="pagina-anterior"
-                                class="pagination-btn"
-                                onclick="cambiarPagina(-1)"
-                                aria-label="Página anterior">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/>
-                            </svg>
-                        </button>
-
-                        <div id="numeros-pagina"
-                             class="pagination-controls">
-                        </div>
-
-                        <button type="button"
-                                id="pagina-siguiente"
-                                class="pagination-btn"
-                                onclick="cambiarPagina(1)"
-                                aria-label="Página siguiente">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/>
-                            </svg>
-                        </button>
+                    <div class="delivery-stat rounded-xl p-4">
+                        <p class="text-[10px] uppercase text-slate-400 font-bold">Pendientes</p>
+                        <p class="text-2xl font-bold text-amber-600" th:text="${#lists.size(domicilios.?[estado == 'PENDIENTE'])}">0</p>
                     </div>
-                </div>
-            </section>
 
-            <section class="delivery-panel rounded-2xl overflow-hidden">
-                <div class="delivery-toolbar p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <input id="buscar"
-                           type="text"
-                           oninput="filtrar()"
-                           placeholder="Buscar factura, cliente, dirección, teléfono..."
-                           class="delivery-control w-full sm:w-96 px-4 py-2.5 rounded-xl outline-none text-sm">
+                    <div class="delivery-stat rounded-xl p-4">
+                        <p class="text-[10px] uppercase text-slate-400 font-bold">Preparación</p>
+                        <p class="text-2xl font-bold text-blue-600" th:text="${#lists.size(domicilios.?[estado == 'EN_PREPARACION'])}">0</p>
+                    </div>
 
-                    <span class="text-xs text-slate-500">
+                    <div class="delivery-stat rounded-xl p-4">
+                        <p class="text-[10px] uppercase text-slate-400 font-bold">En camino</p>
+                        <p class="text-2xl font-bold text-violet-600" th:text="${#lists.size(domicilios.?[estado == 'EN_CAMINO'])}">0</p>
+                    </div>
+
+                    <div class="delivery-stat rounded-xl p-4">
+                        <p class="text-[10px] uppercase text-slate-400 font-bold">Entregados</p>
+                        <p class="text-2xl font-bold text-emerald-600" th:text="${#lists.size(domicilios.?[estado == 'ENTREGADO'])}">0</p>
+                    </div>
+                </section>
+
+                <section class="delivery-panel rounded-2xl overflow-hidden">
+                    <div class="delivery-toolbar p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <input id="buscar"
+                               type="text"
+                               oninput="filtrar()"
+                               placeholder="Buscar factura, cliente, dirección, teléfono..."
+                               class="delivery-control w-full sm:w-96 px-4 py-2.5 rounded-xl outline-none text-sm">
+
+                        <span class="text-xs text-slate-500">
                         Registros:
                         <strong id="contador" th:text="${#lists.size(domicilios)}">0</strong>
                     </span>
-                </div>
+                    </div>
 
-                <div class="delivery-table-wrap overflow-x-auto">
-                    <table class="delivery-table w-full min-w-[1180px] text-sm">
-                        <thead class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
-                        <tr>
-                            <th class="p-3 text-left">Factura</th>
-                            <th class="p-3 text-left">Cliente</th>
-                            <th class="p-3 text-left">Entrega</th>
-                            <th class="p-3 text-left">Domiciliario</th>
-                            <th class="p-3 text-right">Costo</th>
-                            <th class="p-3 text-center">Pago</th>
-                            <th class="p-3 text-center">Estado</th>
-                            <th class="p-3 text-left">Tiempos</th>
-                            <th class="p-3 text-center">Acciones</th>
-                        </tr>
-                        </thead>
+                    <div class="delivery-table-wrap overflow-x-auto">
+                        <table class="delivery-table w-full min-w-[1180px] text-sm">
+                            <thead class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
+                            <tr>
+                                <th class="p-3 text-left">Factura</th>
+                                <th class="p-3 text-left">Cliente</th>
+                                <th class="p-3 text-left">Entrega</th>
+                                <th class="p-3 text-left">Domiciliario</th>
+                                <th class="p-3 text-right">Costo</th>
+                                <th class="p-3 text-center">Pago</th>
+                                <th class="p-3 text-center">Estado</th>
+                                <th class="p-3 text-left">Tiempos</th>
+                                <th class="p-3 text-center">Acciones</th>
+                            </tr>
+                            </thead>
 
-                        <tbody class="divide-y divide-slate-100">
-                        <tr th:if="${#lists.isEmpty(domicilios)}" class="empty-row">
-                            <td colspan="9" class="p-10 text-center text-slate-400">
-                                No hay domicilios registrados.
-                            </td>
-                        </tr>
+                            <tbody class="divide-y divide-slate-100">
+                            <tr th:if="${#lists.isEmpty(domicilios)}" class="empty-row">
+                                <td colspan="9" class="p-10 text-center text-slate-400">
+                                    No hay domicilios registrados.
+                                </td>
+                            </tr>
 
-                        <tr th:each="d : ${domicilios}" class="fila hover:bg-slate-50">
-                            <td class="p-3" data-label="Factura">
-                                <strong class="text-pillone-accent"
-                                        th:text="${d.venta != null ? d.venta.numeroFactura : 'Venta'}">
-                                    Factura
-                                </strong>
-                            </td>
+                            <tr th:each="d : ${domicilios}" class="fila hover:bg-slate-50">
+                                <td class="p-3" data-label="Factura">
+                                    <strong class="text-pillone-accent"
+                                            th:text="${d.venta != null ? d.venta.numeroFactura : 'Venta'}">
+                                        Factura
+                                    </strong>
+                                </td>
 
-                            <td class="p-3" data-label="Cliente">
-                                <div class="font-semibold"
-                                     th:text="${d.cliente != null ? d.cliente.nombreCompleto : '-'}">
-                                    Cliente
-                                </div>
+                                <td class="p-3" data-label="Cliente">
+                                    <div class="font-semibold"
+                                         th:text="${d.cliente != null ? d.cliente.nombreCompleto : '-'}">
+                                        Cliente
+                                    </div>
 
-                                <div class="text-[10px] text-slate-400"
-                                     th:text="${d.telefonoContacto}">
-                                    Tel.
-                                </div>
-                            </td>
+                                    <div class="text-[10px] text-slate-400"
+                                         th:text="${d.telefonoContacto}">
+                                        Tel.
+                                    </div>
+                                </td>
 
-                            <td class="p-3 max-w-[260px]" data-label="Entrega">
-                                <div class="font-medium"
-                                     th:text="${d.direccionEntrega}">
-                                    Dirección
-                                </div>
-                            </td>
+                                <td class="p-3 max-w-[260px]" data-label="Entrega">
+                                    <div class="font-medium"
+                                         th:text="${d.direccionEntrega}">
+                                        Dirección
+                                    </div>
+                                </td>
 
-                            <td class="p-3" data-label="Domiciliario"
-                                th:text="${d.nombreDomiciliario != null ? d.nombreDomiciliario : 'Sin asignar'}">
-                                -
-                            </td>
+                                <td class="p-3" data-label="Domiciliario"
+                                    th:text="${d.nombreDomiciliario != null ? d.nombreDomiciliario : 'Sin asignar'}">
+                                    -
+                                </td>
 
-                            <td class="p-3 text-right font-semibold" data-label="Costo"
-                                th:text="${'$' + #numbers.formatDecimal(d.costoDomicilio,0,'POINT',0,'COMMA')}">
-                                $0
-                            </td>
+                                <td class="p-3 text-right font-semibold" data-label="Costo"
+                                    th:text="${'$' + #numbers.formatDecimal(d.costoDomicilio,0,'POINT',0,'COMMA')}">
+                                    $0
+                                </td>
 
-                            <td class="p-3 text-center" data-label="Pago">
+                                <td class="p-3 text-center" data-label="Pago">
                                 <span th:class="${d.pagado ? 'inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700' : 'inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700'}"
                                       th:text="${d.pagado ? 'PAGADO' : 'PENDIENTE'}">
                                     PAGO
                                 </span>
-                            </td>
+                                </td>
 
-                            <td class="p-3 text-center" data-label="Estado">
+                                <td class="p-3 text-center" data-label="Estado">
                                 <span class="inline-flex px-2 py-1 rounded-full text-[10px] font-bold"
                                       th:classappend="${d.estado == 'ENTREGADO' ? ' bg-emerald-100 text-emerald-700' : d.estado == 'EN_CAMINO' ? ' bg-violet-100 text-violet-700' : d.estado == 'EN_PREPARACION' ? ' bg-blue-100 text-blue-700' : d.estado == 'CANCELADO' ? ' bg-red-100 text-red-700' : ' bg-amber-100 text-amber-700'}"
                                       th:text="${#strings.replace(d.estado,'_',' ')}">
                                     ESTADO
                                 </span>
-                            </td>
+                                </td>
 
-                            <td class="p-3 text-[11px] text-slate-500" data-label="Tiempos">
-                                <div>
-                                    Salida:
-                                    <span th:text="${d.fechaHoraSalida != null ? #temporals.format(d.fechaHoraSalida,'dd/MM HH:mm') : '-'}">-</span>
-                                </div>
+                                <td class="p-3 text-[11px] text-slate-500" data-label="Tiempos">
+                                    <div>
+                                        Salida:
+                                        <span th:text="${d.fechaHoraSalida != null ? #temporals.format(d.fechaHoraSalida,'dd/MM HH:mm') : '-'}">-</span>
+                                    </div>
 
-                                <div>
-                                    Entrega:
-                                    <span th:text="${d.fechaHoraEntrega != null ? #temporals.format(d.fechaHoraEntrega,'dd/MM HH:mm') : '-'}">-</span>
-                                </div>
-                            </td>
+                                    <div>
+                                        Entrega:
+                                        <span th:text="${d.fechaHoraEntrega != null ? #temporals.format(d.fechaHoraEntrega,'dd/MM HH:mm') : '-'}">-</span>
+                                    </div>
+                                </td>
 
-                            <td class="p-3" data-label="Acciones">
-                                <div class="flex items-center justify-center gap-2 flex-wrap">
+                                <td class="p-3" data-label="Acciones">
+                                    <div class="flex items-center justify-center gap-2 flex-wrap">
 
-                                    <form th:if="${d.estado == 'PENDIENTE' or d.estado == 'EN_PREPARACION'}"
-                                          th:action="@{/view/domicilios/avanzar/{id}(id=${d.idDomicilio})}"
-                                          method="post">
-                                        <button type="submit"
-                                                class="delivery-action px-3 py-2 bg-pillone-accent text-white text-[11px]">
-                                            Avanzar
+                                        <button type="button"
+                                                class="mobile-view-button delivery-action md:hidden px-3 py-2"
+                                                th:attr="data-factura=${d.venta != null ? d.venta.numeroFactura : 'Venta'},
+                                                     data-cliente=${d.cliente != null ? d.cliente.nombreCompleto : '-'},
+                                                     data-telefono=${d.telefonoContacto != null ? d.telefonoContacto : '-'},
+                                                     data-direccion=${d.direccionEntrega != null ? d.direccionEntrega : '-'},
+                                                     data-domiciliario=${d.nombreDomiciliario != null ? d.nombreDomiciliario : 'Sin asignar'},
+                                                     data-costo=${d.costoDomicilio != null ? '$' + #numbers.formatDecimal(d.costoDomicilio,0,'POINT',0,'COMMA') : '$0'},
+                                                     data-pago=${d.pagado ? 'PAGADO' : 'PENDIENTE'},
+                                                     data-estado=${d.estado != null ? #strings.replace(d.estado,'_',' ') : '-'},
+                                                     data-salida=${d.fechaHoraSalida != null ? #temporals.format(d.fechaHoraSalida,'dd/MM/yyyy HH:mm') : '-'},
+                                                     data-entrega=${d.fechaHoraEntrega != null ? #temporals.format(d.fechaHoraEntrega,'dd/MM/yyyy HH:mm') : '-'}"
+                                                onclick="abrirModalDetalleDomicilio(this)">
+                                            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/>
+                                                <circle cx="12" cy="12" r="2.5"/>
+                                            </svg>
+                                            Ver
                                         </button>
-                                    </form>
 
-                                    <button th:if="${d.estado == 'EN_CAMINO'}"
-                                            type="button"
-                                            class="delivery-action px-3 py-2 bg-violet-100 text-violet-700 text-[11px]"
-                                            th:attr="data-id-domicilio=${d.idDomicilio},
+                                        <form th:if="${d.estado == 'PENDIENTE' or d.estado == 'EN_PREPARACION'}"
+                                              th:action="@{/view/domicilios/avanzar/{id}(id=${d.idDomicilio})}"
+                                              method="post">
+                                            <button type="submit"
+                                                    class="delivery-action px-3 py-2 bg-pillone-accent text-white text-[11px]">
+                                                Avanzar
+                                            </button>
+                                        </form>
+
+                                        <button th:if="${d.estado == 'EN_CAMINO'}"
+                                                type="button"
+                                                class="delivery-action px-3 py-2 bg-violet-100 text-violet-700 text-[11px]"
+                                                th:attr="data-id-domicilio=${d.idDomicilio},
                                                      data-id-venta=${d.venta != null ? d.venta.idVenta : ''},
                                                      data-factura=${d.venta != null ? d.venta.numeroFactura : ''},
                                                      data-cliente=${d.cliente != null ? d.cliente.nombreCompleto : ''},
                                                      data-direccion=${d.direccionEntrega},
                                                      data-telefono=${d.telefonoContacto}"
-                                            onclick="abrirModalDevolucion(this)">
-                                        Devolución
-                                    </button>
+                                                onclick="abrirModalDevolucion(this)">
+                                            Devolución
+                                        </button>
 
-                                    <button th:if="${d.estado == 'EN_CAMINO'}"
-                                            type="button"
-                                            class="delivery-action px-3 py-2 bg-emerald-600 text-white text-[11px]"
-                                            th:attr="data-id=${d.idDomicilio},
+                                        <button th:if="${d.estado == 'EN_CAMINO'}"
+                                                type="button"
+                                                class="delivery-action px-3 py-2 bg-emerald-600 text-white text-[11px]"
+                                                th:attr="data-id=${d.idDomicilio},
                                                      data-factura=${d.venta != null ? d.venta.numeroFactura : ''},
                                                      data-cliente=${d.cliente != null ? d.cliente.nombreCompleto : ''},
                                                      data-direccion=${d.direccionEntrega},
                                                      data-telefono=${d.telefonoContacto}"
-                                            onclick="abrirModalEntrega(this)">
-                                        Entregar
-                                    </button>
+                                                onclick="abrirModalEntrega(this)">
+                                            Entregar
+                                        </button>
 
-                                    <a th:if="${d.evidenciaEntrega != null}"
-                                       th:href="@{${d.evidenciaEntrega}}"
-                                       target="_blank"
-                                       class="delivery-action p-2 bg-slate-100 text-pillone-dark"
-                                       title="Ver evidencia">
-                                        <svg class="w-4 h-4"
-                                             fill="none"
-                                             stroke="currentColor"
-                                             stroke-width="1.8"
-                                             viewBox="0 0 24 24">
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/>
-                                            <circle cx="12" cy="12" r="2.5"/>
-                                        </svg>
-                                    </a>
-
-                                    <form th:if="${d.estado != 'ENTREGADO' and d.estado != 'CANCELADO'}"
-                                          th:action="@{/view/domicilios/cancelar/{id}(id=${d.idDomicilio})}"
-                                          method="post"
-                                          onsubmit="return confirm('¿Cancelar este domicilio?');">
-                                        <button type="submit"
-                                                class="delivery-action p-2 bg-red-50 text-red-600"
-                                                title="Cancelar">
+                                        <button th:if="${d.evidenciaEntrega != null}"
+                                                type="button"
+                                                th:attr="data-imagen=${d.evidenciaEntrega},
+                                                     data-factura=${d.venta != null ? d.venta.numeroFactura : 'Evidencia'}"
+                                                onclick="abrirModalEvidencia(this)"
+                                                class="delivery-action p-2 bg-slate-100 text-pillone-dark"
+                                                title="Ver evidencia">
                                             <svg class="w-4 h-4"
                                                  fill="none"
                                                  stroke="currentColor"
                                                  stroke-width="1.8"
                                                  viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/>
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/>
+                                                <circle cx="12" cy="12" r="2.5"/>
                                             </svg>
                                         </button>
-                                    </form>
 
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </div>
-    </main>
+                                        <form th:if="${d.estado != 'ENTREGADO' and d.estado != 'CANCELADO'}"
+                                              th:action="@{/view/domicilios/cancelar/{id}(id=${d.idDomicilio})}"
+                                              method="post"
+                                              onsubmit="return confirm('¿Cancelar este domicilio?');">
+                                            <button type="submit"
+                                                    class="delivery-action p-2 bg-red-50 text-red-600"
+                                                    title="Cancelar">
+                                                <svg class="w-4 h-4"
+                                                     fill="none"
+                                                     stroke="currentColor"
+                                                     stroke-width="1.8"
+                                                     viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="paginacion-domicilios"
+                         class="delivery-pagination hidden">
+                        <div id="paginacion-info"
+                             class="pagination-meta">
+                            Mostrando 0 de 0 registros
+                        </div>
+
+                        <div class="pagination-controls">
+                            <button type="button"
+                                    id="pagina-anterior"
+                                    class="pagination-btn"
+                                    onclick="cambiarPagina(-1)"
+                                    aria-label="Página anterior">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/>
+                                </svg>
+                            </button>
+
+                            <div id="numeros-pagina"
+                                 class="pagination-controls">
+                            </div>
+
+                            <button type="button"
+                                    id="pagina-siguiente"
+                                    class="pagination-btn"
+                                    onclick="cambiarPagina(1)"
+                                    aria-label="Página siguiente">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
 </div>
 
 <!-- DATOS DE PRODUCTOS DE LAS VENTAS, YA CARGADOS DESDE EL BACKEND -->
@@ -873,7 +1135,8 @@
 
     <div class="modal-sheet w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden">
         <form id="form-devolucion"
-              method="post">
+              method="post"
+              enctype="multipart/form-data">
 
             <div class="p-5 border-b border-slate-100 flex items-start justify-between gap-4">
                 <div>
@@ -990,6 +1253,32 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">
+                        Evidencia fotográfica de devolución *
+                    </label>
+
+                    <label for="foto-devolucion"
+                           class="photo-drop flex flex-col items-center justify-center min-h-32 rounded-xl border-2 border-dashed border-violet-200 bg-violet-50/50 hover:border-violet-400 hover:bg-white cursor-pointer transition p-4 text-center">
+                        <svg class="w-8 h-8 text-violet-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 7h3l2-3h6l2 3h3v13H4z"/>
+                            <circle cx="12" cy="13" r="4" stroke-width="1.8"/>
+                        </svg>
+                        <span class="text-sm font-bold text-pillone-dark">Tomar o seleccionar foto</span>
+                        <span id="nombre-foto-devolucion" class="text-[10px] text-slate-400 mt-1">Obligatoria para registrar la devolución</span>
+                    </label>
+
+                    <input id="foto-devolucion"
+                           type="file"
+                           name="fotoDevolucion"
+                           accept="image/jpeg,image/png,image/webp"
+                           capture="environment"
+                           required
+                           class="hidden"
+                           onchange="mostrarNombreFotoDevolucion(this)">
+                    <p class="text-[10px] text-slate-400 mt-1">JPG, PNG o WEBP. Máximo 5 MB.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">
                         Observaciones
                     </label>
 
@@ -1022,12 +1311,144 @@
     </div>
 </div>
 
-<footer th:replace="~{fragments/layout :: footer}"></footer>
+<!-- MODAL DETALLE DEL DOMICILIO -->
+<div id="modal-detalle-domicilio"
+     class="fixed inset-0 z-[115] hidden items-center justify-center bg-slate-950/60 backdrop-blur-[2px] p-4">
+
+    <div class="delivery-detail-sheet bg-white rounded-2xl shadow-2xl">
+
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex items-start justify-between gap-4">
+            <div class="min-w-0">
+                <p class="text-[10px] uppercase tracking-[.18em] font-bold text-pillone-accent">
+                    Detalle del domicilio
+                </p>
+                <h2 id="detalle-factura"
+                    class="text-lg sm:text-xl font-bold text-pillone-dark mt-1 truncate">
+                    Pedido
+                </h2>
+                <p id="detalle-cliente"
+                   class="text-xs text-slate-500 mt-1 truncate">
+                </p>
+            </div>
+
+            <button type="button"
+                    onclick="cerrarModalDetalleDomicilio()"
+                    class="shrink-0 p-2 rounded-lg hover:bg-slate-100"
+                    aria-label="Cerrar detalle">
+                <svg class="w-5 h-5"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="delivery-detail-body p-4 sm:p-5">
+            <div class="delivery-detail-grid">
+
+                <div class="delivery-detail-item full">
+                    <span class="delivery-detail-label">Dirección de entrega</span>
+                    <span id="detalle-direccion" class="delivery-detail-value">-</span>
+                </div>
+
+                <div class="delivery-detail-item">
+                    <span class="delivery-detail-label">Teléfono</span>
+                    <span id="detalle-telefono" class="delivery-detail-value">-</span>
+                </div>
+
+                <div class="delivery-detail-item">
+                    <span class="delivery-detail-label">Domiciliario</span>
+                    <span id="detalle-domiciliario" class="delivery-detail-value">-</span>
+                </div>
+
+                <div class="delivery-detail-item">
+                    <span class="delivery-detail-label">Costo domicilio</span>
+                    <span id="detalle-costo" class="delivery-detail-value">-</span>
+                </div>
+
+                <div class="delivery-detail-item">
+                    <span class="delivery-detail-label">Pago</span>
+                    <span id="detalle-pago" class="delivery-detail-value">-</span>
+                </div>
+
+                <div class="delivery-detail-item">
+                    <span class="delivery-detail-label">Estado</span>
+                    <span id="detalle-estado" class="delivery-detail-value">-</span>
+                </div>
+
+                <div class="delivery-detail-item">
+                    <span class="delivery-detail-label">Salida</span>
+                    <span id="detalle-salida" class="delivery-detail-value">-</span>
+                </div>
+
+                <div class="delivery-detail-item full">
+                    <span class="delivery-detail-label">Entrega</span>
+                    <span id="detalle-entrega" class="delivery-detail-value">-</span>
+                </div>
+
+            </div>
+
+            <div class="mt-4 p-3 rounded-xl bg-sky-50 border border-sky-100 text-[11px] leading-relaxed text-sky-800 md:hidden">
+                Vista optimizada para operación móvil. Las acciones de entregar, devolver, avanzar o cancelar siguen disponibles en la tarjeta.
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-white">
+            <button type="button"
+                    onclick="cerrarModalDetalleDomicilio()"
+                    class="w-full px-4 py-2.5 rounded-xl bg-pillone-dark text-white text-sm font-bold">
+                Cerrar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL EVIDENCIA DE ENTREGA -->
+<div id="modal-evidencia"
+     class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/70 backdrop-blur-[2px] p-4">
+    <div class="evidence-sheet bg-white rounded-2xl shadow-2xl">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-4">
+            <div class="min-w-0">
+                <p class="text-[10px] uppercase tracking-[.2em] font-bold text-pillone-accent">
+                    Evidencia de entrega
+                </p>
+                <h2 id="evidencia-factura" class="text-lg sm:text-xl font-bold text-pillone-dark mt-1 truncate">
+                    Evidencia
+                </h2>
+            </div>
+
+            <button type="button"
+                    onclick="cerrarModalEvidencia()"
+                    class="shrink-0 p-2 rounded-lg hover:bg-slate-100"
+                    aria-label="Cerrar evidencia">
+                <svg class="w-5 h-5"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="evidence-body p-3 sm:p-5 bg-slate-50">
+            <div class="min-h-[220px] flex items-center justify-center rounded-xl bg-white border border-slate-200 overflow-hidden">
+                <img id="imagen-evidencia"
+                     src=""
+                     alt="Evidencia de entrega">
+            </div>
+        </div>
+    </div>
+</div>
+
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 
 <script>
     let paginaActual=1;
-    let filasPorPagina=window.innerWidth<768?5:10;
+    let filasPorPagina=6;
     let filasFiltradas=[];
 
     function obtenerFilas(){
@@ -1075,7 +1496,7 @@
         const anterior=document.getElementById('pagina-anterior');
         const siguiente=document.getElementById('pagina-siguiente');
 
-        if(total===0){
+        if(total<=filasPorPagina){
             contenedor.classList.add('hidden');
             return;
         }
@@ -1155,16 +1576,9 @@
     }
 
     function recalcularFilasPorPagina(){
-        const nuevo=window.innerWidth<768?5:10;
-
-        if(nuevo!==filasPorPagina){
-            filasPorPagina=nuevo;
-            paginaActual=1;
-            renderizarPagina();
-        }
+        // La tabla mantiene 6 registros por página en cualquier tamaño de pantalla.
+        filasPorPagina=6;
     }
-
-    window.addEventListener('resize',recalcularFilasPorPagina);
 
     function abrirModalEntrega(btn){
         document.getElementById('form-entrega').action='/view/domicilios/entregar/'+btn.dataset.id;
@@ -1194,6 +1608,14 @@
             archivo
                 ? archivo.name
                 : 'Obligatoria para finalizar';
+    }
+
+    function mostrarNombreFotoDevolucion(input){
+        const archivo=input.files&&input.files[0];
+        const nombre=document.getElementById('nombre-foto-devolucion');
+        if(nombre){
+            nombre.textContent=archivo?archivo.name:'Obligatoria para registrar la devolución';
+        }
     }
 
     function abrirModalDevolucion(btn){
@@ -1257,6 +1679,10 @@
         modal.classList.remove('flex');
 
         document.getElementById('form-devolucion').reset();
+        const nombreFotoDevolucion=document.getElementById('nombre-foto-devolucion');
+        if(nombreFotoDevolucion){
+            nombreFotoDevolucion.textContent='Obligatoria para registrar la devolución';
+        }
     }
 
     function actualizarCantidadDevolucion(){
@@ -1283,6 +1709,53 @@
             ' · Máximo disponible para devolver: '+disponible;
     }
 
+    function abrirModalDetalleDomicilio(btn){
+        document.getElementById('detalle-factura').textContent=btn.dataset.factura||'Pedido';
+        document.getElementById('detalle-cliente').textContent=btn.dataset.cliente||'-';
+        document.getElementById('detalle-direccion').textContent=btn.dataset.direccion||'-';
+        document.getElementById('detalle-telefono').textContent=btn.dataset.telefono||'-';
+        document.getElementById('detalle-domiciliario').textContent=btn.dataset.domiciliario||'Sin asignar';
+        document.getElementById('detalle-costo').textContent=btn.dataset.costo||'$0';
+        document.getElementById('detalle-pago').textContent=btn.dataset.pago||'-';
+        document.getElementById('detalle-estado').textContent=btn.dataset.estado||'-';
+        document.getElementById('detalle-salida').textContent=btn.dataset.salida||'-';
+        document.getElementById('detalle-entrega').textContent=btn.dataset.entrega||'-';
+
+        const modal=document.getElementById('modal-detalle-domicilio');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function cerrarModalDetalleDomicilio(){
+        const modal=document.getElementById('modal-detalle-domicilio');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function abrirModalEvidencia(btn){
+        const imagen=btn.dataset.imagen||'';
+        const factura=btn.dataset.factura||'Evidencia';
+
+        if(!imagen){
+            return;
+        }
+
+        document.getElementById('imagen-evidencia').src=imagen;
+        document.getElementById('evidencia-factura').textContent=factura;
+
+        const modal=document.getElementById('modal-evidencia');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function cerrarModalEvidencia(){
+        const modal=document.getElementById('modal-evidencia');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+
+        document.getElementById('imagen-evidencia').src='';
+    }
+
     document.addEventListener('DOMContentLoaded',()=>{
         filasFiltradas=obtenerFilas();
         renderizarPagina();
@@ -1299,6 +1772,35 @@
             cerrarModalDevolucion();
         }
     });
+
+    document.getElementById('modal-detalle-domicilio').addEventListener('click',e=>{
+        if(e.target.id==='modal-detalle-domicilio'){
+            cerrarModalDetalleDomicilio();
+        }
+    });
+
+    document.getElementById('modal-evidencia').addEventListener('click',e=>{
+        if(e.target.id==='modal-evidencia'){
+            cerrarModalEvidencia();
+        }
+    });
+
+    document.addEventListener('keydown',e=>{
+        if(e.key==='Escape'){
+            const modalDetalle=document.getElementById('modal-detalle-domicilio');
+            if(modalDetalle.classList.contains('flex')){
+                cerrarModalDetalleDomicilio();
+                return;
+            }
+
+            const modalEvidencia=document.getElementById('modal-evidencia');
+            if(modalEvidencia.classList.contains('flex')){
+                cerrarModalEvidencia();
+            }
+        }
+    });
 </script>
 </body>
 </html>
+
+

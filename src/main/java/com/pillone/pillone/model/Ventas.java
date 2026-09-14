@@ -31,6 +31,10 @@ public class Ventas {
     @JoinColumn(name = "id_empleado", nullable = false)
     private Empleados empleado;
 
+    @ManyToOne
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuarios usuario;
+
     @Column(name = "fecha_venta")
     private LocalDateTime fechaVenta = LocalDateTime.now();
 

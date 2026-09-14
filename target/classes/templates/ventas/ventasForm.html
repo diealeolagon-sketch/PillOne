@@ -216,6 +216,31 @@
                         </span>
                     </div>
 
+                    <div class="px-4 sm:px-5 pt-4">
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+                            <label for="codigo-barras-venta" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                Escanear código de barras
+                            </label>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input id="codigo-barras-venta"
+                                       type="text"
+                                       inputmode="numeric"
+                                       autocomplete="off"
+                                       placeholder="Escanea o escribe el código y presiona Enter"
+                                       onkeydown="manejarCodigoBarras(event)"
+                                       class="pos-control flex-1 px-3.5 py-2.5 rounded-xl text-sm outline-none">
+                                <button type="button"
+                                        onclick="agregarPorCodigoBarras()"
+                                        class="px-4 py-2.5 rounded-xl bg-pillone-accent text-white text-sm font-bold whitespace-nowrap">
+                                    Agregar
+                                </button>
+                            </div>
+                            <p id="mensaje-codigo-barras" class="text-[10px] text-slate-400 mt-1.5">
+                                Los lectores USB/Bluetooth normalmente escriben el código y envían Enter automáticamente.
+                            </p>
+                        </div>
+                    </div>
+
                     <div id="alerta-formula"
                          class="hidden m-4 p-4 rounded-xl border border-amber-200 bg-amber-50">
 
@@ -291,21 +316,31 @@
 
                         <div>
                             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                Empleado
+                                Usuario que registra la venta
                             </label>
-                            <select id="empleado"
-                                    class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
-                            </select>
+                            <input type="text" th:value="${session.nombreEmpleado}" readonly
+                                   class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none bg-slate-100">
+                            <input id="empleado" type="hidden" th:value="${session.idEmpleado}">
                         </div>
 
                         <div>
                             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                 Cliente
                             </label>
+                            <input id="buscar-cliente"
+                                   type="search"
+                                   autocomplete="off"
+                                   placeholder="Buscar por cédula, nombre, teléfono o correo..."
+                                   oninput="programarBusquedaCliente()"
+                                   class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none mb-2">
                             <select id="cliente"
-                                    onchange="actualizarDatosCliente();cambiarClienteVenta()"
+                                    onchange="seleccionarClienteVenta()"
                                     class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
+                                <option value="">Cliente ocasional / sin registrar</option>
                             </select>
+                            <p id="ayuda-cliente" class="text-[10px] text-slate-400 mt-1">
+                                Escribe mínimo 2 caracteres. Se muestran hasta 30 coincidencias.
+                            </p>
                         </div>
 
                         <div>
@@ -413,23 +448,11 @@
                     </div>
 
                     <div class="summary-box rounded-xl overflow-hidden">
-
-                        <div class="p-3.5 bg-slate-50 flex items-center justify-between gap-4">
-                            <div>
-                                <p id="texto-iva" class="text-sm font-semibold text-slate-700">Aplicar IVA</p>
-                                <p class="text-[10px] text-slate-400">Configuración Global</p>
-                            </div>
-
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input id="aplica-iva"
-                                       type="checkbox"
-                                       checked
-                                       class="sr-only peer"
-                                       onchange="cambiarIva()">
-                                <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-pillone-accent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
-                            </label>
+                        <div class="p-3.5 bg-slate-50">
+                            <p id="texto-iva" class="text-sm font-semibold text-slate-700">IVA incluido por producto</p>
+                            <p class="text-[10px] text-slate-400">Cada producto usa su porcentaje parametrizado. El precio mostrado ya incluye IVA.</p>
+                            <input id="aplica-iva" type="hidden" value="true">
                         </div>
-
                     </div>
 
                     <div class="checkout-total rounded-xl p-4 space-y-2.5 text-sm">
@@ -446,7 +469,7 @@
 
                         <div class="flex justify-between">
                             <span class="text-slate-500">
-                                IVA <span id="porcentaje-iva-info">0%</span>
+                                IVA incluido <span id="porcentaje-iva-info">por producto</span>
                             </span>
                             <span id="valor-iva" class="font-semibold">$0</span>
                         </div>
@@ -535,6 +558,7 @@
     let carrito=[];
     let porcentajeIvaGlobal=0;
     let aplicaIva=true;
+    let temporizadorBusquedaCliente=null;
 
     const clienteInicial=/*[[${param.cliente != null ? param.cliente[0] : ''}]]*/ '';
     const BORRADOR_KEY='pilloneVentaBorrador';
@@ -565,17 +589,15 @@
     async function iniciar(){
         try{
             await Promise.all([
-                cargarConfiguracion(),
                 cargarProductos(),
                 cargarSucursales(),
-                cargarClientes(),
-                cargarEmpleados()
+                cargarClientes()
             ]);
 
             const debeRetomar=sessionStorage.getItem(RETOMAR_KEY)==='1';
 
             if(debeRetomar){
-                restaurarBorrador();
+                await restaurarBorrador();
                 sessionStorage.removeItem(RETOMAR_KEY);
             }else{
                 limpiarVentaNueva();
@@ -610,21 +632,6 @@
     }
 
     async function cargarConfiguracion(){
-        const config=await json('/configuracion/api');
-
-        porcentajeIvaGlobal=
-            Number(config.ivaGeneral||0);
-
-        document.getElementById(
-            'texto-iva'
-        ).textContent=
-            `Aplicar IVA (${porcentajeIvaGlobal}%)`;
-
-        document.getElementById(
-            'porcentaje-iva-info'
-        ).textContent=
-            `${porcentajeIvaGlobal}%`;
-
         recalcularTotales();
     }
 
@@ -660,55 +667,110 @@
     }
 
     async function cargarClientes(){
-        clientes=
-            await json('/api/clientes');
+        clientes=[];
+        const s=document.getElementById('cliente');
+        s.innerHTML='<option value="">Cliente ocasional / sin registrar</option>';
 
-        const s=
-            document.getElementById(
-                'cliente'
-            );
+        if(clienteInicial){
+            await cargarClienteSeleccionado(clienteInicial);
+        }
+    }
 
-        s.innerHTML=
-            '<option value="">Cliente ocasional / sin registrar</option>'
-            +
-            clientes
-                .map(
-                    x =>
-                        `<option value="${x.id_cliente}">`
-                        +
-                        `${escapeHtml(x.nombreCompleto)}`
-                        +
-                        `${x.numeroDocumento?' - '+escapeHtml(x.numeroDocumento):''}`
-                        +
-                        '</option>'
-                )
-                .join('');
+    function registrarClienteLocal(cliente){
+        if(!cliente||cliente.id_cliente==null) return;
+        const i=clientes.findIndex(x=>Number(x.id_cliente)===Number(cliente.id_cliente));
+        if(i>=0) clientes[i]=cliente;
+        else clientes.push(cliente);
+    }
+
+    function etiquetaCliente(cliente){
+        const documento=cliente.numeroDocumento?` - ${escapeHtml(cliente.numeroDocumento)}`:'';
+        const telefono=cliente.telefono?` · ${escapeHtml(cliente.telefono)}`:'';
+        return `${escapeHtml(cliente.nombreCompleto||'Cliente')}${documento}${telefono}`;
+    }
+
+    function renderSelectClientes(lista,seleccionado=''){
+        const select=document.getElementById('cliente');
+        const idActual=String(seleccionado||select.value||'');
+        let datos=[...(lista||[])];
+
+        if(idActual){
+            const actual=clientes.find(x=>Number(x.id_cliente)===Number(idActual));
+            if(actual&&!datos.some(x=>Number(x.id_cliente)===Number(idActual))){
+                datos.unshift(actual);
+            }
+        }
+
+        const unicos=[];
+        const ids=new Set();
+        datos.forEach(c=>{
+            const id=String(c.id_cliente);
+            if(!ids.has(id)){ ids.add(id); unicos.push(c); }
+        });
+
+        select.innerHTML='<option value="">Cliente ocasional / sin registrar</option>'+
+            unicos.map(c=>`<option value="${c.id_cliente}">${etiquetaCliente(c)}</option>`).join('');
+
+        if(idActual) select.value=idActual;
+    }
+
+    async function cargarClienteSeleccionado(id){
+        if(!id) return;
+        const existente=clientes.find(x=>Number(x.id_cliente)===Number(id));
+        if(existente){
+            renderSelectClientes([existente],id);
+            return;
+        }
+        const cliente=await json(`/api/clientes/${encodeURIComponent(id)}`);
+        if(cliente){
+            registrarClienteLocal(cliente);
+            renderSelectClientes([cliente],id);
+        }
+    }
+
+    function programarBusquedaCliente(){
+        clearTimeout(temporizadorBusquedaCliente);
+        temporizadorBusquedaCliente=setTimeout(buscarClientesVenta,280);
+    }
+
+    async function buscarClientesVenta(){
+        const input=document.getElementById('buscar-cliente');
+        const ayuda=document.getElementById('ayuda-cliente');
+        const q=(input?.value||'').trim();
+        const seleccionado=document.getElementById('cliente')?.value||'';
+
+        if(q.length<2){
+            renderSelectClientes([],seleccionado);
+            ayuda.textContent='Escribe mínimo 2 caracteres. Se muestran hasta 30 coincidencias.';
+            return;
+        }
+
+        try{
+            ayuda.textContent='Buscando clientes...';
+            const encontrados=await json(`/api/clientes/buscar?q=${encodeURIComponent(q)}`);
+            encontrados.forEach(registrarClienteLocal);
+            renderSelectClientes(encontrados,seleccionado);
+            ayuda.textContent=encontrados.length
+                ? `${encontrados.length} coincidencia(s). Selecciona el cliente correcto.`
+                : 'No se encontraron clientes con esa búsqueda.';
+        }catch(e){
+            ayuda.textContent='No fue posible buscar clientes.';
+        }
+    }
+
+    function seleccionarClienteVenta(){
+        const id=document.getElementById('cliente')?.value||'';
+        const input=document.getElementById('buscar-cliente');
+        const cliente=clientes.find(x=>Number(x.id_cliente)===Number(id));
+        if(input&&cliente){
+            input.value=`${cliente.nombreCompleto||''}${cliente.numeroDocumento?' - '+cliente.numeroDocumento:''}`;
+        }
+        actualizarDatosCliente();
+        cambiarClienteVenta();
     }
 
     async function cargarEmpleados(){
-        const datos=
-            await json('/api/empleados');
-
-        const s=
-            document.getElementById(
-                'empleado'
-            );
-
-        s.innerHTML=
-            '<option value="">Seleccione empleado</option>'
-            +
-            datos
-                .filter(
-                    x =>
-                        !x.estado
-                        ||
-                        x.estado==='ACTIVO'
-                )
-                .map(
-                    x =>
-                        `<option value="${x.id_empleado}">${escapeHtml(x.nombre_completo)}</option>`
-                )
-                .join('');
+        return;
     }
 
     function abrirModalProductos(){
@@ -854,7 +916,7 @@
             ).join('');
     }
 
-    function agregarProducto(id){
+    function agregarProducto(id,cerrarModal=true){
         const p=productos.find(x=>Number(x.idProducto)===Number(id));
 
         if(!p){
@@ -879,9 +941,48 @@
             });
         }
 
-        cerrarModalProductos();
+        if(cerrarModal){
+            cerrarModalProductos();
+        }
         renderCarrito();
         cargarFormulasCarrito();
+    }
+
+    function manejarCodigoBarras(event){
+        if(event.key==='Enter'){
+            event.preventDefault();
+            agregarPorCodigoBarras();
+        }
+    }
+
+    function agregarPorCodigoBarras(){
+        const input=document.getElementById('codigo-barras-venta');
+        const mensaje=document.getElementById('mensaje-codigo-barras');
+        const codigo=String(input?.value||'').trim();
+
+        if(!codigo){
+            mensaje.textContent='Escanea o escribe un código de barras.';
+            mensaje.className='text-[10px] text-amber-600 mt-1.5';
+            input?.focus();
+            return;
+        }
+
+        const producto=productos.find(p=>
+            String(p.codigoBarras||'').trim()===codigo && (!p.estado||p.estado==='ACTIVO')
+        );
+
+        if(!producto){
+            mensaje.textContent=`No existe un producto activo con el código ${codigo}.`;
+            mensaje.className='text-[10px] text-red-600 mt-1.5';
+            input?.select();
+            return;
+        }
+
+        agregarProducto(producto.idProducto,false);
+        mensaje.textContent=`Agregado: ${producto.nombreComercial}.`;
+        mensaje.className='text-[10px] text-emerald-600 mt-1.5';
+        input.value='';
+        input.focus();
     }
 
     function factorPresentacion(item){
@@ -1360,7 +1461,7 @@
         sessionStorage.setItem(BORRADOR_KEY,JSON.stringify(borrador));
     }
 
-    function restaurarBorrador(){
+    async function restaurarBorrador(){
         const raw=sessionStorage.getItem(BORRADOR_KEY);
 
         if(!raw){
@@ -1388,15 +1489,12 @@
             }).filter(Boolean);
 
             if(b.cliente&&!clienteInicial){
+                await cargarClienteSeleccionado(b.cliente);
                 document.getElementById('cliente').value=String(b.cliente);
             }
 
             if(b.sucursal){
                 document.getElementById('sucursal').value=String(b.sucursal);
-            }
-
-            if(b.empleado){
-                document.getElementById('empleado').value=String(b.empleado);
             }
 
             if(b.metodoPago){
@@ -1408,8 +1506,7 @@
             }
 
             if(typeof b.aplicaIva==='boolean'){
-                document.getElementById('aplica-iva').checked=b.aplicaIva;
-                aplicaIva=b.aplicaIva;
+                aplicaIva=true;
             }
         }catch(e){
             sessionStorage.removeItem(BORRADOR_KEY);
@@ -1422,6 +1519,7 @@
         sessionStorage.removeItem(RETOMAR_KEY);
 
         const cliente=document.getElementById('cliente');
+        const buscarCliente=document.getElementById('buscar-cliente');
         const sucursal=document.getElementById('sucursal');
         const empleado=document.getElementById('empleado');
         const metodoPago=document.getElementById('metodo-pago');
@@ -1434,14 +1532,11 @@
         const costoDomicilio=document.getElementById('costo-domicilio');
 
         if(cliente&&!clienteInicial) cliente.value='';
+        if(buscarCliente&&!clienteInicial) buscarCliente.value='';
         if(sucursal) sucursal.value='';
-        if(empleado) empleado.value='';
         if(metodoPago) metodoPago.value='EFECTIVO';
         if(descuento) descuento.value='0';
-        if(aplicaIvaEl){
-            aplicaIvaEl.checked=true;
-            aplicaIva=true;
-        }
+        if(aplicaIvaEl){ aplicaIva=true; }
         if(esDomicilio) esDomicilio.checked=false;
         if(direccion) direccion.value='';
         if(telefono) telefono.value='';
@@ -1555,119 +1650,31 @@
     }
 
     function cambiarIva(){
-        aplicaIva=
-            document.getElementById(
-                'aplica-iva'
-            ).checked;
-
         recalcularTotales();
     }
 
+    function ivaIncluidoItem(item){
+        const tasa=Math.max(0,Number(item?.producto?.porcentajeIva||0));
+        const total=precioPresentacion(item)*item.cantidad;
+        return tasa>0 ? total-(total/(1+(tasa/100))) : 0;
+    }
+
     function recalcularTotales(){
-        const subtotal=
-            carrito.reduce(
-                (t,i) =>
-                    t
-                    +
-                    (
-                        precioPresentacion(i)
-                        *
-                        i.cantidad
-                    ),
-                0
-            );
-
-        let descuento=
-            Math.max(
-                0,
-                Number(
-                    document.getElementById(
-                        'descuento'
-                    )?.value
-                    ||
-                    0
-                )
-            );
-
-        descuento=
-            Math.min(
-                descuento,
-                subtotal
-            );
-
-        const base=
-            Math.max(
-                0,
-                subtotal-descuento
-            );
-
-        const iva=
-            aplicaIva
-                ?
-                base
-                *
-                (
-                    porcentajeIvaGlobal
-                    /
-                    100
-                )
-                :
-                0;
-
-        const esDomicilio=
-            document.getElementById(
-                'es-domicilio'
-            )?.checked
-            ||
-            false;
-
-        const costoDomicilio=
-            esDomicilio
-                ?
-                Math.max(
-                    0,
-                    Number(
-                        document.getElementById(
-                            'costo-domicilio'
-                        )?.value
-                        ||
-                        0
-                    )
-                )
-                :
-                0;
-
-        const total=
-            base
-            +
-            iva
-            +
-            costoDomicilio;
-
-        document.getElementById(
-            'subtotal'
-        ).textContent=
-            dinero(subtotal);
-
-        document.getElementById(
-            'descuento-vista'
-        ).textContent=
-            dinero(descuento);
-
-        document.getElementById(
-            'valor-iva'
-        ).textContent=
-            dinero(iva);
-
-        document.getElementById(
-            'costo-domicilio-vista'
-        ).textContent=
-            dinero(costoDomicilio);
-
-        document.getElementById(
-            'total'
-        ).textContent=
-            dinero(total);
+        const subtotal=carrito.reduce((t,i)=>t+(precioPresentacion(i)*i.cantidad),0);
+        let descuento=Math.max(0,Number(document.getElementById('descuento')?.value||0));
+        descuento=Math.min(descuento,subtotal);
+        const base=Math.max(0,subtotal-descuento);
+        const ivaBruto=carrito.reduce((t,i)=>t+ivaIncluidoItem(i),0);
+        const factor=subtotal>0?base/subtotal:0;
+        const iva=ivaBruto*factor;
+        const esDomicilio=document.getElementById('es-domicilio')?.checked||false;
+        const costoDomicilio=esDomicilio?Math.max(0,Number(document.getElementById('costo-domicilio')?.value||0)):0;
+        const total=base+costoDomicilio;
+        document.getElementById('subtotal').textContent=dinero(subtotal);
+        document.getElementById('descuento-vista').textContent=dinero(descuento);
+        document.getElementById('valor-iva').textContent=dinero(iva);
+        document.getElementById('costo-domicilio-vista').textContent=dinero(costoDomicilio);
+        document.getElementById('total').textContent=dinero(total);
     }
 
     async function guardarVenta(){
@@ -1794,9 +1801,7 @@
                 0
             ),
             aplicaIva:
-                document.getElementById(
-                    'aplica-iva'
-                ).checked,
+                true,
             metodoPago:
                 document.getElementById(
                     'metodo-pago'

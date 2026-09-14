@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -29,6 +30,7 @@ public class VentasController {
     @Autowired private DomiciliosRepository domiciliosRepository;
     @Autowired private FormulasMedicasRepository formulasMedicasRepository;
     @Autowired private DetallesFormulasRepository detallesFormulasRepository;
+    @Autowired private UsuariosRepository usuariosRepository;
 
     private static final Set<String> METODOS_PAGO=Set.of(
             "EFECTIVO","TARJETA_DEBITO","TARJETA_CREDITO","TRANSFERENCIA","NEQUI_DAVIPLATA","PAGO_MIXTO"
@@ -88,14 +90,20 @@ public class VentasController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<Map<String,Object>> crearVenta(@RequestBody VentaRequest request){
+    public ResponseEntity<Map<String,Object>> crearVenta(@RequestBody VentaRequest request, HttpSession session){
         validarRequest(request);
 
         Sucursales sucursal=sucursalesRepository.findById(request.getIdSucursal())
                 .orElseThrow(()->new RuntimeException("Sucursal no encontrada"));
 
-        Empleados empleado=empleadosRepository.findById(request.getIdEmpleado())
-                .orElseThrow(()->new RuntimeException("Empleado no encontrado"));
+        Object idUsuarioSesion=session.getAttribute("idUsuario");
+        if(!(idUsuarioSesion instanceof Number)){
+            throw new RuntimeException("La sesión no tiene un usuario válido");
+        }
+        Usuarios usuario=usuariosRepository.findById(((Number)idUsuarioSesion).longValue())
+                .orElseThrow(()->new RuntimeException("Usuario autenticado no encontrado"));
+        Empleados empleado=empleadosRepository.findById(usuario.getIdEmpleado())
+                .orElseThrow(()->new RuntimeException("Empleado asociado al usuario no encontrado"));
 
         Clientes cliente=null;
 
@@ -107,6 +115,7 @@ public class VentasController {
         String metodoPago=normalizarMetodoPago(request.getMetodoPago());
 
         BigDecimal subtotal=BigDecimal.ZERO;
+        BigDecimal ivaIncluidoTotal=BigDecimal.ZERO;
         List<ItemCalculado> itemsCalculados=new ArrayList<>();
 
         for(ItemVentaRequest item:request.getItems()){
@@ -174,6 +183,12 @@ public class VentasController {
 
             subtotal=subtotal.add(subtotalLinea);
 
+            BigDecimal tasaIva=producto.getPorcentajeIva()==null?BigDecimal.ZERO:producto.getPorcentajeIva();
+            if(tasaIva.signum()>0){
+                BigDecimal baseLinea=subtotalLinea.divide(BigDecimal.ONE.add(tasaIva.divide(new BigDecimal("100"),8,RoundingMode.HALF_UP)),8,RoundingMode.HALF_UP);
+                ivaIncluidoTotal=ivaIncluidoTotal.add(subtotalLinea.subtract(baseLinea));
+            }
+
             itemsCalculados.add(
                     new ItemCalculado(
                             producto,
@@ -202,26 +217,13 @@ public class VentasController {
 
         descuento=descuento.setScale(2,RoundingMode.HALF_UP);
 
-        ConfiguracionGlobal config=configuracionRepository.findById(1L)
-                .orElseThrow(()->new RuntimeException("No existe la configuración global del sistema"));
-
-        BigDecimal porcentajeIva=
-                config.getIvaGeneral()==null
-                        ? BigDecimal.ZERO
-                        : config.getIvaGeneral();
-
-        boolean aplicaIva=
-                request.getAplicaIva()==null
-                        ||
-                        request.getAplicaIva();
-
-        BigDecimal base=subtotal.subtract(descuento);
-
-        BigDecimal impuestoIva=
-                aplicaIva
-                        ? base.multiply(porcentajeIva)
-                        .divide(new BigDecimal("100"),2,RoundingMode.HALF_UP)
-                        : BigDecimal.ZERO.setScale(2,RoundingMode.HALF_UP);
+        BigDecimal base=subtotal.subtract(descuento).setScale(2,RoundingMode.HALF_UP);
+        BigDecimal factorDescuento=subtotal.signum()>0
+                ? base.divide(subtotal,8,RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+        BigDecimal impuestoIva=ivaIncluidoTotal.multiply(factorDescuento).setScale(2,RoundingMode.HALF_UP);
+        boolean aplicaIva=impuestoIva.signum()>0;
+        BigDecimal porcentajeIva=BigDecimal.ZERO.setScale(2,RoundingMode.HALF_UP);
 
         BigDecimal costoDomicilio=BigDecimal.ZERO;
 
@@ -251,8 +253,7 @@ public class VentasController {
         }
 
         BigDecimal total=
-                base.add(impuestoIva)
-                        .add(costoDomicilio)
+                base.add(costoDomicilio)
                         .setScale(2,RoundingMode.HALF_UP);
 
         Ventas venta=new Ventas();
@@ -260,6 +261,7 @@ public class VentasController {
         venta.setSucursal(sucursal);
         venta.setCliente(cliente);
         venta.setEmpleado(empleado);
+        venta.setUsuario(usuario);
         venta.setNumeroFactura(generarNumeroFactura());
         venta.setFechaVenta(LocalDateTime.now());
         venta.setSubtotal(subtotal);
@@ -335,10 +337,6 @@ public class VentasController {
 
         if(request.getIdSucursal()==null){
             throw new RuntimeException("Debe seleccionar una sucursal");
-        }
-
-        if(request.getIdEmpleado()==null){
-            throw new RuntimeException("Debe seleccionar un empleado");
         }
 
         if(request.getItems()==null||request.getItems().isEmpty()){
@@ -598,6 +596,7 @@ public class VentasController {
             detalle.setCantidad(cantidadPresentaciones);
             detalle.setUnidadesDescontadas(cantidadPresentaciones*factor);
             detalle.setPrecioUnitario(item.precio().precio());
+            detalle.setPorcentajeIva(producto.getPorcentajeIva()==null?BigDecimal.ZERO:producto.getPorcentajeIva());
 
             detalle.setSubtotal(
                     item.precio()
@@ -609,15 +608,8 @@ public class VentasController {
             detallesVentasRepository.save(detalle);
         }
 
-        int stockActual=
-                producto.getStockTotal()==null
-                        ? 0
-                        : producto.getStockTotal();
-
-        producto.setStockTotal(
-                stockActual-(item.cantidad()*factor)
-        );
-
+        Integer stockReal=lotesRepository.sumarStockDisponible(producto.getIdProducto(),LocalDate.now());
+        producto.setStockTotal(stockReal==null?0:stockReal);
         productosRepository.save(producto);
     }
 

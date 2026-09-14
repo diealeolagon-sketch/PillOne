@@ -47,6 +47,9 @@ public class Devoluciones {
     @Column(name="observaciones",columnDefinition="TEXT")
     private String observaciones;
 
+    @Column(name="evidencia_devolucion", length=255)
+    private String evidenciaDevolucion;
+
     @PrePersist
     public void prePersist(){
         if(fechaDevolucion==null) fechaDevolucion=LocalDateTime.now();
@@ -78,4 +81,6 @@ public class Devoluciones {
     public void setIdUsuarioRegente(Long idUsuarioRegente){this.idUsuarioRegente=idUsuarioRegente;}
     public String getObservaciones(){return observaciones;}
     public void setObservaciones(String observaciones){this.observaciones=observaciones;}
+    public String getEvidenciaDevolucion(){return evidenciaDevolucion;}
+    public void setEvidenciaDevolucion(String evidenciaDevolucion){this.evidenciaDevolucion=evidenciaDevolucion;}
 }

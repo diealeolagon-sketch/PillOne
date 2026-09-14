@@ -61,6 +61,7 @@ public class ProductosController {
             @RequestBody Productos producto
     ){
         validarYCalcularEmpaque(producto);
+        validarIva(producto);
 
         producto.setIdProducto(null);
 
@@ -94,6 +95,7 @@ public class ProductosController {
         producto.setIdProducto(id);
 
         validarYCalcularEmpaque(producto);
+        validarIva(producto);
 
         cargarStockCalculado(producto);
 
@@ -150,6 +152,12 @@ public class ProductosController {
                         ? 0
                         : stock
         );
+    }
+
+    private void validarIva(Productos producto){
+        if(producto.getPorcentajeIva()==null || producto.getPorcentajeIva().signum()<0){
+            producto.setPorcentajeIva(java.math.BigDecimal.ZERO);
+        }
     }
 
     private void validarYCalcularEmpaque(

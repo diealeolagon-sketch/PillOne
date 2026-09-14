@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS `detalles_ventas` (
   `cantidad` int NOT NULL,
   `unidades_descontadas` int NOT NULL DEFAULT '1',
   `precio_unitario` decimal(12,2) NOT NULL,
+  `porcentaje_iva` decimal(5,2) NOT NULL DEFAULT '0.00',
   `subtotal` decimal(12,2) NOT NULL,
   PRIMARY KEY (`id_detalle_venta`),
   KEY `id_venta` (`id_venta`),
@@ -156,23 +157,27 @@ CREATE TABLE IF NOT EXISTS `detalles_ventas` (
   CONSTRAINT `detalles_ventas_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
   CONSTRAINT `detalles_ventas_ibfk_3` FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`),
   CONSTRAINT `fk_detalle_venta_formula` FOREIGN KEY (`id_formula`) REFERENCES `formulas_medicas` (`id_formula`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `detalles_ventas` (`id_detalle_venta`, `id_venta`, `id_producto`, `id_formula`, `id_lote`, `tipo_venta`, `cantidad`, `unidades_descontadas`, `precio_unitario`, `subtotal`) VALUES
-	(1, 1, 1, NULL, 1, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(2, 1, 3, NULL, 4, 'UNIDAD', 1, 1, 26000.00, 26000.00),
-	(3, 2, 2, NULL, 3, 'UNIDAD', 1, 1, 22000.00, 22000.00),
-	(4, 3, 1, NULL, 1, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(5, 4, 1, NULL, 1, 'SELLO', 1, 12, 102000.00, 102000.00),
-	(6, 4, 2, NULL, 3, 'UNIDAD', 1, 1, 22000.00, 22000.00),
-	(7, 4, 4, NULL, 5, 'SELLO', 4, 40, 70000.00, 280000.00),
-	(8, 5, 1, NULL, 1, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(9, 6, 1, NULL, 13, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(10, 7, 1, NULL, 11, 'SELLO', 2, 24, 102000.00, 204000.00),
-	(11, 8, 1, NULL, 11, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(12, 9, 1, NULL, 11, 'SELLO', 1, 12, 102000.00, 102000.00),
-	(13, 10, 1, NULL, 11, 'UNIDAD', 1, 1, 8500.00, 8500.00),
-	(14, 11, 1, NULL, 11, 'UNIDAD', 1, 1, 8500.00, 8500.00);
+INSERT INTO `detalles_ventas` (`id_detalle_venta`, `id_venta`, `id_producto`, `id_formula`, `id_lote`, `tipo_venta`, `cantidad`, `unidades_descontadas`, `precio_unitario`, `porcentaje_iva`, `subtotal`) VALUES
+	(1, 1, 1, NULL, 1, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00),
+	(2, 1, 3, NULL, 4, 'UNIDAD', 1, 1, 26000.00, 19.00, 26000.00),
+	(3, 2, 2, NULL, 3, 'UNIDAD', 1, 1, 22000.00, 19.00, 22000.00),
+	(4, 3, 1, NULL, 1, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00),
+	(5, 4, 1, NULL, 1, 'SELLO', 1, 12, 102000.00, 19.00, 102000.00),
+	(6, 4, 2, NULL, 3, 'UNIDAD', 1, 1, 22000.00, 19.00, 22000.00),
+	(7, 4, 4, NULL, 5, 'SELLO', 4, 40, 70000.00, 19.00, 280000.00),
+	(8, 5, 1, NULL, 1, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00),
+	(9, 6, 1, NULL, 13, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00),
+	(10, 7, 1, NULL, 11, 'SELLO', 2, 24, 102000.00, 19.00, 204000.00),
+	(11, 8, 1, NULL, 11, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00),
+	(12, 9, 1, NULL, 11, 'SELLO', 1, 12, 102000.00, 19.00, 102000.00),
+	(13, 10, 1, NULL, 11, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00),
+	(14, 11, 1, NULL, 11, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00),
+	(15, 12, 1, NULL, 8, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00),
+	(16, 13, 3, NULL, 12, 'UNIDAD', 1, 1, 26000.00, 19.00, 26000.00),
+	(17, 14, 1, NULL, 8, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00),
+	(18, 15, 1, NULL, 8, 'UNIDAD', 1, 1, 8500.00, 19.00, 8500.00);
 
 CREATE TABLE IF NOT EXISTS `devoluciones` (
   `id_devolucion` int NOT NULL AUTO_INCREMENT,
@@ -188,6 +193,7 @@ CREATE TABLE IF NOT EXISTS `devoluciones` (
   `fecha_devolucion` datetime DEFAULT CURRENT_TIMESTAMP,
   `id_usuario_regente` int NOT NULL,
   `observaciones` text COLLATE utf8mb4_unicode_ci,
+  `evidencia_devolucion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id_devolucion`),
   KEY `id_sucursal` (`id_sucursal`),
   KEY `id_venta` (`id_venta`),
@@ -203,8 +209,8 @@ CREATE TABLE IF NOT EXISTS `devoluciones` (
   CONSTRAINT `fk_devoluciones_lote` FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `devoluciones` (`id_devolucion`, `id_sucursal`, `tipo_devolucion`, `id_venta`, `id_compra`, `id_producto`, `id_lote`, `cantidad`, `motivo`, `estado_producto`, `fecha_devolucion`, `id_usuario_regente`, `observaciones`) VALUES
-	(1, 1, 'CLIENTE', 10, NULL, 1, 11, 1, 'ERROR_ENTREGA', 'APTO_PARA_REINGRESO', '2026-09-13 17:55:34', 1, 'El cleinte nunca salio');
+INSERT INTO `devoluciones` (`id_devolucion`, `id_sucursal`, `tipo_devolucion`, `id_venta`, `id_compra`, `id_producto`, `id_lote`, `cantidad`, `motivo`, `estado_producto`, `fecha_devolucion`, `id_usuario_regente`, `observaciones`, `evidencia_devolucion`) VALUES
+	(1, 1, 'CLIENTE', 10, NULL, 1, 11, 1, 'ERROR_ENTREGA', 'APTO_PARA_REINGRESO', '2026-09-13 17:55:34', 1, 'El cleinte nunca salio', NULL);
 
 CREATE TABLE IF NOT EXISTS `domicilios` (
   `id_domicilio` int NOT NULL AUTO_INCREMENT,
@@ -226,7 +232,7 @@ CREATE TABLE IF NOT EXISTS `domicilios` (
   KEY `id_cliente` (`id_cliente`),
   CONSTRAINT `domicilios_ibfk_1` FOREIGN KEY (`id_venta`) REFERENCES `ventas` (`id_venta`),
   CONSTRAINT `domicilios_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `domicilios` (`id_domicilio`, `id_venta`, `id_cliente`, `direccion_entrega`, `telefono_contacto`, `nombre_domiciliario`, `costo_domicilio`, `pagado`, `fecha_pago`, `estado`, `fecha_hora_salida`, `fecha_hora_entrega`, `evidencia_entrega`, `observaciones_entrega`) VALUES
 	(1, 1, 1, 'Calle 25 # 14-30 Apt 302', '3157894512', 'Marmato Motos Express', 4000.00, 0, NULL, 'ENTREGADO', NULL, NULL, NULL, NULL),
@@ -236,7 +242,10 @@ INSERT INTO `domicilios` (`id_domicilio`, `id_venta`, `id_cliente`, `direccion_e
 	(5, 8, 1, 'Calle 25 # 14-30', '3157894512', 'Digo', 2000.00, 0, NULL, 'ENTREGADO', '2026-09-13 17:08:58', '2026-09-13 17:09:07', NULL, NULL),
 	(6, 9, 2, 'Carrera 10 # 5-12', '3124567890', 'Diego', 3000.00, 0, NULL, 'CANCELADO', NULL, NULL, NULL, NULL),
 	(7, 10, 1, 'Calle 25 # 14-30', '3157894512', 'Javier', 3000.00, 0, NULL, 'CANCELADO', '2026-09-13 17:54:57', NULL, NULL, 'Domicilio devuelto completamente'),
-	(8, 11, 2, 'Carrera 10 # 5-12', '3124567890', 'Diego', 3000.00, 0, NULL, 'EN_CAMINO', '2026-09-13 20:19:19', NULL, NULL, NULL);
+	(8, 11, 2, 'Carrera 10 # 5-12', '3124567890', 'Diego', 3000.00, 0, NULL, 'EN_CAMINO', '2026-09-13 20:19:19', NULL, NULL, NULL),
+	(9, 13, 1, 'Calle 25 # 14-30', '3157894512', 'GO', 3000.00, 0, NULL, 'EN_CAMINO', '2026-09-14 09:04:37', NULL, NULL, NULL),
+	(10, 14, 2, 'Carrera 10 # 5-12', '3124567890', 'Milton', 10000.00, 0, NULL, 'PENDIENTE', NULL, NULL, NULL, NULL),
+	(11, 15, 1, 'Calle 25 # 14-30', '3157894512', 'Diego', 2000.00, 0, NULL, 'EN_CAMINO', '2026-09-14 11:29:40', NULL, NULL, NULL);
 
 CREATE TABLE IF NOT EXISTS `empleados` (
   `id_empleado` int NOT NULL AUTO_INCREMENT,
@@ -295,7 +304,7 @@ CREATE TABLE IF NOT EXISTS `lotes` (
   PRIMARY KEY (`id_lote`),
   KEY `id_producto` (`id_producto`),
   CONSTRAINT `lotes_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `lotes` (`id_lote`, `id_producto`, `numero_lote`, `fecha_fabricacion`, `fecha_vencimiento`, `cantidad_inicial`, `cantidad_actual`, `estado`) VALUES
 	(1, 1, 'LOTE-DOL-2026-A', '2026-09-01', '2027-09-30', 100, 86, 'DISPONIBLE'),
@@ -305,16 +314,16 @@ INSERT INTO `lotes` (`id_lote`, `id_producto`, `numero_lote`, `fecha_fabricacion
 	(5, 4, 'LOTE-LOR-2026-A', '2026-09-01', '2027-12-31', 120, 80, 'DISPONIBLE'),
 	(6, 5, 'LOTE-UMB-2026-A', '2026-09-01', '2027-12-31', 25, 25, 'DISPONIBLE'),
 	(7, 6, 'LOTE-INS-2026-A', '2026-09-01', '2027-12-31', 12, 12, 'DISPONIBLE'),
-	(8, 1, '3', '2026-09-25', '2027-09-18', 100, 100, 'DISPONIBLE'),
+	(8, 1, '3', '2026-09-25', '2027-09-18', 100, 97, 'DISPONIBLE'),
 	(9, 8, 'diego', '2026-09-30', '2027-06-11', 100, 100, 'DISPONIBLE'),
 	(10, 14, 'lote b', '2026-09-03', '2026-10-28', 4000, 4000, 'PROXIMO_A_VENCER'),
 	(11, 1, 'lote 1', '2026-09-12', '2026-09-13', 2400, 2362, 'VENCIDO'),
-	(12, 3, 'lote 3', '2026-09-12', '2026-09-25', 100, 100, 'PROXIMO_A_VENCER'),
+	(12, 3, 'lote 3', '2026-09-12', '2026-09-25', 100, 99, 'PROXIMO_A_VENCER'),
 	(13, 1, 'lote c', '2026-09-12', '2026-09-12', 600, 599, 'VENCIDO'),
-	(23, 5, 'TEST-VENCIDO-005', '2025-04-10', '2026-04-10', 60, 40, 'VENCIDO'),
 	(24, 8, 'lote 10', '2026-09-13', '2026-09-30', 8280, 8280, 'PROXIMO_A_VENCER'),
 	(25, 15, 'lote 0111', '2026-09-13', '2026-09-30', 4000, 4000, 'PROXIMO_A_VENCER'),
-	(26, 16, 'lote Clonacepan 2', '2026-09-14', '2026-11-06', 16000, 16000, 'PROXIMO_A_VENCER');
+	(26, 16, 'lote Clonacepan 2', '2026-09-14', '2026-11-06', 16000, 16000, 'PROXIMO_A_VENCER'),
+	(27, 17, 'Lote Viagra', '2026-09-14', '2027-05-14', 1200, 1200, 'DISPONIBLE');
 
 CREATE TABLE IF NOT EXISTS `movimientos_inventario` (
   `id_movimiento` int NOT NULL AUTO_INCREMENT,
@@ -356,8 +365,13 @@ CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
   KEY `idx_password_reset_usuario` (`id_usuario`),
   KEY `idx_password_reset_expiracion` (`fecha_expiracion`),
   CONSTRAINT `fk_password_reset_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+INSERT INTO `password_reset_tokens` (`id_token`, `id_usuario`, `token_hash`, `fecha_creacion`, `fecha_expiracion`, `usado`) VALUES
+	(1, 5, 'adca9e8974769536afd12ee09cf8b428d8961e5cc5554122eb487d65a1b6ba31', '2026-09-14 08:43:38', '2026-09-14 09:13:38', 1),
+	(2, 5, 'fb605567c7cb367aedb57688af47bad6f205cdc8287aaf23b7a75009b3f0c8c3', '2026-09-14 08:44:21', '2026-09-14 09:14:21', 1),
+	(3, 5, 'c3c7b62e7c2b7778cfa7e8880b82effe3a5c31d3291ff1b69f4c32754538efb7', '2026-09-14 08:44:47', '2026-09-14 09:14:47', 1),
+	(4, 5, 'f468300fb15523adfe6f1457c486953480159e3793bb239870ae942da82d3b3e', '2026-09-14 08:45:02', '2026-09-14 09:15:02', 0);
 
 CREATE TABLE IF NOT EXISTS `permisos` (
   `id_permiso` int NOT NULL AUTO_INCREMENT,
@@ -431,6 +445,7 @@ CREATE TABLE IF NOT EXISTS `productos` (
   `id_proveedor` int DEFAULT NULL,
   `precio_compra` decimal(12,2) NOT NULL,
   `precio_venta` decimal(12,2) NOT NULL,
+  `porcentaje_iva` decimal(5,2) NOT NULL DEFAULT '19.00',
   `precio_venta_tableta` decimal(12,2) DEFAULT NULL,
   `unidades_por_empaque` int DEFAULT '1' COMMENT 'Cantidad total de unidades que trae la presentación mayor',
   `sellos_por_caja` int DEFAULT '1' COMMENT 'Cantidad de sellos o blísters que trae la caja principal',
@@ -453,19 +468,20 @@ CREATE TABLE IF NOT EXISTS `productos` (
   KEY `id_proveedor` (`id_proveedor`),
   CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`),
   CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`id_proveedor`) REFERENCES `proveedores` (`id_proveedor`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `productos` (`id_producto`, `codigo_interno`, `codigo_barras`, `nombre_comercial`, `nombre_generico`, `descripcion`, `presentacion`, `concentracion`, `laboratorio`, `registro_invima`, `id_categoria`, `id_proveedor`, `precio_compra`, `precio_venta`, `precio_venta_tableta`, `unidades_por_empaque`, `sellos_por_caja`, `unidades_por_sello`, `precio_compra_empaque`, `precio_venta_empaque`, `stock_total`, `stock_minimo`, `ubicacion_estante`, `requiere_formula`, `es_venta_libre`, `es_controlado`, `requiere_refrigeracion`, `restricciones_venta`, `estado`) VALUES
-	(1, 'PROD-001', '770200100101', 'Dolex Forte', 'Acetaminofén + Cafeína', 'Analgésico y antipirético para dolores intensos', 'Caja x 12 Tabletas', '500mg / 65mg', 'GSK / TQ', 'INVIMA 2018M-0001234', 1, 3, 4500.00, 8500.00, NULL, 12, 1, 12, 50000.00, 95000.00, 236, 20, 'Estante A1', 0, 1, 0, 0, NULL, 'ACTIVO'),
-	(2, 'PROD-002', '770200100102', 'Amoxicilina Genfar', 'Amoxicilina', 'Antibiótico bactericida de amplio espectro', 'Caja x 50 Cápsulas', '500 mg', 'Genfar', 'INVIMA 2020M-0015678', 2, 2, 12000.00, 22000.00, NULL, 50, 1, 50, 550000.00, 1000000.00, 79, 15, 'Estante B2 (Restringido)', 1, 0, 0, 0, NULL, 'ACTIVO'),
-	(3, 'PROD-003', '770200100103', 'Apronax', 'Naproxeno Sódico', 'Antiinflamatorio no esteroideo de alivio prolongado', 'Caja x 10 Tabletas', '550 mg', 'Bayer', 'INVIMA 2019M-0009876', 1, 4, 15000.00, 26000.00, NULL, 10, 1, 10, 140000.00, 240000.00, 145, 10, 'Estante A2', 0, 1, 0, 0, NULL, 'ACTIVO'),
-	(4, 'PROD-004', '770200100104', 'Loratadina Procaps', 'Loratadina', 'Antihistamínico no sedante', 'Caja x 10 Tabletas', '10 mg', 'Procaps', 'INVIMA 2021M-0011223', 3, 1, 3000.00, 7000.00, NULL, 10, 1, 10, 28000.00, 65000.00, 80, 15, 'Estante C1', 0, 1, 0, 0, NULL, 'ACTIVO'),
-	(5, 'PROD-005', '770200100105', 'Bloqueador Umbrela Urban', 'Protector Solar FPS 50+', 'Protección dermatológica contra rayos UV y luz azul', 'Frasco x 50 ml', 'FPS 50+', 'Medihealth / TQ', 'NSOC12345-22CO', 6, 3, 38000.00, 62000.00, NULL, 1, 1, 1, 38000.00, 62000.00, 25, 5, 'Vitrina Dermocosmética', 0, 1, 0, 0, NULL, 'ACTIVO'),
-	(6, 'PROD-006', '770200100106', 'Insulina Lantus', 'Insulina Glargina', 'Insulina de acción prolongada', 'Caja x 5 Plumas soloSTAR 3ml', '100 UI/ml', 'Sanofi', 'INVIMA 2017M-0004512', 2, 1, 110000.00, 165000.00, NULL, 5, 1, 5, 520000.00, 800000.00, 12, 5, 'Nevera Principal (2-8°C)', 1, 0, 0, 1, NULL, 'ACTIVO'),
-	(8, '001', '1272877382', 'amoxicilina', 'amoxicilina', 'm', 'caja por 200', '500mg', 'genfar', '11877823', 6, 4, 1.00, 2.00, NULL, 276, 12, 23, 12.00, 37.00, 8380, 10, 'pacillo 1', 0, 1, 0, 0, 'a', 'ACTIVO'),
-	(14, '00101', '12728773823', 'amoxicilina', 'amoxicilina', '1', 'caja por 200', '500mg', 'genfar', '118778231', 7, 4, 10.00, 20.00, NULL, 200, 10, 20, 300.00, 400.00, 4000, 10, 'pacillo 1', 0, 1, 0, 0, '', 'ACTIVO'),
-	(15, 'codigo1', 'codigoDeBarras', 'Clonacepam', 'Clonacepam', 'aaaaaaaa', 'caja 10 tabletas', '500mg', 'Genfar', '199132registro', 7, 1, 10.00, 20.00, 100.00, 100, 10, 10, 200.00, 300.00, 4000, 50, 'estante 2', 0, 1, 0, 0, 'ninguna', 'ACTIVO'),
-	(16, '0001111', 'codigoDeBarras2', 'Clonacepam2', 'Clonacepam2', 'diego', 'caja 10 tabletas', '500mg', 'Genfar', '199132registro22', 1, 1, 500.00, 1000.00, 12000.00, 400, 20, 20, 30000.00, 45000.00, 16000, 10, 'estante 24', 1, 0, 0, 0, 'solo con formula', 'ACTIVO');
+INSERT INTO `productos` (`id_producto`, `codigo_interno`, `codigo_barras`, `nombre_comercial`, `nombre_generico`, `descripcion`, `presentacion`, `concentracion`, `laboratorio`, `registro_invima`, `id_categoria`, `id_proveedor`, `precio_compra`, `precio_venta`, `porcentaje_iva`, `precio_venta_tableta`, `unidades_por_empaque`, `sellos_por_caja`, `unidades_por_sello`, `precio_compra_empaque`, `precio_venta_empaque`, `stock_total`, `stock_minimo`, `ubicacion_estante`, `requiere_formula`, `es_venta_libre`, `es_controlado`, `requiere_refrigeracion`, `restricciones_venta`, `estado`) VALUES
+	(1, 'PROD-001', '770200100101', 'Dolex Forte', 'Acetaminofén + Cafeína', 'Analgésico y antipirético para dolores intensos', 'Caja x 12 Tabletas', '500mg / 65mg', 'GSK / TQ', 'INVIMA 2018M-0001234', 1, 3, 4500.00, 10115.00, 19.00, NULL, 12, 1, 12, 50000.00, 113050.00, 233, 20, 'Estante A1', 0, 1, 0, 0, NULL, 'ACTIVO'),
+	(2, 'PROD-002', '770200100102', 'Amoxicilina Genfar', 'Amoxicilina', 'Antibiótico bactericida de amplio espectro', 'Caja x 50 Cápsulas', '500 mg', 'Genfar', 'INVIMA 2020M-0015678', 2, 2, 12000.00, 26180.00, 19.00, NULL, 50, 1, 50, 550000.00, 1190000.00, 79, 15, 'Estante B2 (Restringido)', 1, 0, 0, 0, NULL, 'ACTIVO'),
+	(3, 'PROD-003', '770200100103', 'Apronax', 'Naproxeno Sódico', 'Antiinflamatorio no esteroideo de alivio prolongado', 'Caja x 10 Tabletas', '550 mg', 'Bayer', 'INVIMA 2019M-0009876', 1, 4, 15000.00, 30940.00, 19.00, NULL, 10, 1, 10, 140000.00, 285600.00, 144, 10, 'Estante A2', 0, 1, 0, 0, NULL, 'ACTIVO'),
+	(4, 'PROD-004', '770200100104', 'Loratadina Procaps', 'Loratadina', 'Antihistamínico no sedante', 'Caja x 10 Tabletas', '10 mg', 'Procaps', 'INVIMA 2021M-0011223', 3, 1, 3000.00, 8330.00, 19.00, NULL, 10, 1, 10, 28000.00, 77350.00, 80, 15, 'Estante C1', 0, 1, 0, 0, NULL, 'ACTIVO'),
+	(5, 'PROD-005', '770200100105', 'Bloqueador Umbrela Urban', 'Protector Solar FPS 50+', 'Protección dermatológica contra rayos UV y luz azul', 'Frasco x 50 ml', 'FPS 50+', 'Medihealth / TQ', 'NSOC12345-22CO', 6, 3, 38000.00, 73780.00, 19.00, NULL, 1, 1, 1, 38000.00, 73780.00, 25, 5, 'Vitrina Dermocosmética', 0, 1, 0, 0, NULL, 'ACTIVO'),
+	(6, 'PROD-006', '770200100106', 'Insulina Lantus', 'Insulina Glargina', 'Insulina de acción prolongada', 'Caja x 5 Plumas soloSTAR 3ml', '100 UI/ml', 'Sanofi', 'INVIMA 2017M-0004512', 2, 1, 110000.00, 196350.00, 19.00, NULL, 5, 1, 5, 520000.00, 952000.00, 12, 5, 'Nevera Principal (2-8°C)', 1, 0, 0, 1, NULL, 'ACTIVO'),
+	(8, '001', '1272877382', 'amoxicilina', 'amoxicilina', 'm', 'caja por 200', '500mg', 'genfar', '11877823', 6, 4, 1.00, 2.38, 19.00, NULL, 276, 12, 23, 12.00, 44.03, 8380, 10, 'pacillo 1', 0, 1, 0, 0, 'a', 'ACTIVO'),
+	(14, '00101', '12728773823', 'amoxicilina', 'amoxicilina', '1', 'caja por 200', '500mg', 'genfar', '118778231', 7, 4, 10.00, 23.80, 19.00, NULL, 200, 10, 20, 300.00, 476.00, 4000, 10, 'pacillo 1', 0, 1, 0, 0, '', 'ACTIVO'),
+	(15, 'codigo1', 'codigoDeBarras', 'Clonacepam', 'Clonacepam', 'aaaaaaaa', 'caja 10 tabletas', '500mg', 'Genfar', '199132registro', 7, 1, 10.00, 23.80, 0.00, 119.00, 100, 10, 10, 200.00, 357.00, 4000, 50, 'estante 2', 0, 1, 0, 0, 'ninguna', 'ACTIVO'),
+	(16, '0001111', 'codigoDeBarras2', 'Clonacepam2', 'Clonacepam2', 'diego', 'caja 10 tabletas', '500mg', 'Genfar', '199132registro22', 1, 1, 500.00, 1190.00, 0.00, 14280.00, 400, 20, 20, 30000.00, 53550.00, 16000, 10, 'estante 24', 1, 0, 0, 0, 'solo con formula', 'ACTIVO'),
+	(17, 'PROD12', '121737278127821', 'Sildenafil', 'viagra', 'vaso dilatador', 'caja 10 tabletas', '500mg', 'Genfar', '3029919221NV', 4, NULL, 500.00, 1190.00, 19.00, 13090.00, 120, 10, 12, 60000.00, 119000.00, 1200, 10, 'Estante 2B', 0, 1, 0, 0, 'Menores de Edad', 'ACTIVO');
 
 CREATE TABLE IF NOT EXISTS `proveedores` (
   `id_proveedor` int NOT NULL AUTO_INCREMENT,
@@ -657,7 +673,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 INSERT INTO `usuarios` (`id_usuario`, `id_empleado`, `id_rol`, `username`, `password_hash`, `estado`) VALUES
 	(1, 1, 1, 'admin', 'PBKDF2$210000$cGlsbG9uZS1hZG1pbi0wMQ==$OU5app0HXnrka1v3tTRWYCqX4UefNIgtF1sUtYk+AfU=', 'ACTIVO'),
 	(2, 2, 2, 'regente01', 'PBKDF2$210000$cGlsbG9uZS1yZWdlbnRlMDE=$6jUD8jCb+Rh/mO4VOpx1qRmSTBqmFcS0KRou1Frj7Pw=', 'ACTIVO'),
-	(3, 3, 4, 'sandra.aux', 'PBKDF2$210000$cGlsbG9uZS1zYW5kcmEwMQ==$iz6aHSCRykisiFmPZBP+CcIdmHwG3laSfx0XCBGruqo=', 'ACTIVO'),
+	(3, 3, 4, 'sandra.aux', 'PBKDF2$210000$IpBB1VHQM+701ngizi33dw==$9+oodkzDV3R+4nMOz1lx0JWHd4/8nI6SHOUtTzgLAec=', 'ACTIVO'),
 	(4, 4, 3, 'kevin.vendedor', 'PBKDF2$210000$cGlsbG9uZS1rZXZpbjAwMQ==$oc+rhAuxqrAaEr67ACT7s2wr80fclgkYxzTubJXxlqw=', 'ACTIVO'),
 	(5, 5, 1, 'Diego_Olaya', 'PBKDF2$210000$cGlsbG9uZS1kaWVnbzAwMQ==$FDC9xyYTuAN/PPsvo/H8i9oiFJwtXkuPj8H9lEHx5AY=', 'ACTIVO'),
 	(6, 6, 5, 'domiciliario', 'PBKDF2$210000$mTq+/VXewXo+IAxX4GUBsw==$xQtzBoW/CLK2vS4LIqTRVwDukTUbceAY7ENC3Wxz8r4=', 'ACTIVO');
@@ -668,6 +684,7 @@ CREATE TABLE IF NOT EXISTS `ventas` (
   `numero_factura` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `id_cliente` int DEFAULT NULL,
   `id_empleado` int NOT NULL,
+  `id_usuario` int NOT NULL,
   `fecha_venta` datetime DEFAULT CURRENT_TIMESTAMP,
   `subtotal` decimal(12,2) NOT NULL,
   `descuento` decimal(12,2) DEFAULT '0.00',
@@ -682,23 +699,29 @@ CREATE TABLE IF NOT EXISTS `ventas` (
   KEY `id_sucursal` (`id_sucursal`),
   KEY `id_cliente` (`id_cliente`),
   KEY `id_empleado` (`id_empleado`),
+  KEY `idx_ventas_usuario` (`id_usuario`),
+  CONSTRAINT `fk_ventas_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
   CONSTRAINT `ventas_ibfk_1` FOREIGN KEY (`id_sucursal`) REFERENCES `sucursales` (`id_sucursal`),
   CONSTRAINT `ventas_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`),
   CONSTRAINT `ventas_ibfk_3` FOREIGN KEY (`id_empleado`) REFERENCES `empleados` (`id_empleado`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `ventas` (`id_venta`, `id_sucursal`, `numero_factura`, `id_cliente`, `id_empleado`, `fecha_venta`, `subtotal`, `descuento`, `aplica_iva`, `porcentaje_iva`, `impuesto_iva`, `total`, `metodo_pago`, `estado`) VALUES
-	(1, 1, 'FARM-00001', 1, 4, '2026-07-27 09:10:00', 34500.00, 0.00, 1, 19.00, 6555.00, 41055.00, 'NEQUI_DAVIPLATA', 'PAGADA'),
-	(2, 1, 'FARM-00002', 2, 4, '2026-07-27 10:25:00', 22000.00, 0.00, 0, 19.00, 0.00, 22000.00, 'EFECTIVO', 'PAGADA'),
-	(3, 1, 'FARM-20260912185350961', 1, 1, '2026-09-12 18:53:51', 8500.00, 0.00, 1, 19.00, 1615.00, 10115.00, 'TARJETA_DEBITO', 'PAGADA'),
-	(4, 2, 'FARM-20260912190844651', 1, 1, '2026-09-12 19:08:45', 404000.00, 0.00, 1, 19.00, 76760.00, 480760.00, 'PAGO_MIXTO', 'PAGADA'),
-	(5, 1, 'FARM-20260912193623389', 1, 1, '2026-09-12 19:36:23', 8500.00, 0.00, 1, 19.00, 1615.00, 12615.00, 'EFECTIVO', 'PAGADA'),
-	(6, 1, 'FARM-20260912220613571', 1, 1, '2026-09-12 22:06:14', 8500.00, 0.00, 1, 19.00, 1615.00, 10115.00, 'EFECTIVO', 'PAGADA'),
-	(7, 1, 'FARM-20260913094428841', 1, 1, '2026-09-13 09:44:29', 204000.00, 0.00, 1, 19.00, 38760.00, 244760.00, 'EFECTIVO', 'PAGADA'),
-	(8, 1, 'FARM-20260913113118724', 1, 2, '2026-09-13 11:31:19', 8500.00, 0.00, 1, 19.00, 1615.00, 12115.00, 'EFECTIVO', 'PAGADA'),
-	(9, 1, 'FARM-20260913141716144', 2, 1, '2026-09-13 14:17:16', 102000.00, 0.00, 1, 19.00, 19380.00, 124380.00, 'TARJETA_DEBITO', 'PAGADA'),
-	(10, 1, 'FARM-20260913175444814', 1, 1, '2026-09-13 17:54:45', 8500.00, 0.00, 1, 19.00, 1615.00, 13115.00, 'EFECTIVO', 'PAGADA'),
-	(11, 3, 'FARM-20260913201856708', 2, 1, '2026-09-13 20:18:57', 8500.00, 0.00, 1, 19.00, 1615.00, 13115.00, 'EFECTIVO', 'PAGADA');
+INSERT INTO `ventas` (`id_venta`, `id_sucursal`, `numero_factura`, `id_cliente`, `id_empleado`, `id_usuario`, `fecha_venta`, `subtotal`, `descuento`, `aplica_iva`, `porcentaje_iva`, `impuesto_iva`, `total`, `metodo_pago`, `estado`) VALUES
+	(1, 1, 'FARM-00001', 1, 4, 4, '2026-07-27 09:10:00', 34500.00, 0.00, 1, 19.00, 6555.00, 41055.00, 'NEQUI_DAVIPLATA', 'PAGADA'),
+	(2, 1, 'FARM-00002', 2, 4, 4, '2026-07-27 10:25:00', 22000.00, 0.00, 0, 19.00, 0.00, 22000.00, 'EFECTIVO', 'PAGADA'),
+	(3, 1, 'FARM-20260912185350961', 1, 1, 1, '2026-09-12 18:53:51', 8500.00, 0.00, 1, 19.00, 1615.00, 10115.00, 'TARJETA_DEBITO', 'PAGADA'),
+	(4, 2, 'FARM-20260912190844651', 1, 1, 1, '2026-09-12 19:08:45', 404000.00, 0.00, 1, 19.00, 76760.00, 480760.00, 'PAGO_MIXTO', 'PAGADA'),
+	(5, 1, 'FARM-20260912193623389', 1, 1, 1, '2026-09-12 19:36:23', 8500.00, 0.00, 1, 19.00, 1615.00, 12615.00, 'EFECTIVO', 'PAGADA'),
+	(6, 1, 'FARM-20260912220613571', 1, 1, 1, '2026-09-12 22:06:14', 8500.00, 0.00, 1, 19.00, 1615.00, 10115.00, 'EFECTIVO', 'PAGADA'),
+	(7, 1, 'FARM-20260913094428841', 1, 1, 1, '2026-09-13 09:44:29', 204000.00, 0.00, 1, 19.00, 38760.00, 244760.00, 'EFECTIVO', 'PAGADA'),
+	(8, 1, 'FARM-20260913113118724', 1, 2, 2, '2026-09-13 11:31:19', 8500.00, 0.00, 1, 19.00, 1615.00, 12115.00, 'EFECTIVO', 'PAGADA'),
+	(9, 1, 'FARM-20260913141716144', 2, 1, 1, '2026-09-13 14:17:16', 102000.00, 0.00, 1, 19.00, 19380.00, 124380.00, 'TARJETA_DEBITO', 'PAGADA'),
+	(10, 1, 'FARM-20260913175444814', 1, 1, 1, '2026-09-13 17:54:45', 8500.00, 0.00, 1, 19.00, 1615.00, 13115.00, 'EFECTIVO', 'PAGADA'),
+	(11, 3, 'FARM-20260913201856708', 2, 1, 1, '2026-09-13 20:18:57', 8500.00, 0.00, 1, 19.00, 1615.00, 13115.00, 'EFECTIVO', 'PAGADA'),
+	(12, 3, 'FARM-20260914090251966', NULL, 1, 1, '2026-09-14 09:02:52', 8500.00, 0.00, 1, 19.00, 1615.00, 10115.00, 'EFECTIVO', 'PAGADA'),
+	(13, 3, 'FARM-20260914090416303', 1, 1, 1, '2026-09-14 09:04:16', 26000.00, 0.00, 1, 19.00, 4940.00, 33940.00, 'EFECTIVO', 'PAGADA'),
+	(14, 1, 'FARM-20260914104228653', 2, 1, 1, '2026-09-14 10:42:29', 8500.00, 0.00, 1, 19.00, 1615.00, 20115.00, 'EFECTIVO', 'PAGADA'),
+	(15, 3, 'FARM-20260914112911883', 1, 1, 1, '2026-09-14 11:29:12', 8500.00, 0.00, 1, 19.00, 1615.00, 12115.00, 'EFECTIVO', 'PAGADA');
 
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
@@ -709,6 +732,16 @@ CREATE TRIGGER `trg_asignar_proveedor_habitual_detalle_compra` AFTER INSERT ON `
     WHERE p.id_producto=NEW.id_producto
       AND p.id_proveedor IS NULL
       AND c.estado<>'CANCELADA';
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `trg_productos_codigo_interno_auto` BEFORE INSERT ON `productos` FOR EACH ROW BEGIN
+    IF NEW.codigo_interno IS NULL OR TRIM(NEW.codigo_interno)='' THEN
+        SET NEW.codigo_interno=CONCAT('PROD-',UPPER(SUBSTRING(REPLACE(UUID(),'-',''),1,12)));
+    END IF;
 END//
 DELIMITER ;
 SET SQL_MODE=@OLDTMP_SQL_MODE;

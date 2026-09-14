@@ -1,6 +1,7 @@
 package com.pillone.pillone.model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "productos")
@@ -11,7 +12,7 @@ public class Productos {
     @Column(name = "id_producto")
     private Long idProducto;
 
-    @Column(name = "codigo_interno", nullable = false, unique = true)
+    @Column(name = "codigo_interno", nullable = false, unique = true, insertable = false, updatable = false)
     private String codigoInterno;
 
     @Column(name = "codigo_barras", nullable = false, unique = true)
@@ -49,6 +50,9 @@ public class Productos {
 
     @Column(name = "precio_venta", nullable = false)
     private Double precioVenta;
+
+    @Column(name = "porcentaje_iva", precision = 5, scale = 2, nullable = false)
+    private BigDecimal porcentajeIva = BigDecimal.ZERO;
 
     @Column(name = "precio_venta_tableta")
     private Double precioVentaTableta;
@@ -208,6 +212,14 @@ public class Productos {
 
     public void setPrecioVenta(Double precioVenta) {
         this.precioVenta = precioVenta;
+    }
+
+    public BigDecimal getPorcentajeIva() {
+        return porcentajeIva;
+    }
+
+    public void setPorcentajeIva(BigDecimal porcentajeIva) {
+        this.porcentajeIva = porcentajeIva;
     }
 
     public Double getPrecioVentaTableta() {
