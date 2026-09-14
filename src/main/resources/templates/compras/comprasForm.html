@@ -37,33 +37,97 @@
             }
         }
     </script>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .purchase-form-shell{background:var(--pillone-bg);}
+        .purchase-panel{
+            background:#fff;border:1px solid var(--ui-border);box-shadow:var(--ui-shadow);
+        }
+        .purchase-control{
+            border:1px solid var(--ui-border);background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .purchase-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .purchase-section-title{
+            color:var(--pillone-dark);font-size:13px;font-weight:700;
+            display:flex;align-items:center;gap:.55rem;text-transform:none;letter-spacing:0;
+        }
+        .purchase-section-title::before{
+            content:"";width:.22rem;height:1rem;border-radius:999px;background:var(--pillone-accent);
+        }
+        .order-summary{
+            background:#FBFCFE;border:1px solid var(--ui-border);
+        }
+        @media(max-width:767px){
+            .purchase-form-main{padding:1rem!important;}
+            .purchase-form-header{align-items:stretch!important;}
+            .purchase-form-header>a{width:100%;}
+            .purchase-detail-wrap{overflow:visible!important;padding:.75rem;background:#F7F7FF;}
+            .purchase-detail-table,.purchase-detail-table tbody{display:block;width:100%;min-width:0!important;}
+            .purchase-detail-table thead{display:none;}
+            .purchase-detail-table tbody{border:0!important;}
+            .purchase-detail-table tbody tr:not(:only-child),
+            .purchase-detail-table tbody tr[data-linea]{
+                display:block;background:#fff;border:1px solid var(--ui-border);
+                border-radius:1rem;margin-bottom:.7rem;overflow:hidden;
+            }
+            .purchase-detail-table tbody tr td{
+                display:flex;align-items:flex-start;justify-content:space-between;
+                gap:1rem;padding:.65rem .85rem!important;text-align:right!important;border:0;
+            }
+            .purchase-detail-table tbody tr td::before{
+                content:attr(data-label);flex:0 0 6.2rem;text-align:left;color:#98A2B3;
+                font-size:.62rem;font-weight:700;text-transform:uppercase;
+            }
+            .purchase-detail-table tbody tr td:first-child{
+                display:block;text-align:left!important;background:#FCFCFE;border-bottom:1px solid #F0F1F5;
+            }
+            .purchase-detail-table tbody tr td:first-child::before{display:none;}
+            .purchase-form-actions{display:grid!important;grid-template-columns:1fr 1fr;}
+            .purchase-form-actions>*{width:100%;}
+        }
+    </style>
+
 </head>
 
 <body class="bg-pillone-bg font-sans text-pillone-text min-h-screen flex flex-col text-xs">
 
 <header th:replace="fragments/layout :: topbar('Pedido a Proveedor')"></header>
 
-<div class="flex flex-1 relative">
+<div class="flex flex-1 relative purchase-form-shell">
 
     <div id="overlay"
          onclick="toggleSidebar()"
-         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+         class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden">
     </div>
 
     <aside th:replace="fragments/layout :: sidebar('compras')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+        <main class="purchase-form-main flex-1 p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto w-full">
 
             <!-- CABECERA -->
             <section class="mb-5">
 
-                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div class="purchase-form-header flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
 
                     <div>
 
-                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase"
+                        <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark"
                             th:text="${compraEditar != null ? 'Editar Pedido' : 'Nuevo Pedido'}">
                             Nuevo Pedido
                         </h1>
@@ -75,7 +139,7 @@
                     </div>
 
                     <a th:href="@{/view/compras}"
-                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200 transition">
+                       class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50 transition">
 
                         <svg class="w-4 h-4"
                              fill="none"
@@ -121,9 +185,9 @@
                        th:value="${compraEditar != null ? compraEditar.idCompra : ''}">
 
                 <!-- INFORMACIÓN -->
-                <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-5">
+                <section class="purchase-panel rounded-2xl p-5 mb-5">
 
-                    <h2 class="font-bold text-pillone-accent uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
+                    <h2 class="purchase-section-title border-b border-slate-100 pb-3 mb-4">
                         Información del Pedido
                     </h2>
 
@@ -140,7 +204,7 @@
                                    th:value="${numeroPedido}"
                                    readonly
                                    required
-                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 outline-none">
+                                   class="purchase-control w-full px-3.5 py-2.5 rounded-xl text-slate-500 outline-none">
 
                         </div>
 
@@ -154,7 +218,7 @@
                                     id="idProveedor"
                                     required
                                     onchange="cambiarProveedor()"
-                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                    class="purchase-control w-full px-3.5 py-2.5 rounded-xl outline-none">
 
                                 <option value="">
                                     Seleccione proveedor
@@ -178,7 +242,7 @@
 
                             <select name="idSucursal"
                                     required
-                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                    class="purchase-control w-full px-3.5 py-2.5 rounded-xl outline-none">
 
                                 <option value="">
                                     Seleccione sucursal
@@ -202,7 +266,7 @@
 
                             <select name="idEmpleado"
                                     required
-                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                    class="purchase-control w-full px-3.5 py-2.5 rounded-xl outline-none">
 
                                 <option value="">
                                     Seleccione responsable
@@ -226,7 +290,7 @@
 
                             <select name="formaPago"
                                     required
-                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                    class="purchase-control w-full px-3.5 py-2.5 rounded-xl outline-none">
 
                                 <option value="CREDITO_PROVEEDOR"
                                         th:selected="${compraEditar == null || compraEditar.formaPago.name() == 'CREDITO_PROVEEDOR'}">
@@ -260,7 +324,7 @@
                                    step="0.01"
                                    th:value="${porcentajeImpuesto}"
                                    oninput="actualizarTotales()"
-                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                   class="purchase-control w-full px-3.5 py-2.5 rounded-xl outline-none">
 
                         </div>
 
@@ -269,11 +333,11 @@
                 </section>
 
                 <!-- AGREGAR PRODUCTO -->
-                <section class="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-5">
+                <section class="purchase-panel rounded-2xl p-5 mb-5">
 
                     <div class="mb-4">
 
-                        <h2 class="font-bold text-pillone-accent uppercase tracking-wider">
+                        <h2 class="purchase-section-title">
                             Productos del Pedido
                         </h2>
 
@@ -294,7 +358,7 @@
 
                             <select id="productoSelect"
                                     onchange="cambiarProducto()"
-                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                    class="purchase-control w-full px-3.5 py-2.5 rounded-xl outline-none">
 
                                 <option value="">
                                     Seleccione producto
@@ -330,7 +394,7 @@
 
                             <select id="presentacionSelect"
                                     onchange="cambiarPresentacion()"
-                                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                    class="purchase-control w-full px-3.5 py-2.5 rounded-xl outline-none">
 
                                 <option value="CAJA" selected>
                                     Caja
@@ -359,7 +423,7 @@
                                    id="cantidadProducto"
                                    min="1"
                                    value="1"
-                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                   class="purchase-control w-full px-3.5 py-2.5 rounded-xl outline-none">
 
                         </div>
 
@@ -376,7 +440,7 @@
                                    min="0"
                                    step="0.01"
                                    placeholder="0"
-                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                   class="purchase-control w-full px-3.5 py-2.5 rounded-xl outline-none">
 
                         </div>
 
@@ -385,7 +449,7 @@
 
                             <button type="button"
                                     onclick="agregarProducto()"
-                                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
+                                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold hover:bg-pillone-darker transition">
 
                                 <svg class="w-4 h-4"
                                      fill="none"
@@ -414,19 +478,19 @@
                 </section>
 
                 <!-- TABLA DETALLE -->
-                <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
+                <section class="purchase-panel rounded-2xl overflow-hidden mb-5">
 
                     <div class="p-4 border-b border-slate-100">
 
-                        <h2 class="font-bold text-pillone-accent uppercase tracking-wider">
+                        <h2 class="purchase-section-title">
                             Detalle del Pedido
                         </h2>
 
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <div class="purchase-detail-wrap overflow-x-auto">
 
-                        <table class="w-full text-left">
+                        <table class="purchase-detail-table w-full text-left">
 
                             <thead>
 
@@ -502,7 +566,7 @@
 
                     </div>
 
-                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                    <div class="order-summary rounded-2xl p-5">
 
                         <div class="flex justify-between py-2 border-b border-slate-100">
                             <span class="text-slate-500">Subtotal</span>
@@ -524,17 +588,17 @@
                 </section>
 
                 <!-- BOTONES -->
-                <section class="mt-5 flex flex-col-reverse sm:flex-row justify-end gap-2">
+                <section class="purchase-form-actions mt-5 flex flex-col-reverse sm:flex-row justify-end gap-2">
 
                     <a th:href="@{/view/compras}"
-                       class="px-5 py-3 rounded-lg bg-slate-100 text-slate-600 font-semibold text-center hover:bg-slate-200 transition">
+                       class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-center hover:bg-slate-50 transition">
                         Cancelar
                     </a>
 
                     <button type="submit"
                             id="btnGuardar"
                             disabled
-                            class="px-5 py-3 rounded-lg bg-pillone-dark text-white font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition">
+                            class="px-5 py-3 rounded-xl bg-pillone-dark text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-pillone-darker transition">
 
                         <span th:text="${compraEditar != null ? 'Guardar Cambios' : 'Registrar Pedido'}">
                             Registrar Pedido

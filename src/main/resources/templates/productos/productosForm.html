@@ -16,6 +16,97 @@
 
     <th:block th:replace="fragments/layout :: styles"></th:block>
 
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-surface:#FFFFFF;
+            --ui-surface-soft:#FAFBFE;
+            --ui-border:#E7E9F0;
+            --ui-muted:#667085;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .page-shell{
+            background:
+                radial-gradient(circle at top right, rgba(32,138,174,.06), transparent 30rem),
+                var(--pillone-bg);
+        }
+        .ui-panel{
+            background:rgba(255,255,255,.97);
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .ui-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+        }
+        .ui-control:hover{background:#fff;}
+        .ui-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .ui-kicker{
+            color:var(--pillone-accent);
+            font-size:10px;
+            font-weight:700;
+            letter-spacing:.16em;
+            text-transform:uppercase;
+        }
+        .ui-table tbody tr{
+            transition:background .15s ease, box-shadow .15s ease;
+        }
+        .ui-table tbody tr:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.55);
+        }
+        .ui-icon-button{
+            width:2rem;
+            height:2rem;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:.65rem;
+            transition:background .15s ease,color .15s ease,transform .15s ease;
+        }
+        .ui-icon-button:hover{transform:translateY(-1px);}
+        .ui-section-title{
+            display:flex;
+            align-items:center;
+            gap:.55rem;
+            color:var(--pillone-dark);
+            font-size:12px;
+            font-weight:700;
+            letter-spacing:.03em;
+        }
+        .ui-section-title::before{
+            content:"";
+            width:.22rem;
+            height:1rem;
+            border-radius:999px;
+            background:var(--pillone-accent);
+            flex:none;
+        }
+        .ui-field-help{
+            color:#98A2B3;
+            font-size:10px;
+            line-height:1.5;
+            margin-top:.35rem;
+        }
+        @media(max-width:767px){
+            .mobile-sticky-toolbar{
+                position:sticky;
+                top:0;
+                z-index:5;
+                backdrop-filter:blur(8px);
+            }
+        }
+    </style>
+
+
     <script>
         tailwind.config={
             theme:{
@@ -42,25 +133,25 @@
 
 <header th:replace="fragments/layout :: topbar('Gestión de Productos')"></header>
 
-<div class="flex flex-1 relative">
+<div class="flex flex-1 relative page-shell">
 
     <div id="overlay"
          onclick="toggleSidebar()"
-         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+         class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden">
     </div>
 
     <aside th:replace="fragments/layout :: sidebar('productos')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto w-full">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full">
 
             <!-- ENCABEZADO -->
             <section class="mb-5">
                 <div class="flex items-center justify-between gap-4">
 
                     <div>
-                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight"
+                        <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark"
                             th:text="${producto.idProducto != null ? 'Editar Producto' : 'Nuevo Producto'}">
                             Gestión de Producto
                         </h1>
@@ -71,8 +162,8 @@
                     </div>
 
                     <a th:href="@{/view/productos}"
-                       class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold hover:bg-slate-300 transition">
-                        ← Volver
+                       class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg> Volver
                     </a>
 
                 </div>
@@ -81,18 +172,18 @@
 
             <!-- ERROR -->
             <div th:if="${error}"
-                 class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-medium"
+                 class="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 font-medium"
                  th:text="${error}">
             </div>
 
 
             <!-- FORMULARIO -->
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <section class="ui-panel rounded-2xl overflow-hidden">
 
                 <form th:action="@{/view/productos/save}"
                       th:object="${producto}"
                       method="post"
-                      class="p-6 space-y-6">
+                      class="p-5 sm:p-6 lg:p-7 space-y-7">
 
                     <!-- ID PARA EDICIÓN -->
                     <input type="hidden"
@@ -102,7 +193,7 @@
                     <!-- 1. IDENTIFICACIÓN -->
                     <div>
 
-                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100">
+                        <h3 class="ui-section-title mb-4 pb-2.5 border-b border-slate-100">
                             1. Identificación y Códigos
                         </h3>
 
@@ -117,7 +208,7 @@
                                        th:field="*{codigoInterno}"
                                        required
                                        placeholder="Ej. PROD-001"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
                             <div>
@@ -129,7 +220,7 @@
                                        th:field="*{codigoBarras}"
                                        required
                                        placeholder="Ej. 770123456789"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
                             <div>
@@ -138,7 +229,7 @@
                                 </label>
 
                                 <select th:field="*{estado}"
-                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                        class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
 
                                     <option value="ACTIVO">
                                         ACTIVO
@@ -159,7 +250,7 @@
                     <!-- 2. INFORMACIÓN -->
                     <div>
 
-                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100">
+                        <h3 class="ui-section-title mb-4 pb-2.5 border-b border-slate-100">
                             2. Información Comercial y Farmacéutica
                         </h3>
 
@@ -174,7 +265,7 @@
                                        th:field="*{nombreComercial}"
                                        required
                                        placeholder="Ej. Dolex Fast"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
                             <div>
@@ -185,7 +276,7 @@
                                 <input type="text"
                                        th:field="*{nombreGenerico}"
                                        placeholder="Ej. Acetaminofén"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
                             <div>
@@ -196,7 +287,7 @@
                                 <input type="text"
                                        th:field="*{laboratorio}"
                                        placeholder="Ej. GSK"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
                             <div>
@@ -207,7 +298,7 @@
                                 <input type="text"
                                        th:field="*{presentacion}"
                                        placeholder="Ej. Caja x 100 Tabletas"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
                             <div>
@@ -218,7 +309,7 @@
                                 <input type="text"
                                        th:field="*{concentracion}"
                                        placeholder="Ej. 500mg"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
                             <div>
@@ -230,7 +321,7 @@
                                        th:field="*{registroInvima}"
                                        required
                                        placeholder="Ej. 2020M-0001234"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
 
@@ -242,7 +333,7 @@
 
                                 <select th:field="*{idCategoria}"
                                         required
-                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                        class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
 
                                     <option value="">
                                         Seleccione una categoría
@@ -265,7 +356,7 @@
                                 </label>
 
                                 <select th:field="*{idProveedor}"
-                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                        class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
 
                                     <option value="">
                                         Sin proveedor habitual asignado
@@ -278,7 +369,7 @@
 
                                 </select>
 
-                                <p class="mt-1.5 text-[10px] leading-relaxed text-slate-500">
+                                <p class="ui-field-help">
                                     Si todavía no conoces el proveedor, déjalo vacío. Al registrar la primera compra de este producto,
                                     el proveedor de esa compra se asignará automáticamente como habitual. Después puedes cambiarlo manualmente aquí.
                                 </p>
@@ -294,7 +385,7 @@
                                 <textarea th:field="*{descripcion}"
                                           rows="2"
                                           placeholder="Detalles adicionales..."
-                                          class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                          class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                                 </textarea>
                             </div>
 
@@ -306,7 +397,7 @@
                     <!-- 3. PRECIOS Y EMPAQUE -->
                     <div>
 
-                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100">
+                        <h3 class="ui-section-title mb-4 pb-2.5 border-b border-slate-100">
                             3. Costos, Precios y Jerarquía de Empaque
                         </h3>
 
@@ -324,7 +415,7 @@
                                        th:field="*{precioCompra}"
                                        required
                                        placeholder="Ej. 500"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
 
@@ -340,7 +431,7 @@
                                        th:field="*{precioVenta}"
                                        required
                                        placeholder="Ej. 3500"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
 
@@ -355,9 +446,9 @@
                                        step="any"
                                        th:field="*{precioVentaTableta}"
                                        placeholder="Ej. 800"
-                                       class="w-full px-3 py-2 rounded-lg border border-pillone-accent/40 bg-pillone-accent/5 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs border-pillone-accent/30 bg-[rgba(32,138,174,.05)]">
 
-                                <p class="text-[10px] text-slate-400 mt-1">
+                                <p class="ui-field-help">
                                     Opcional. Déjelo vacío si este producto no se vende por tableta.
                                 </p>
                             </div>
@@ -375,7 +466,7 @@
                                        id="sellosPorCaja"
                                        oninput="calcularEmpaque()"
                                        placeholder="Ej. 10"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
 
@@ -391,7 +482,7 @@
                                        id="unidadesPorSello"
                                        oninput="calcularEmpaque()"
                                        placeholder="Ej. 10"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
 
@@ -405,9 +496,9 @@
                                        th:field="*{unidadesPorEmpaque}"
                                        id="unidadesPorEmpaque"
                                        readonly
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 font-bold">
+                                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-bold text-xs">
 
-                                <p class="text-[10px] text-slate-400 mt-1">
+                                <p class="ui-field-help">
                                     Se calcula automáticamente: sellos × unidades por sello.
                                 </p>
                             </div>
@@ -424,7 +515,7 @@
                                        step="any"
                                        th:field="*{precioCompraEmpaque}"
                                        placeholder="Ej. 50000"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
 
@@ -439,7 +530,7 @@
                                        step="any"
                                        th:field="*{precioVentaEmpaque}"
                                        placeholder="Ej. 65000"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
                         </div>
@@ -450,7 +541,7 @@
                     <!-- 4. INVENTARIO -->
                     <div>
 
-                        <h3 class="font-bold text-pillone-accent uppercase tracking-wider mb-3 pb-1 border-b border-slate-100">
+                        <h3 class="ui-section-title mb-4 pb-2.5 border-b border-slate-100">
                             4. Inventario, Ubicación y Restricciones
                         </h3>
 
@@ -465,9 +556,9 @@
                                 <input type="number"
                                        th:field="*{stockTotal}"
                                        readonly
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 font-bold">
+                                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-bold text-xs">
 
-                                <p class="text-[10px] text-slate-400 mt-1">
+                                <p class="ui-field-help">
                                     Se calcula automáticamente sumando el stock disponible de los lotes.
                                 </p>
                             </div>
@@ -481,7 +572,7 @@
                                 <input type="number"
                                        min="0"
                                        th:field="*{stockMinimo}"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
 
@@ -493,14 +584,14 @@
                                 <input type="text"
                                        th:field="*{ubicacionEstante}"
                                        placeholder="Ej. Estante 3 - Nivel 2"
-                                       class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
                             </div>
 
                         </div>
 
 
                         <!-- RESTRICCIONES -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-[#FAFBFE] p-4 rounded-xl border border-slate-200 mb-4">
 
                             <label class="flex items-center gap-2 cursor-pointer">
 
@@ -565,7 +656,7 @@
                             <input type="text"
                                    th:field="*{restriccionesVenta}"
                                    placeholder="Ej. Venta con receta médica..."
-                                   class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/50 outline-none focus:border-pillone-accent">
+                                   class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
 
                         </div>
 
@@ -573,7 +664,7 @@
 
 
                     <!-- MENSAJE LOTES -->
-                    <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800">
+                    <div class="rounded-xl border border-[rgba(32,138,174,.22)] bg-[rgba(32,138,174,.06)] p-4 text-pillone-dark">
 
                         <p class="font-bold">
                             ¿Dónde registro el inventario?
@@ -592,15 +683,15 @@
 
 
                     <!-- BOTONES -->
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+                    <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-5 border-t border-slate-100">
 
                         <a th:href="@{/view/productos}"
-                           class="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition">
+                           class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition text-center">
                             Cancelar
                         </a>
 
                         <button type="submit"
-                                class="px-6 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 shadow-sm transition">
+                                class="px-6 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold hover:bg-pillone-darker shadow-sm transition">
 
                             <span th:text="${producto.idProducto != null ? 'Guardar Cambios' : 'Guardar Producto'}">
                                 Guardar Producto

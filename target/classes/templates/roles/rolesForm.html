@@ -8,22 +8,101 @@
     <link rel="icon" type="image/png" th:href="@{/img/img.png}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <th:block th:replace="fragments/layout :: styles"></th:block>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .role-form-shell{background:var(--pillone-bg);}
+        .role-form-panel{
+            background:#fff;
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .role-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .role-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .role-section-head{
+            display:flex;
+            align-items:center;
+            gap:.7rem;
+            padding:1rem 1.15rem;
+            border-bottom:1px solid #EEF0F4;
+            background:#FCFCFE;
+        }
+        .role-section-icon{
+            width:2.25rem;height:2.25rem;border-radius:.75rem;
+            display:flex;align-items:center;justify-content:center;
+            background:rgba(32,138,174,.10);color:var(--pillone-accent);flex:none;
+        }
+        .permission-module{
+            background:#fff;
+            border:1px solid var(--ui-border);
+            box-shadow:0 3px 12px rgba(7,0,77,.025);
+        }
+        .permission-item{
+            transition:background .15s ease;
+        }
+        .permission-item:hover{background:#FAFBFE;}
+        .role-actions{
+            position:sticky;bottom:0;z-index:20;
+            background:rgba(247,247,255,.96);
+            backdrop-filter:blur(10px);
+        }
+        @media(max-width:767px){
+            .role-form-main{padding:1rem!important;}
+            .role-form-header{align-items:stretch!important;}
+            .role-form-header>a{width:100%;justify-content:center;}
+            .role-toolbar{align-items:stretch!important;}
+            .role-toolbar>div:last-child{
+                display:grid!important;
+                grid-template-columns:1fr 1fr;
+                width:100%;
+            }
+            .role-toolbar button{width:100%;}
+            .permissions-grid{grid-template-columns:1fr!important;}
+            .role-actions{
+                flex-direction:column!important;
+                align-items:stretch!important;
+            }
+            .role-actions>div:last-child{
+                display:grid!important;
+                grid-template-columns:1fr;
+                width:100%;
+            }
+            .role-actions a,.role-actions button{width:100%;justify-content:center;text-align:center;}
+        }
+    </style>
+
 </head>
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 <header th:replace="fragments/layout :: topbar('Roles y Permisos')"></header>
-<div class="flex flex-1 relative">
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden"></div>
+<div class="role-form-shell flex flex-1 relative">
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden"></div>
     <aside th:replace="fragments/layout :: sidebar('roles')"></aside>
     <div class="flex-1 flex flex-col min-w-0">
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full">
+        <main class="role-form-main flex-1 p-4 sm:p-6 lg:p-8 max-w-[1450px] mx-auto w-full">
             <section class="mb-5">
-                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div class="role-form-header flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div>
                         <div class="text-[10px] uppercase tracking-[.16em] text-pillone-accent font-bold mb-2">Control de acceso</div>
-                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight" th:text="${rol.idRol != null ? 'Editar Rol y Permisos' : 'Nuevo Rol y Permisos'}"></h1>
+                        <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark" th:text="${rol.idRol != null ? 'Editar Rol y Permisos' : 'Nuevo Rol y Permisos'}"></h1>
                         <p class="text-xs text-slate-500 mt-1">Seleccione exactamente las acciones que podrá realizar este perfil.</p>
                     </div>
-                    <a th:href="@{/view/roles}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-50">
+                    <a th:href="@{/view/roles}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" d="M15 18l-6-6 6-6"/></svg>
                         Volver
                     </a>
@@ -38,44 +117,44 @@
             <form th:action="@{/view/roles/save}" th:object="${rol}" method="post" id="form-rol">
                 <input type="hidden" th:field="*{idRol}">
 
-                <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
-                    <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-pillone-accent" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v5c0 4.6-2.8 8.2-7 10-4.2-1.8-7-5.4-7-10V6l7-3z"/></svg>
-                        <h2 class="font-extrabold text-pillone-dark uppercase tracking-wider">Identidad del rol</h2>
+                <section class="role-form-panel rounded-2xl overflow-hidden mb-5">
+                    <div class="role-section-head">
+                        <div class="role-section-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v5c0 4.6-2.8 8.2-7 10-4.2-1.8-7-5.4-7-10V6l7-3z"/></svg></div>
+                        <h2 class="font-bold text-pillone-dark">Identidad del rol</h2>
                     </div>
                     <div class="p-5">
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Nombre del rol *</label>
-                        <input type="text" th:field="*{nombre}" required maxlength="50" placeholder="Ej. SUPERVISOR_CAJA" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:bg-white focus:border-pillone-accent">
+                        <input type="text" th:field="*{nombre}" required maxlength="50" placeholder="Ej. SUPERVISOR_CAJA" class="role-control w-full px-3.5 py-3 rounded-xl outline-none">
                         <p class="text-[10px] text-slate-400 mt-1.5">Se guardará automáticamente en mayúsculas. Puedes escribir espacios; el sistema los convertirá en guiones bajos.</p>
                     </div>
                 </section>
 
-                <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-4 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                <section class="role-form-panel rounded-2xl overflow-hidden">
+                    <div class="role-toolbar px-5 py-4 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                         <div>
-                            <h2 class="font-extrabold text-pillone-dark uppercase tracking-wider">Matriz de permisos</h2>
+                            <h2 class="font-bold text-pillone-dark">Matriz de permisos</h2>
                             <p class="text-[10px] text-slate-400 mt-1">Activa únicamente lo que este rol necesita.</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="px-3 py-2 rounded-lg bg-pillone-bg text-pillone-dark font-bold">
+                            <span class="px-3 py-2 rounded-xl bg-pillone-bg text-pillone-dark font-semibold">
                                 <span id="contador-seleccionados">0</span> / <span th:text="${totalPermisos}">0</span> seleccionados
                             </span>
-                            <button type="button" onclick="seleccionarTodo(true)" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-bold hover:bg-blue-100">Seleccionar todos</button>
-                            <button type="button" onclick="seleccionarTodo(false)" class="px-3 py-2 rounded-lg bg-slate-100 text-slate-600 font-bold hover:bg-slate-200">Limpiar</button>
+                            <button type="button" onclick="seleccionarTodo(true)" class="px-3 py-2 rounded-xl bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100">Seleccionar todos</button>
+                            <button type="button" onclick="seleccionarTodo(false)" class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200">Limpiar</button>
                         </div>
                     </div>
 
-                    <div class="p-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <div th:each="entrada : ${permisosPorModulo}" class="modulo-permisos border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="permissions-grid p-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div th:each="entrada : ${permisosPorModulo}" class="modulo-permisos permission-module rounded-2xl overflow-hidden">
                             <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-3">
                                 <div>
                                     <div class="font-extrabold text-pillone-dark" th:text="${entrada.key}"></div>
                                     <div class="text-[9px] text-slate-400" th:text="${#lists.size(entrada.value) + ' acciones disponibles'}"></div>
                                 </div>
-                                <button type="button" onclick="alternarModulo(this)" class="text-[10px] px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-pillone-accent font-bold hover:bg-pillone-accent hover:text-white transition">Marcar módulo</button>
+                                <button type="button" onclick="alternarModulo(this)" class="text-[10px] px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-pillone-accent font-semibold hover:bg-pillone-accent hover:text-white transition">Marcar módulo</button>
                             </div>
                             <div class="divide-y divide-slate-100">
-                                <label th:each="permiso : ${entrada.value}" class="flex items-start gap-3 p-3.5 hover:bg-pillone-bg/40 cursor-pointer transition">
+                                <label th:each="permiso : ${entrada.value}" class="permission-item flex items-start gap-3 p-3.5 cursor-pointer">
                                     <input type="checkbox"
                                            name="permissionIds"
                                            th:value="${permiso.idPermiso}"
@@ -93,13 +172,13 @@
                     </div>
                 </section>
 
-                <div class="sticky bottom-0 z-20 mt-5 bg-pillone-bg/95 backdrop-blur border-t border-slate-200 py-4 flex items-center justify-between gap-3">
+                <div class="role-actions mt-5 border-t border-slate-200 py-4 flex items-center justify-between gap-3">
                     <div class="text-[10px] text-slate-500">
                         Los cambios aplican a todos los usuarios que tengan este rol.
                     </div>
                     <div class="flex gap-2">
-                        <a th:href="@{/view/roles}" class="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-600 font-bold">Cancelar</a>
-                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pillone-accent text-white font-bold shadow-sm hover:opacity-90">
+                        <a th:href="@{/view/roles}" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50">Cancelar</a>
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold shadow-sm hover:bg-pillone-darker">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                             Guardar rol y permisos
                         </button>

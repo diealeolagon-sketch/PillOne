@@ -16,41 +16,132 @@
           rel="stylesheet">
 
     <th:block th:replace="fragments/layout :: styles"></th:block>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-surface:#FFFFFF;
+            --ui-surface-soft:#FAFBFE;
+            --ui-border:#E7E9F0;
+            --ui-muted:#667085;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .page-shell{
+            background:
+                radial-gradient(circle at top right, rgba(32,138,174,.06), transparent 30rem),
+                var(--pillone-bg);
+        }
+        .ui-panel{
+            background:rgba(255,255,255,.97);
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .ui-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+        }
+        .ui-control:hover{background:#fff;}
+        .ui-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .ui-kicker{
+            color:var(--pillone-accent);
+            font-size:10px;
+            font-weight:700;
+            letter-spacing:.16em;
+            text-transform:uppercase;
+        }
+        .ui-table tbody tr{
+            transition:background .15s ease, box-shadow .15s ease;
+        }
+        .ui-table tbody tr:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.55);
+        }
+        .ui-icon-button{
+            width:2rem;
+            height:2rem;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:.65rem;
+            transition:background .15s ease,color .15s ease,transform .15s ease;
+        }
+        .ui-icon-button:hover{transform:translateY(-1px);}
+        .ui-section-title{
+            display:flex;
+            align-items:center;
+            gap:.55rem;
+            color:var(--pillone-dark);
+            font-size:12px;
+            font-weight:700;
+            letter-spacing:.03em;
+        }
+        .ui-section-title::before{
+            content:"";
+            width:.22rem;
+            height:1rem;
+            border-radius:999px;
+            background:var(--pillone-accent);
+            flex:none;
+        }
+        .ui-field-help{
+            color:#98A2B3;
+            font-size:10px;
+            line-height:1.5;
+            margin-top:.35rem;
+        }
+        @media(max-width:767px){
+            .mobile-sticky-toolbar{
+                position:sticky;
+                top:0;
+                z-index:5;
+                backdrop-filter:blur(8px);
+            }
+        }
+    </style>
+
 </head>
 
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
 <header th:replace="fragments/layout :: topbar('Gestión de Productos')"></header>
 
-<div class="flex flex-1 relative">
+<div class="flex flex-1 relative page-shell">
 
     <div id="overlay"
          onclick="toggleSidebar()"
-         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+         class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden">
     </div>
 
     <aside th:replace="fragments/layout :: sidebar('productos')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto w-full">
 
             <!-- ENCABEZADO -->
             <section class="mb-5">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
 
                     <div>
-                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight">
-                            Consulta y Seguimiento de Productos
+                        <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark">
+                            Productos
                         </h1>
 
                         <p class="text-xs text-slate-500 mt-1">
-                            Consulte productos, precios, información farmacéutica e inventario disponible.
+                            Consulta fichas farmacéuticas, precios, disponibilidad, proveedor habitual y acceso rápido a lotes.
                         </p>
                     </div>
 
                     <a th:href="@{/view/productos/form}"
-                       class="inline-flex items-center justify-center gap-2 rounded-lg bg-pillone-accent px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 transition">
+                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-pillone-dark px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-pillone-darker transition">
 
                         <svg class="w-4 h-4"
                              fill="none"
@@ -73,20 +164,20 @@
 
             <!-- MENSAJES -->
             <div th:if="${mensaje}"
-                 class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-emerald-800 font-medium">
+                 class="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-emerald-800 font-medium">
                 <span th:text="${mensaje}"></span>
             </div>
 
             <div th:if="${error}"
-                 class="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 font-medium">
+                 class="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 font-medium">
                 <span th:text="${error}"></span>
             </div>
 
 
             <!-- TABLA -->
-            <section class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <section class="ui-panel rounded-2xl overflow-hidden">
 
-                <div class="p-4 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                <div class="mobile-sticky-toolbar p-4 sm:p-5 border-b border-slate-100 bg-white/95 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
 
                     <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
 
@@ -112,7 +203,7 @@
                                    id="buscador-tabla"
                                    oninput="filtrarTabla()"
                                    placeholder="Buscar código, medicamento, laboratorio..."
-                                   class="w-full pl-9 pr-3.5 py-2 text-xs rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+                                   class="ui-control w-full pl-9 pr-3.5 py-2.5 text-xs rounded-xl outline-none">
 
                         </div>
 
@@ -137,7 +228,7 @@
 
                             <select id="filtro-categoria"
                                     onchange="filtrarTabla()"
-                                    class="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                    class="ui-control w-full pl-9 pr-8 py-2.5 text-xs rounded-xl outline-none">
 
                                 <option value="">Todas las categorías</option>
 
@@ -166,10 +257,10 @@
 
                 <div class="overflow-x-auto">
 
-                    <table class="min-w-full text-xs text-left">
+                    <table class="ui-table min-w-full text-xs text-left">
 
                         <thead>
-                        <tr class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
+                        <tr class="bg-pillone-dark text-white text-[10px] uppercase tracking-[.06em]">
 
                             <th class="px-4 py-3.5">
                                 Códigos
@@ -208,12 +299,12 @@
 
                         <tr th:each="p : ${productos}"
                             th:attr="data-categoria=${p.idCategoria}"
-                            class="fila-producto hover:bg-pillone-bg/40 transition">
+                            class="fila-producto">
 
                             <!-- CÓDIGOS -->
                             <td class="px-4 py-3.5">
 
-                                <span class="font-bold text-pillone-accent px-2 py-1 rounded bg-pillone-accent/5"
+                                <span class="font-bold text-pillone-accent px-2.5 py-1 rounded-lg bg-[rgba(32,138,174,.08)]"
                                       th:text="${p.codigoInterno}">
                                 </span>
 
@@ -324,7 +415,7 @@
                             <!-- STOCK -->
                             <td class="px-4 py-3.5 text-center">
 
-                                <span class="inline-flex px-2 py-1 rounded-lg bg-slate-100 font-bold text-pillone-dark"
+                                <span class="inline-flex min-w-10 justify-center px-2.5 py-1 rounded-lg bg-pillone-bg border border-slate-200 font-bold text-pillone-dark"
                                       th:text="${p.stockTotal != null ? p.stockTotal : 0}">
                                     0
                                 </span>
@@ -357,7 +448,7 @@
 
                                     <!-- VER DETALLE -->
                                     <button type="button"
-                                            class="btn-ver-producto p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-pillone-accent hover:bg-pillone-accent/10 transition"
+                                            class="btn-ver-producto ui-icon-button bg-slate-50 text-slate-500 hover:text-pillone-accent hover:bg-[rgba(32,138,174,.10)]"
                                             title="Ver producto"
 
                                             th:attr="
@@ -414,7 +505,7 @@
 
                                     <!-- EDITAR -->
                                     <a th:href="@{/view/productos/edit/{id}(id=${p.idProducto})}"
-                                       class="p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-pillone-accent hover:bg-pillone-accent/10 transition"
+                                       class="ui-icon-button bg-slate-50 text-slate-500 hover:text-pillone-accent hover:bg-[rgba(32,138,174,.10)]"
                                        title="Editar producto">
 
                                         <svg class="w-4 h-4"
@@ -435,7 +526,7 @@
 
                                     <!-- NUEVO LOTE -->
                                     <a th:href="@{/view/lotes/form(producto=${p.idProducto})}"
-                                       class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                       class="ui-icon-button bg-blue-50 text-blue-600 hover:bg-blue-100"
                                        title="Agregar lote">
 
                                         <svg class="w-4 h-4"
@@ -465,7 +556,7 @@
                                           onsubmit="return confirm('¿Está seguro de eliminar este producto?');">
 
                                         <button type="submit"
-                                                class="p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-red-600 hover:bg-red-50 transition"
+                                                class="ui-icon-button bg-slate-50 text-slate-500 hover:text-red-600 hover:bg-red-50"
                                                 title="Eliminar">
 
                                             <svg class="w-4 h-4"
@@ -513,12 +604,12 @@
 <!-- ===================================================== -->
 
 <div id="modal-detalle"
-     class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+     class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/55 backdrop-blur-[3px] p-4">
 
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col">
+    <div class="bg-white rounded-2xl shadow-2xl border border-white/70 w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col">
 
         <!-- CABECERA MODAL -->
-        <div class="bg-pillone-dark px-5 sm:px-6 py-4 flex items-center justify-between">
+        <div class="bg-pillone-dark px-5 sm:px-6 py-4.5 flex items-center justify-between">
 
             <div>
 
@@ -555,13 +646,13 @@
 
 
         <!-- CONTENIDO -->
-        <div class="overflow-y-auto p-5 sm:p-6 space-y-5">
+        <div class="overflow-y-auto p-5 sm:p-6 space-y-6 bg-[#FCFCFE]">
 
 
             <!-- INFORMACIÓN GENERAL -->
             <section>
 
-                <h4 class="font-bold text-pillone-accent uppercase tracking-wider text-[11px] pb-2 border-b border-slate-100 mb-3">
+                <h4 class="ui-section-title pb-2.5 border-b border-slate-100 mb-3.5">
                     1. Información General
                 </h4>
 
@@ -630,7 +721,7 @@
             <!-- INFORMACIÓN FARMACÉUTICA -->
             <section>
 
-                <h4 class="font-bold text-pillone-accent uppercase tracking-wider text-[11px] pb-2 border-b border-slate-100 mb-3">
+                <h4 class="ui-section-title pb-2.5 border-b border-slate-100 mb-3.5">
                     2. Información Farmacéutica
                 </h4>
 
@@ -691,7 +782,7 @@
             <!-- PRECIOS -->
             <section>
 
-                <h4 class="font-bold text-pillone-accent uppercase tracking-wider text-[11px] pb-2 border-b border-slate-100 mb-3">
+                <h4 class="ui-section-title pb-2.5 border-b border-slate-100 mb-3.5">
                     3. Precios y Empaque
                 </h4>
 
@@ -773,7 +864,7 @@
             <!-- INVENTARIO -->
             <section>
 
-                <h4 class="font-bold text-pillone-accent uppercase tracking-wider text-[11px] pb-2 border-b border-slate-100 mb-3">
+                <h4 class="ui-section-title pb-2.5 border-b border-slate-100 mb-3.5">
                     4. Inventario y Restricciones
                 </h4>
 
@@ -850,11 +941,11 @@
 
 
         <!-- PIE MODAL -->
-        <div class="bg-slate-50 px-5 sm:px-6 py-3 border-t border-slate-200 flex justify-end">
+        <div class="bg-white px-5 sm:px-6 py-4 border-t border-slate-100 flex justify-end">
 
             <button type="button"
                     onclick="cerrarModalDetalle()"
-                    class="px-5 py-2 rounded-lg bg-pillone-dark text-white font-bold hover:opacity-90 transition">
+                    class="px-5 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold hover:bg-pillone-darker transition">
 
                 Cerrar
 

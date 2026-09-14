@@ -32,30 +32,130 @@
             }
         }
     </script>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .lots-shell{background:var(--pillone-bg);}
+        .lots-panel{
+            background:#fff;
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .lots-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .lots-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .lot-row{
+            transition:background .15s ease,box-shadow .15s ease;
+        }
+        .lot-row:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.5);
+        }
+        .lots-pagination{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:1rem;
+            padding:.9rem 1rem;
+            border-top:1px solid var(--ui-border);
+            background:#fff;
+        }
+        .page-controls{display:flex;align-items:center;gap:.35rem;}
+        .page-btn{
+            min-width:2.25rem;height:2.25rem;padding:0 .7rem;
+            display:inline-flex;align-items:center;justify-content:center;
+            border:1px solid var(--ui-border);border-radius:.65rem;
+            background:#fff;color:#475467;font-size:.72rem;font-weight:600;
+        }
+        .page-btn.active{background:var(--pillone-dark);color:#fff;border-color:var(--pillone-dark);}
+        .page-btn:disabled{opacity:.4;cursor:not-allowed;}
+        @media(max-width:767px){
+            .lots-main{padding:1rem!important;}
+            .lots-header{align-items:stretch!important;}
+            .lots-header>a{width:100%;}
+            .lots-toolbar{
+                position:sticky;top:0;z-index:6;
+                background:rgba(255,255,255,.96);
+                backdrop-filter:blur(10px);
+            }
+            #buscador,#filtroProducto{font-size:16px!important;}
+            .lots-toolbar>a{width:100%;text-align:center;justify-content:center;}
+            .lots-table-wrap{overflow:visible!important;padding:.75rem;background:#F7F7FF;}
+            .lots-table,.lots-table tbody{display:block;width:100%;min-width:0!important;}
+            .lots-table thead{display:none;}
+            .lots-table tbody{border:0!important;}
+            .lots-table .fila-lote{
+                display:block;background:#fff;border:1px solid var(--ui-border);
+                border-radius:1rem;margin-bottom:.75rem;overflow:hidden;
+                box-shadow:0 6px 18px rgba(7,0,77,.04);
+            }
+            .lots-table .fila-lote td{
+                display:flex;align-items:flex-start;justify-content:space-between;
+                gap:1rem;padding:.68rem .85rem!important;text-align:right!important;border:0;
+            }
+            .lots-table .fila-lote td::before{
+                content:attr(data-label);flex:0 0 6.6rem;text-align:left;color:#98A2B3;
+                font-size:.62rem;font-weight:700;text-transform:uppercase;
+            }
+            .lots-table .fila-lote td:first-child{
+                display:block;text-align:left!important;background:#FCFCFE;
+                border-bottom:1px solid #F0F1F5;
+            }
+            .lots-table .fila-lote td:first-child::before{display:none;}
+            .lots-table .fila-lote td:nth-child(8){
+                display:block;border-top:1px solid #F0F1F5;
+            }
+            .lots-table .fila-lote td:nth-child(8)::before{display:block;margin-bottom:.5rem;}
+            .lots-table .fila-lote td:nth-child(8)>div{min-width:0!important;}
+            .lots-pagination{
+                position:sticky;bottom:0;z-index:5;flex-direction:column;
+                align-items:stretch;gap:.55rem;padding:.75rem;
+                background:rgba(255,255,255,.97);backdrop-filter:blur(10px);
+            }
+            .page-controls{justify-content:center;}
+            #paginacion-info{text-align:center;}
+        }
+    </style>
+
 </head>
 
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
 <header th:replace="fragments/layout :: topbar('Gestión de Lotes')"></header>
 
-<div class="flex flex-1 relative">
+<div class="lots-shell flex flex-1 relative">
 
     <div id="overlay"
          onclick="toggleSidebar()"
-         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+         class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden">
     </div>
 
     <aside th:replace="fragments/layout :: sidebar('productos')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+        <main class="lots-main flex-1 p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto w-full">
 
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+            <div class="lots-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
 
                 <div>
 
-                    <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase">
+                    <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark">
                         Lotes e Inventario
                     </h1>
 
@@ -66,9 +166,9 @@
                 </div>
 
                 <a th:href="${productoId != null ? '/view/lotes/form?productoId='+productoId : '/view/lotes/form'}"
-                   class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold hover:bg-pillone-darker transition shadow-sm">
 
-                    + Nuevo Lote
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>Nuevo lote
 
                 </a>
 
@@ -88,7 +188,7 @@
                  class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
 
                 <div class="font-bold text-amber-800">
-                    ⚠ Lote seleccionado
+                    Lote seleccionado
                 </div>
 
                 <div class="text-[11px] text-amber-700 mt-1">
@@ -97,20 +197,20 @@
 
             </div>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <section class="lots-panel rounded-2xl overflow-hidden">
 
-                <div class="p-4 border-b flex flex-col md:flex-row md:items-center gap-3">
+                <div class="lots-toolbar p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center gap-3">
 
                     <input id="buscador"
                            onkeyup="filtrar()"
                            type="text"
                            placeholder="Buscar producto, lote, estado..."
                            autocomplete="off"
-                           class="w-full md:w-80 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                           class="lots-control w-full md:w-80 px-3.5 py-2.5 rounded-xl outline-none">
 
                     <select id="filtroProducto"
                             onchange="filtrarProducto(this.value)"
-                            class="w-full md:w-72 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            class="lots-control w-full md:w-72 px-3.5 py-2.5 rounded-xl outline-none">
 
                         <option value="">
                             Todos los productos
@@ -125,16 +225,16 @@
                     </select>
 
                     <a th:href="@{/view/alertas/vencimientos}"
-                       class="px-3 py-2 rounded-lg bg-amber-50 text-amber-700 font-semibold border border-amber-100 hover:bg-amber-100 transition">
+                       class="inline-flex items-center justify-center px-3.5 py-2.5 rounded-xl bg-amber-50 text-amber-700 font-semibold border border-amber-100 hover:bg-amber-100 transition">
 
-                        ⚠ Alertas
+                        <span class="inline-flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l9 16H3L12 3zm0 6v4m0 3h.01"/></svg>Alertas</span>
 
                     </a>
 
                     <a th:href="@{/view/productos}"
-                       class="md:ml-auto px-3 py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition">
+                       class="md:ml-auto inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50 transition">
 
-                        ← Productos
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>Productos
 
                     </a>
 
@@ -201,9 +301,9 @@
 
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="lots-table-wrap overflow-x-auto">
 
-                    <table class="min-w-full text-xs">
+                    <table class="lots-table min-w-full text-xs">
 
                         <thead>
 
@@ -249,16 +349,16 @@
                                class="divide-y divide-slate-100">
 
                         <tr th:each="f : ${filas}"
-                            class="fila-lote hover:bg-slate-50 transition"
+                            class="fila-lote lot-row"
                             th:id="${'lote-'+f.lote.idLote}"
                             th:classappend="${loteId != null && loteId == f.lote.idLote ? ' bg-amber-50 ring-2 ring-inset ring-amber-300' : ''}">
 
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3" data-label="Producto / lote">
 
                                 <div th:if="${loteId != null && loteId == f.lote.idLote}"
                                      class="inline-flex mb-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[9px] font-bold">
 
-                                    ⚠ LOTE SELECCIONADO
+                                    LOTE SELECCIONADO
 
                                 </div>
 
@@ -282,7 +382,7 @@
 
                             </td>
 
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3" data-label="Empaque">
 
                                 <div class="font-semibold text-slate-700"
                                      th:text="${f.sellosPorCaja+' sello(s) por caja'}">
@@ -298,7 +398,7 @@
 
                             </td>
 
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center" data-label="Cajas">
 
                                 <div class="inline-flex flex-col min-w-[65px] rounded-lg bg-blue-50 border border-blue-100 px-3 py-2">
 
@@ -315,7 +415,7 @@
 
                             </td>
 
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center" data-label="Sellos">
 
                                 <div class="inline-flex flex-col min-w-[65px] rounded-lg bg-emerald-50 border border-emerald-100 px-3 py-2">
 
@@ -332,7 +432,7 @@
 
                             </td>
 
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center" data-label="Unidades">
 
                                 <div class="inline-flex flex-col min-w-[65px] rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
 
@@ -349,7 +449,7 @@
 
                             </td>
 
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3" data-label="Vencimiento">
 
                                 <div class="font-semibold"
                                      th:text="${f.lote.fechaVencimiento}">
@@ -361,7 +461,7 @@
 
                             </td>
 
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center" data-label="Estado">
 
                                 <span class="px-2 py-1 rounded-full text-[10px] font-bold"
                                       th:classappend="${
@@ -386,7 +486,7 @@
 
                             </td>
 
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3" data-label="Acciones">
 
                                 <div class="flex flex-col gap-1.5 min-w-[125px]">
 
@@ -494,6 +594,19 @@
 
                 </div>
 
+                <div id="paginacion-lotes" class="lots-pagination hidden">
+                    <div id="paginacion-info" class="text-[11px] text-slate-500">Mostrando 0 de 0 lotes</div>
+                    <div class="page-controls">
+                        <button type="button" id="pagina-anterior" class="page-btn" onclick="cambiarPagina(-1)" aria-label="Página anterior">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <div id="numeros-pagina" class="page-controls"></div>
+                        <button type="button" id="pagina-siguiente" class="page-btn" onclick="cambiarPagina(1)" aria-label="Página siguiente">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                    </div>
+                </div>
+
             </section>
 
         </main>
@@ -515,30 +628,19 @@
 
     function filtrar(){
         const buscador=document.getElementById('buscador');
-
-        if(!buscador){
-            return;
-        }
+        if(!buscador) return;
 
         const texto=buscador.value;
         const q=texto.toLowerCase().trim();
 
-        sessionStorage.setItem(
-            STORAGE_BUSQUEDA,
-            texto
+        sessionStorage.setItem(STORAGE_BUSQUEDA,texto);
+
+        filasFiltradas=obtenerFilas().filter(fila=>
+            !q || fila.textContent.toLowerCase().includes(q)
         );
 
-        document.querySelectorAll('.fila-lote').forEach(fila=>{
-            const coincide=
-                fila.textContent
-                    .toLowerCase()
-                    .includes(q);
-
-            fila.style.display=
-                coincide
-                    ? ''
-                    : 'none';
-        });
+        paginaActual=1;
+        renderizarPagina();
     }
 
     function filtrarProducto(valor){
@@ -654,10 +756,103 @@
         }
     }
 
+
+    let paginaActual=1;
+    let filasPorPagina=window.innerWidth<768?5:10;
+    let filasFiltradas=[];
+
+    function obtenerFilas(){
+        return Array.from(document.querySelectorAll('.fila-lote'));
+    }
+
+    function renderizarPagina(){
+        const todas=obtenerFilas();
+        const total=filasFiltradas.length;
+        const totalPaginas=Math.max(1,Math.ceil(total/filasPorPagina));
+        if(paginaActual>totalPaginas) paginaActual=totalPaginas;
+
+        const inicio=(paginaActual-1)*filasPorPagina;
+        const fin=Math.min(inicio+filasPorPagina,total);
+
+        todas.forEach(f=>f.style.display='none');
+        filasFiltradas.slice(inicio,fin).forEach(f=>f.style.display='');
+
+        const cont=document.getElementById('paginacion-lotes');
+        const info=document.getElementById('paginacion-info');
+        const nums=document.getElementById('numeros-pagina');
+        const anterior=document.getElementById('pagina-anterior');
+        const siguiente=document.getElementById('pagina-siguiente');
+
+        if(!cont) return;
+        if(total===0){
+            cont.classList.add('hidden');
+            return;
+        }
+
+        cont.classList.remove('hidden');
+        info.textContent=`Mostrando ${inicio+1}–${fin} de ${total} lotes`;
+        anterior.disabled=paginaActual===1;
+        siguiente.disabled=paginaActual===totalPaginas;
+        nums.innerHTML='';
+
+        obtenerPaginasVisibles(totalPaginas,paginaActual).forEach(p=>{
+            if(p==='...'){
+                const span=document.createElement('span');
+                span.className='page-btn border-transparent bg-transparent pointer-events-none';
+                span.textContent='…';
+                nums.appendChild(span);
+                return;
+            }
+
+            const b=document.createElement('button');
+            b.type='button';
+            b.className='page-btn'+(p===paginaActual?' active':'');
+            b.textContent=p;
+            b.onclick=()=>irAPagina(p);
+            nums.appendChild(b);
+        });
+    }
+
+    function obtenerPaginasVisibles(total,actual){
+        if(total<=5) return Array.from({length:total},(_,i)=>i+1);
+        if(actual<=3) return [1,2,3,4,'...',total];
+        if(actual>=total-2) return [1,'...',total-3,total-2,total-1,total];
+        return [1,'...',actual-1,actual,actual+1,'...',total];
+    }
+
+    function irAPagina(p){
+        paginaActual=p;
+        renderizarPagina();
+
+        if(window.innerWidth<768){
+            document.getElementById('buscador')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+    }
+
+    function cambiarPagina(delta){
+        const totalPaginas=Math.max(1,Math.ceil(filasFiltradas.length/filasPorPagina));
+        const nueva=paginaActual+delta;
+        if(nueva<1||nueva>totalPaginas) return;
+        irAPagina(nueva);
+    }
+
+    window.addEventListener('resize',()=>{
+        const nuevo=window.innerWidth<768?5:10;
+        if(nuevo!==filasPorPagina){
+            filasPorPagina=nuevo;
+            paginaActual=1;
+            renderizarPagina();
+        }
+    });
+
     document.addEventListener(
         'DOMContentLoaded',
         function(){
+            filasFiltradas=obtenerFilas();
             restaurarBusqueda();
+            if(!document.getElementById('buscador')?.value){
+                renderizarPagina();
+            }
             resaltarLote();
         }
     );

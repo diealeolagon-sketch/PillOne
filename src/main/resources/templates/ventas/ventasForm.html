@@ -6,20 +6,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva venta - PillOne</title>
     <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-surface:#FFFFFF;
+            --ui-soft:#FAFBFE;
+            --ui-border:#E7E9F0;
+            --ui-muted:#667085;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .pos-shell{
+            background:
+                radial-gradient(circle at top right,rgba(32,138,174,.06),transparent 30rem),
+                var(--pillone-bg);
+        }
+        .pos-panel{
+            background:rgba(255,255,255,.98);
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .pos-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .pos-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .pos-table tbody tr{
+            transition:background .15s ease,box-shadow .15s ease;
+        }
+        .pos-table tbody tr:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.5);
+        }
+        .summary-box{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+        }
+        .checkout-total{
+            background:linear-gradient(180deg,#FBFCFE,#F7F8FC);
+            border:1px solid var(--ui-border);
+        }
+        .product-result{
+            transition:background .15s ease,border-color .15s ease;
+        }
+        .product-result:hover{
+            background:#FAFBFE;
+        }
+        @media(max-width:1023px){
+            .pos-layout{
+                grid-template-columns:1fr!important;
+            }
+            .pos-summary{
+                position:static!important;
+            }
+        }
+        @media(max-width:767px){
+            .pos-main{
+                padding:1rem!important;
+            }
+            .pos-header{
+                align-items:stretch!important;
+            }
+            .pos-header button{
+                width:100%;
+            }
+            .pos-cart-wrap{
+                overflow:visible!important;
+                padding:.75rem;
+                background:#F7F7FF;
+            }
+            .pos-table,
+            .pos-table tbody{
+                display:block;
+                width:100%;
+                min-width:0!important;
+            }
+            .pos-table thead{
+                display:none;
+            }
+            .pos-table tbody{
+                border:0!important;
+            }
+            .pos-table tbody tr{
+                display:block;
+                width:100%;
+                background:#fff;
+                border:1px solid var(--ui-border);
+                border-radius:1rem;
+                margin-bottom:.7rem;
+                padding:.2rem 0;
+                box-shadow:0 6px 18px rgba(7,0,77,.04);
+                overflow:hidden;
+            }
+            .pos-table tbody tr td{
+                display:flex;
+                align-items:flex-start;
+                justify-content:space-between;
+                gap:1rem;
+                padding:.65rem .85rem!important;
+                text-align:right!important;
+                border:0;
+            }
+            .pos-table tbody tr td::before{
+                content:attr(data-label);
+                flex:0 0 6.4rem;
+                color:#98A2B3;
+                text-align:left;
+                font-size:.62rem;
+                font-weight:700;
+                text-transform:uppercase;
+                letter-spacing:.04em;
+            }
+            .pos-table tbody tr td:first-child{
+                display:block;
+                text-align:left!important;
+                border-bottom:1px solid #F0F1F5;
+                background:#FCFCFE;
+            }
+            .pos-table tbody tr td:first-child::before{
+                display:none;
+            }
+            .pos-table tbody tr td select,
+            .pos-table tbody tr td input{
+                max-width:65%;
+            }
+            .pos-table tbody tr td:nth-child(3){
+                display:block;
+                text-align:left!important;
+            }
+            .pos-table tbody tr td:nth-child(3)::before{
+                display:block;
+                margin-bottom:.4rem;
+            }
+            .pos-summary{
+                margin-top:.2rem;
+            }
+            .pos-summary #btn-guardar{
+                position:sticky;
+                bottom:.75rem;
+                z-index:10;
+                box-shadow:0 10px 28px rgba(7,0,77,.18);
+            }
+            #modal-productos .relative.h-full{
+                align-items:flex-end!important;
+                padding:0!important;
+            }
+            #modal-productos .bg-white.w-full{
+                max-height:94vh!important;
+                border-radius:1.25rem 1.25rem 0 0!important;
+            }
+            #buscar-producto{
+                font-size:16px!important;
+            }
+            #lista-productos .product-result{
+                padding:.9rem!important;
+            }
+        }
+    </style>
+
 </head>
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen">
 <header th:replace="~{fragments/layout :: topbar('Nueva Venta')}"></header>
 
-<div class="flex min-h-[calc(100vh-4rem)]">
+<div class="flex min-h-[calc(100vh-4rem)] pos-shell">
     <aside th:replace="~{fragments/layout :: sidebar('ventas')}"></aside>
 
-    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+    <main class="pos-main flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
         <div class="max-w-[1600px] mx-auto space-y-5">
 
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div class="pos-header flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                 <div>
                     <p class="text-[11px] uppercase tracking-[0.2em] text-pillone-accent font-bold">Punto de venta</p>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-pillone-dark">Nueva dispensación</h1>
+                    <h1 class="text-2xl sm:text-[30px] leading-tight font-bold text-pillone-dark">Nueva dispensación</h1>
                     <p class="text-sm text-slate-500 mt-1">
                         Agrega productos, valida fórmula médica cuando aplique y finaliza la venta.
                     </p>
@@ -27,7 +194,7 @@
 
                 <button type="button"
                         onclick="abrirModalProductos()"
-                        class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-pillone-accent text-white font-semibold text-sm hover:opacity-95 shadow-sm">
+                        class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-pillone-dark text-white font-semibold text-sm hover:bg-pillone-darker shadow-sm transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" d="M12 5v14M5 12h14"></path>
                     </svg>
@@ -35,9 +202,9 @@
                 </button>
             </div>
 
-            <div class="grid 2xl:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
+            <div class="pos-layout grid 2xl:grid-cols-[minmax(0,1fr)_370px] gap-5 items-start">
 
-                <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden min-h-[520px]">
+                <section class="pos-panel rounded-2xl overflow-hidden min-h-[520px]">
                     <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-4">
                         <div>
                             <h2 class="font-bold text-pillone-dark">Productos de la venta</h2>
@@ -73,8 +240,8 @@
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[850px] text-sm">
+                    <div class="pos-cart-wrap overflow-x-auto">
+                        <table class="pos-table w-full min-w-[850px] text-sm">
                             <thead class="bg-pillone-dark text-white text-[11px] uppercase tracking-wider">
                             <tr>
                                 <th class="text-left p-3.5">Producto</th>
@@ -102,7 +269,7 @@
                     </div>
                 </section>
 
-                <aside class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-5 2xl:sticky 2xl:top-20">
+                <aside class="pos-summary pos-panel rounded-2xl p-5 space-y-5 2xl:sticky 2xl:top-20">
 
                     <div>
                         <h2 class="font-bold text-pillone-dark">Datos de la venta</h2>
@@ -118,7 +285,7 @@
                                 Sucursal
                             </label>
                             <select id="sucursal"
-                                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                    class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                             </select>
                         </div>
 
@@ -127,7 +294,7 @@
                                 Empleado
                             </label>
                             <select id="empleado"
-                                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                    class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                             </select>
                         </div>
 
@@ -137,7 +304,7 @@
                             </label>
                             <select id="cliente"
                                     onchange="actualizarDatosCliente();cambiarClienteVenta()"
-                                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                    class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                             </select>
                         </div>
 
@@ -146,7 +313,7 @@
                                 Método de pago
                             </label>
                             <select id="metodo-pago"
-                                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                    class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                                 <option value="EFECTIVO">Efectivo</option>
                                 <option value="TARJETA_DEBITO">Tarjeta débito</option>
                                 <option value="TARJETA_CREDITO">Tarjeta crédito</option>
@@ -166,12 +333,12 @@
                                    step="0.01"
                                    value="0"
                                    oninput="recalcularTotales()"
-                                   class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                   class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                         </div>
 
                     </div>
 
-                    <div class="rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="summary-box rounded-xl overflow-hidden">
 
                         <div class="p-3.5 bg-slate-50 flex items-center justify-between gap-4">
                             <div>
@@ -203,7 +370,7 @@
                                        type="text"
                                        maxlength="200"
                                        placeholder="Dirección completa"
-                                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                       class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                             </div>
 
                             <div>
@@ -214,7 +381,7 @@
                                        type="text"
                                        maxlength="15"
                                        placeholder="Ej. 3151234567"
-                                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                       class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                             </div>
 
                             <div>
@@ -227,7 +394,7 @@
                                        step="0.01"
                                        value="0"
                                        oninput="recalcularTotales()"
-                                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                       class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                             </div>
 
                             <div>
@@ -238,14 +405,14 @@
                                        type="text"
                                        maxlength="100"
                                        placeholder="Nombre del domiciliario"
-                                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                                       class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                             </div>
 
                         </div>
 
                     </div>
 
-                    <div class="rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="summary-box rounded-xl overflow-hidden">
 
                         <div class="p-3.5 bg-slate-50 flex items-center justify-between gap-4">
                             <div>
@@ -265,7 +432,7 @@
 
                     </div>
 
-                    <div class="space-y-2.5 text-sm border-t border-slate-100 pt-4">
+                    <div class="checkout-total rounded-xl p-4 space-y-2.5 text-sm">
 
                         <div class="flex justify-between">
                             <span class="text-slate-500">Subtotal</span>
@@ -335,8 +502,10 @@
 
                 <button type="button"
                         onclick="cerrarModalProductos()"
-                        class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xl">
-                    ×
+                        class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/>
+                    </svg>
                 </button>
             </div>
 
@@ -345,7 +514,7 @@
                        type="text"
                        oninput="renderProductosModal()"
                        placeholder="Buscar producto..."
-                       class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-pillone-accent">
+                       class="pos-control w-full px-4 py-3 rounded-xl text-sm outline-none">
             </div>
 
             <div id="lista-productos"
@@ -632,7 +801,7 @@
             lista.map(
                 p =>
                     `
-                    <div class="p-4 flex flex-col lg:flex-row lg:items-center gap-4 hover:bg-slate-50">
+                    <div class="product-result p-4 flex flex-col lg:flex-row lg:items-center gap-4">
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
                                 <h3 class="font-bold text-pillone-dark">
@@ -898,11 +1067,11 @@
                                    class="w-20 px-2 py-2 text-center border border-slate-200 rounded-lg">
                         </td>
 
-                        <td class="p-3.5 text-right font-medium">
+                        <td class="p-3.5 text-right font-medium" data-label="Precio">
                             ${dinero(precioPresentacion(item))}
                         </td>
 
-                        <td class="p-3.5 text-right font-bold text-pillone-dark">
+                        <td class="p-3.5 text-right font-bold text-pillone-dark" data-label="Subtotal">
                             ${dinero(precioPresentacion(item)*item.cantidad)}
                         </td>
 

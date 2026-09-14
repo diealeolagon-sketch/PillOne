@@ -39,24 +39,122 @@
             }
         }
     </script>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .providers-shell{background:var(--pillone-bg);}
+        .providers-panel{
+            background:#fff;
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .providers-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .providers-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .provider-row{transition:background .15s ease,box-shadow .15s ease;}
+        .provider-row:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.5);
+        }
+        .icon-action{
+            width:2.2rem;height:2.2rem;
+            display:inline-flex;align-items:center;justify-content:center;
+            border-radius:.7rem;
+            transition:transform .15s ease,background .15s ease;
+        }
+        .icon-action:hover{transform:translateY(-1px);}
+        .providers-pagination{
+            display:flex;align-items:center;justify-content:space-between;
+            gap:1rem;padding:.9rem 1rem;border-top:1px solid var(--ui-border);background:#fff;
+        }
+        .page-controls{display:flex;align-items:center;gap:.35rem;}
+        .page-btn{
+            min-width:2.25rem;height:2.25rem;padding:0 .7rem;
+            display:inline-flex;align-items:center;justify-content:center;
+            border:1px solid var(--ui-border);border-radius:.65rem;
+            background:#fff;color:#475467;font-size:.72rem;font-weight:600;
+        }
+        .page-btn.active{background:var(--pillone-dark);color:#fff;border-color:var(--pillone-dark);}
+        .page-btn:disabled{opacity:.4;cursor:not-allowed;}
+        @media(max-width:767px){
+            .providers-main{padding:1rem!important;}
+            .providers-header{align-items:stretch!important;}
+            .providers-actions{display:grid!important;grid-template-columns:1fr 1fr;width:100%;}
+            .providers-actions a{width:100%;justify-content:center;}
+            .providers-toolbar{
+                position:sticky;top:0;z-index:6;
+                background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
+            }
+            #buscar{font-size:16px!important;}
+            .providers-table-wrap{overflow:visible!important;padding:.75rem;background:#F7F7FF;}
+            .providers-table,.providers-table tbody{display:block;width:100%;min-width:0!important;}
+            .providers-table thead{display:none;}
+            .providers-table tbody{border:0!important;}
+            .providers-table .fila-proveedor{
+                display:block;background:#fff;border:1px solid var(--ui-border);
+                border-radius:1rem;margin-bottom:.75rem;overflow:hidden;
+                box-shadow:0 6px 18px rgba(7,0,77,.04);
+            }
+            .providers-table .fila-proveedor td{
+                display:flex;align-items:flex-start;justify-content:space-between;
+                gap:1rem;padding:.68rem .85rem!important;text-align:right!important;border:0;
+            }
+            .providers-table .fila-proveedor td::before{
+                content:attr(data-label);flex:0 0 6rem;text-align:left;color:#98A2B3;
+                font-size:.62rem;font-weight:700;text-transform:uppercase;
+            }
+            .providers-table .fila-proveedor td:first-child{
+                display:block;text-align:left!important;background:#FCFCFE;border-bottom:1px solid #F0F1F5;
+            }
+            .providers-table .fila-proveedor td:first-child::before{display:none;}
+            .providers-table .fila-proveedor td:last-child{
+                display:block;border-top:1px solid #F0F1F5;
+            }
+            .providers-table .fila-proveedor td:last-child::before{display:block;margin-bottom:.5rem;}
+            .providers-table .fila-proveedor td:last-child>div{justify-content:flex-end!important;flex-wrap:wrap;}
+            .providers-pagination{
+                position:sticky;bottom:0;z-index:5;flex-direction:column;
+                align-items:stretch;gap:.55rem;padding:.75rem;
+                background:rgba(255,255,255,.97);backdrop-filter:blur(10px);
+            }
+            .page-controls{justify-content:center;}
+            #paginacion-info{text-align:center;}
+        }
+    </style>
+
 </head>
 
 <body class="bg-pillone-bg font-sans text-pillone-text min-h-screen flex flex-col text-xs">
 
 <header th:replace="fragments/layout :: topbar('Proveedores')"></header>
 
-<div class="flex flex-1 relative">
+<div class="providers-shell flex flex-1 relative">
 
     <div id="overlay"
          onclick="toggleSidebar()"
-         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+         class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden">
     </div>
 
     <aside th:replace="fragments/layout :: sidebar('proveedores')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+        <main class="providers-main flex-1 p-4 sm:p-6 lg:p-8 max-w-[1450px] mx-auto w-full">
 
             <!-- MENSAJES -->
             <div th:if="${mensaje}"
@@ -72,11 +170,11 @@
             <!-- ENCABEZADO -->
             <section class="mb-5">
 
-                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div class="providers-header flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
 
                     <div>
 
-                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase">
+                        <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark">
                             Directorio de Proveedores
                         </h1>
 
@@ -86,10 +184,10 @@
 
                     </div>
 
-                    <div class="flex flex-wrap gap-2">
+                    <div class="providers-actions flex flex-wrap gap-2">
 
                         <a th:href="@{/view/compras}"
-                           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-pillone-accent text-pillone-accent font-bold hover:bg-pillone-accent/5 transition">
+                           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-pillone-dark font-semibold hover:bg-slate-50 transition">
 
                             <svg class="w-4 h-4"
                                  fill="none"
@@ -116,7 +214,7 @@
                         </a>
 
                         <a th:href="@{/view/proveedores/form}"
-                           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
+                           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold hover:bg-pillone-darker transition shadow-sm">
 
                             <svg class="w-4 h-4"
                                  fill="none"
@@ -138,10 +236,23 @@
 
                 </div>
 
+                <div id="paginacion-proveedores" class="providers-pagination hidden">
+                    <div id="paginacion-info" class="text-[11px] text-slate-500">Mostrando 0 de 0 proveedores</div>
+                    <div class="page-controls">
+                        <button type="button" id="pagina-anterior" class="page-btn" onclick="cambiarPagina(-1)" aria-label="Página anterior">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <div id="numeros-pagina" class="page-controls"></div>
+                        <button type="button" id="pagina-siguiente" class="page-btn" onclick="cambiarPagina(1)" aria-label="Página siguiente">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                    </div>
+                </div>
+
             </section>
 
             <!-- INFORMACIÓN -->
-            <section class="mb-4 p-4 rounded-xl border border-blue-100 bg-blue-50">
+            <section class="mb-4 p-4 rounded-2xl border border-slate-200 bg-slate-50">
 
                 <div class="flex items-start gap-3">
 
@@ -188,9 +299,9 @@
             </section>
 
             <!-- TABLA -->
-            <section class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <section class="providers-panel rounded-2xl overflow-hidden">
 
-                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="providers-toolbar p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
                     <div class="relative w-full sm:w-96">
 
@@ -215,7 +326,7 @@
                                id="buscar"
                                oninput="filtrar()"
                                placeholder="Buscar razón social, NIT, contacto..."
-                               class="w-full pl-9 pr-4 py-2 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-pillone-accent">
+                               class="providers-control w-full pl-9 pr-4 py-2.5 rounded-xl outline-none">
 
                     </div>
 
@@ -232,9 +343,9 @@
 
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="providers-table-wrap overflow-x-auto">
 
-                    <table class="w-full text-left">
+                    <table class="providers-table w-full text-left">
 
                         <thead>
 
@@ -278,10 +389,10 @@
                         </tr>
 
                         <tr th:each="p : ${proveedores}"
-                            class="fila-proveedor hover:bg-slate-50 transition">
+                            class="fila-proveedor provider-row">
 
                             <!-- PROVEEDOR -->
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3" data-label="Proveedor">
 
                                 <div class="font-bold text-slate-800"
                                      th:text="${p.razon_social}">
@@ -298,7 +409,7 @@
                             </td>
 
                             <!-- CONTACTO -->
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3" data-label="Contacto">
 
                                 <div class="font-semibold"
                                      th:text="${p.nombre_contacto}">
@@ -315,7 +426,7 @@
                             </td>
 
                             <!-- PRODUCTOS -->
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3" data-label="Productos">
 
                                 <span th:text="${p.tipo_productos}">
                                 </span>
@@ -323,7 +434,7 @@
                             </td>
 
                             <!-- ESTADO -->
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3" data-label="Estado">
 
                                 <span class="inline-flex px-2 py-1 rounded-full text-[10px] font-bold"
                                       th:classappend="${p.estado.name() == 'ACTIVO' ? ' bg-emerald-100 text-emerald-700' : ' bg-slate-100 text-slate-600'}"
@@ -333,13 +444,13 @@
                             </td>
 
                             <!-- ACCIONES -->
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3" data-label="Acciones">
 
                                 <div class="flex items-center justify-center gap-2 flex-wrap">
 
                                     <!-- VER -->
                                     <a th:href="@{/view/proveedores/ver/{id}(id=${p.id_proveedor})}"
-                                       class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-50 text-slate-600 hover:bg-pillone-dark hover:text-white transition"
+                                       class="icon-action bg-slate-50 text-slate-600 hover:bg-pillone-dark hover:text-white transition"
                                        title="Ver ficha del proveedor">
 
                                         <svg class="w-4 h-4"
@@ -360,14 +471,13 @@
 
                                         </svg>
 
-                                        Ver
 
                                     </a>
 
                                     <!-- NUEVO PEDIDO -->
                                     <a th:if="${p.estado.name() == 'ACTIVO'}"
                                        th:href="@{/view/compras/form(proveedor=${p.id_proveedor})}"
-                                       class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-pillone-accent/10 text-pillone-accent font-bold hover:bg-pillone-accent hover:text-white transition"
+                                       class="icon-action bg-pillone-accent/10 text-pillone-accent hover:bg-pillone-accent hover:text-white transition"
                                        title="Nuevo pedido">
 
                                         <svg class="w-4 h-4"
@@ -393,7 +503,6 @@
 
                                         </svg>
 
-                                        Pedido
 
                                     </a>
 
@@ -485,21 +594,106 @@
 </div>
 
 <script>
+    let paginaActual=1;
+    let filasPorPagina=window.innerWidth<768?5:10;
+    let filasFiltradas=[];
+
+    function obtenerFilas(){
+        return Array.from(document.querySelectorAll('.fila-proveedor'));
+    }
+
     function filtrar(){
         const filtro=document.getElementById('buscar').value.trim().toLowerCase();
-        let visibles=0;
-
-        document.querySelectorAll('.fila-proveedor').forEach(function(fila){
-            const mostrar=fila.textContent.toLowerCase().includes(filtro);
-            fila.style.display=mostrar ? '' : 'none';
-
-            if(mostrar){
-                visibles++;
-            }
-        });
-
-        document.getElementById('contador').textContent=visibles;
+        filasFiltradas=obtenerFilas().filter(fila=>
+            !filtro || fila.textContent.toLowerCase().includes(filtro)
+        );
+        paginaActual=1;
+        renderizarPagina();
     }
+
+    function renderizarPagina(){
+        const todas=obtenerFilas();
+        const total=filasFiltradas.length;
+        const totalPaginas=Math.max(1,Math.ceil(total/filasPorPagina));
+        if(paginaActual>totalPaginas) paginaActual=totalPaginas;
+
+        const inicio=(paginaActual-1)*filasPorPagina;
+        const fin=Math.min(inicio+filasPorPagina,total);
+
+        todas.forEach(f=>f.style.display='none');
+        filasFiltradas.slice(inicio,fin).forEach(f=>f.style.display='');
+
+        document.getElementById('contador').textContent=total;
+
+        const cont=document.getElementById('paginacion-proveedores');
+        const info=document.getElementById('paginacion-info');
+        const nums=document.getElementById('numeros-pagina');
+        const anterior=document.getElementById('pagina-anterior');
+        const siguiente=document.getElementById('pagina-siguiente');
+
+        if(total===0){
+            cont.classList.add('hidden');
+            return;
+        }
+
+        cont.classList.remove('hidden');
+        info.textContent=`Mostrando ${inicio+1}–${fin} de ${total} proveedores`;
+        anterior.disabled=paginaActual===1;
+        siguiente.disabled=paginaActual===totalPaginas;
+        nums.innerHTML='';
+
+        obtenerPaginasVisibles(totalPaginas,paginaActual).forEach(p=>{
+            if(p==='...'){
+                const span=document.createElement('span');
+                span.className='page-btn border-transparent bg-transparent pointer-events-none';
+                span.textContent='…';
+                nums.appendChild(span);
+                return;
+            }
+            const b=document.createElement('button');
+            b.type='button';
+            b.className='page-btn'+(p===paginaActual?' active':'');
+            b.textContent=p;
+            b.onclick=()=>irAPagina(p);
+            nums.appendChild(b);
+        });
+    }
+
+    function obtenerPaginasVisibles(total,actual){
+        if(total<=5) return Array.from({length:total},(_,i)=>i+1);
+        if(actual<=3) return [1,2,3,4,'...',total];
+        if(actual>=total-2) return [1,'...',total-3,total-2,total-1,total];
+        return [1,'...',actual-1,actual,actual+1,'...',total];
+    }
+
+    function irAPagina(p){
+        paginaActual=p;
+        renderizarPagina();
+        if(window.innerWidth<768){
+            document.getElementById('buscar')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+    }
+
+    function cambiarPagina(delta){
+        const totalPaginas=Math.max(1,Math.ceil(filasFiltradas.length/filasPorPagina));
+        const nueva=paginaActual+delta;
+        if(nueva<1||nueva>totalPaginas) return;
+        irAPagina(nueva);
+    }
+
+    window.addEventListener('resize',()=>{
+        const nuevo=window.innerWidth<768?5:10;
+        if(nuevo!==filasPorPagina){
+            filasPorPagina=nuevo;
+            paginaActual=1;
+            renderizarPagina();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded',()=>{
+        filasFiltradas=obtenerFilas();
+        renderizarPagina();
+    });
 </script>
 
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>

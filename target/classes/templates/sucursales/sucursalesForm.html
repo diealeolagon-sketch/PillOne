@@ -9,16 +9,63 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title th:text="${sucursal.idSucursal == null
-        ? 'Nueva Sucursal - PillOne'
-        : 'Editar Sucursal - PillOne'}">
-
-        Sucursal
-
-    </title>
+    <title>Detalle Sucursal - PillOne</title>
 
     <th:block th:replace="~{fragments/layout :: styles}">
     </th:block>
+
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .branch-detail-shell{background:var(--pillone-bg);}
+        .branch-detail-panel{
+            background:#fff;border:1px solid var(--ui-border);box-shadow:var(--ui-shadow);
+        }
+        .detail-item{
+            padding:.85rem;border:1px solid #EEF0F4;background:#FBFCFE;border-radius:.85rem;
+        }
+        .employee-row{
+            transition:background .15s ease,box-shadow .15s ease;
+        }
+        .employee-row:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.4);
+        }
+        @media(max-width:767px){
+            .branch-detail-main{padding:1rem!important;}
+            .branch-detail-header{align-items:stretch!important;}
+            .branch-detail-header>a:last-child{width:100%;}
+            .branch-stats{grid-template-columns:1fr 1fr!important;}
+            .employee-table-wrap{overflow:visible!important;padding:.75rem;background:#F7F7FF;}
+            .employee-table,.employee-table tbody{display:block;width:100%;min-width:0!important;}
+            .employee-table thead{display:none;}
+            .employee-table tbody{border:0!important;}
+            .employee-table .employee-row{
+                display:block;background:#fff;border:1px solid var(--ui-border);
+                border-radius:1rem;margin-bottom:.7rem;overflow:hidden;
+            }
+            .employee-table .employee-row td{
+                display:flex;align-items:flex-start;justify-content:space-between;
+                gap:1rem;padding:.68rem .85rem!important;text-align:right!important;border:0;
+            }
+            .employee-table .employee-row td::before{
+                content:attr(data-label);flex:0 0 6rem;text-align:left;color:#98A2B3;
+                font-size:.62rem;font-weight:700;text-transform:uppercase;
+            }
+            .employee-table .employee-row td:nth-child(2){
+                display:block;text-align:left!important;background:#FCFCFE;border-bottom:1px solid #F0F1F5;
+            }
+            .employee-table .employee-row td:nth-child(2)::before{display:block;margin-bottom:.35rem;}
+        }
+    </style>
 
 </head>
 
@@ -31,429 +78,562 @@
 <header th:replace="~{fragments/layout :: topbar('Sucursales')}">
 </header>
 
-<div class="flex min-h-[calc(100vh-4rem)]">
+<div class="branch-detail-shell flex min-h-[calc(100vh-4rem)]">
 
     <aside th:replace="~{fragments/layout :: sidebar('sucursales')}">
     </aside>
 
-    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+    <main class="branch-detail-main flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
 
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-[1450px] mx-auto space-y-5">
 
-            <div class="mb-5">
+            <div class="branch-detail-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-                <a th:href="@{/view/sucursales}"
-                   class="inline-flex
-                          items-center
-                          gap-2
-                          text-xs
-                          text-slate-500
-                          hover:text-pillone-accent
-                          font-semibold">
+                <div>
 
-                    <svg class="w-4 h-4"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="2"
-                         viewBox="0 0 24 24">
+                    <a th:href="@{/view/sucursales}"
+                       class="inline-flex
+                              items-center
+                              gap-1
+                              text-xs
+                              font-semibold
+                              text-slate-400
+                              hover:text-pillone-accent
+                              mb-2">
 
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              d="M15 18l-6-6 6-6"/>
+                        <svg class="w-4 h-4"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             viewBox="0 0 24 24">
 
-                    </svg>
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M15 18l-6-6 6-6"/>
 
-                    Volver a sucursales
+                        </svg>
 
-                </a>
+                        Sucursales
 
-            </div>
+                    </a>
 
-            <div th:if="${error}"
-                 class="mb-4
-                        p-3
-                        rounded-xl
-                        bg-red-50
-                        border
-                        border-red-200
-                        text-red-700
-                        text-sm
-                        font-semibold"
-                 th:text="${error}">
-            </div>
+                    <div class="flex
+                                items-center
+                                gap-3
+                                flex-wrap">
 
-            <section class="bg-white
-                            border
-                            border-slate-200
-                            rounded-2xl
-                            shadow-sm
-                            overflow-hidden">
+                        <h1 class="text-2xl
+                                   sm:text-3xl
+                                   font-bold
+                                   text-pillone-dark"
+                            th:text="${sucursal.nombre}">
 
-                <div class="bg-pillone-dark
-                            text-white
-                            px-6
-                            py-5">
+                            Sucursal
 
-                    <p class="text-[10px]
-                              uppercase
-                              tracking-[.2em]
-                              text-blue-200
-                              font-bold">
+                        </h1>
 
-                        Configuración de sede
+                        <span th:if="${sucursal.estado == 'ACTIVA'}"
+                              class="inline-flex
+                                     px-2.5
+                                     py-1
+                                     rounded-full
+                                     bg-emerald-100
+                                     text-emerald-700
+                                     text-[10px]
+                                     font-bold">
 
-                    </p>
+                            ACTIVA
 
-                    <h1 class="text-xl
-                               sm:text-2xl
-                               font-bold
-                               mt-1"
-                        th:text="${sucursal.idSucursal == null
-                            ? 'Nueva sucursal'
-                            : 'Editar sucursal'}">
+                        </span>
 
-                        Nueva sucursal
+                        <span th:unless="${sucursal.estado == 'ACTIVA'}"
+                              class="inline-flex
+                                     px-2.5
+                                     py-1
+                                     rounded-full
+                                     bg-slate-100
+                                     text-slate-600
+                                     text-[10px]
+                                     font-bold">
 
-                    </h1>
+                            INACTIVA
 
-                    <p class="text-xs
-                              text-slate-300
+                        </span>
+
+                    </div>
+
+                    <p class="text-sm
+                              text-slate-500
                               mt-1">
 
-                        Registra los datos básicos
-                        de la sede de PillOne.
+                        Información general de la sede
+                        y personal asignado.
 
                     </p>
 
                 </div>
 
-                <form th:action="@{/view/sucursales/save}"
-                      th:object="${sucursal}"
-                      method="post"
-                      class="p-6">
+                <a th:href="@{/view/sucursales/edit/{id}(id=${sucursal.idSucursal})}"
+                   class="inline-flex
+                          items-center
+                          justify-center
+                          gap-2
+                          px-4
+                          py-2.5
+                          rounded-xl
+                          bg-pillone-dark
+                          text-white
+                          text-sm
+                          font-bold">
 
-                    <input type="hidden"
-                           th:field="*{idSucursal}">
+                    <svg class="w-4 h-4"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         viewBox="0 0 24 24">
 
-                    <div class="grid
-                                grid-cols-1
-                                md:grid-cols-2
-                                gap-5">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M4 20h4l11-11a2.8 2.8 0 0 0-4-4L4 16v4z"/>
 
-                        <div class="md:col-span-2">
+                    </svg>
 
-                            <label class="block
-                                          text-xs
-                                          font-bold
-                                          text-slate-600
-                                          mb-1.5">
+                    Editar sucursal
 
-                                Nombre de la sucursal *
+                </a>
 
-                            </label>
+            </div>
 
-                            <input type="text"
-                                   th:field="*{nombre}"
-                                   maxlength="150"
-                                   required
-                                   placeholder="Ej. PillOne Centro"
-                                   class="w-full
-                                          px-3.5
-                                          py-2.5
-                                          rounded-xl
-                                          border
-                                          border-slate-200
-                                          bg-slate-50
-                                          outline-none
-                                          focus:border-pillone-accent
-                                          text-sm">
+            <section class="branch-stats grid grid-cols-2 lg:grid-cols-4 gap-3">
 
-                        </div>
+                <div class="bg-white
+                            border
+                            border-slate-200
+                            rounded-xl
+                            p-4">
 
-                        <div>
+                    <p class="text-[10px]
+                              uppercase
+                              text-slate-400
+                              font-bold">
 
-                            <label class="block
-                                          text-xs
-                                          font-bold
-                                          text-slate-600
-                                          mb-1.5">
+                        Código
 
-                                Código *
+                    </p>
 
-                            </label>
+                    <p class="text-lg
+                              font-bold
+                              text-pillone-dark
+                              mt-1"
+                       th:text="${sucursal.codigo}">
 
-                            <input type="text"
-                                   th:field="*{codigo}"
-                                   maxlength="30"
-                                   required
-                                   placeholder="Ej. TUL-01"
-                                   oninput="this.value=this.value.toUpperCase()"
-                                   class="w-full
-                                          px-3.5
-                                          py-2.5
-                                          rounded-xl
-                                          border
-                                          border-slate-200
-                                          bg-slate-50
-                                          outline-none
-                                          focus:border-pillone-accent
-                                          text-sm">
+                        TUL-01
 
-                            <p class="text-[10px]
-                                      text-slate-400
-                                      mt-1">
+                    </p>
 
-                                Debe ser único para cada sede.
+                </div>
 
-                            </p>
+                <div class="bg-white
+                            border
+                            border-slate-200
+                            rounded-xl
+                            p-4">
 
-                        </div>
+                    <p class="text-[10px]
+                              uppercase
+                              text-slate-400
+                              font-bold">
 
-                        <div>
+                        Personal asociado
 
-                            <label class="block
-                                          text-xs
-                                          font-bold
-                                          text-slate-600
-                                          mb-1.5">
+                    </p>
+
+                    <p class="text-2xl
+                              font-bold
+                              text-pillone-accent"
+                       th:text="${cantidadEmpleados}">
+
+                        0
+
+                    </p>
+
+                </div>
+
+                <div class="bg-white
+                            border
+                            border-slate-200
+                            rounded-xl
+                            p-4">
+
+                    <p class="text-[10px]
+                              uppercase
+                              text-slate-400
+                              font-bold">
+
+                        Ciudad
+
+                    </p>
+
+                    <p class="text-lg
+                              font-bold
+                              text-pillone-dark
+                              mt-1"
+                       th:text="${sucursal.ciudad}">
+
+                        Tuluá
+
+                    </p>
+
+                </div>
+
+                <div class="bg-white
+                            border
+                            border-slate-200
+                            rounded-xl
+                            p-4">
+
+                    <p class="text-[10px]
+                              uppercase
+                              text-slate-400
+                              font-bold">
+
+                        Estado
+
+                    </p>
+
+                    <p class="text-lg
+                              font-bold
+                              mt-1"
+                       th:classappend="${sucursal.estado == 'ACTIVA'
+                           ? ' text-emerald-600'
+                           : ' text-slate-500'}"
+                       th:text="${sucursal.estado}">
+
+                        ACTIVA
+
+                    </p>
+
+                </div>
+
+            </section>
+
+            <section class="branch-detail-panel rounded-2xl overflow-hidden">
+
+                <div class="px-5
+                            py-4
+                            border-b
+                            border-slate-100">
+
+                    <h2 class="text-sm
+                               font-bold
+                               text-pillone-dark">
+
+                        Información de la sucursal
+
+                    </h2>
+
+                </div>
+
+                <div class="p-5
+                            grid
+                            grid-cols-1
+                            sm:grid-cols-2
+                            lg:grid-cols-3
+                            gap-5">
+
+                    <div>
+
+                        <p class="text-[10px]
+                                  uppercase
+                                  tracking-wider
+                                  text-slate-400
+                                  font-bold">
+
+                            Nombre
+
+                        </p>
+
+                        <p class="text-sm
+                                  font-semibold
+                                  text-slate-700
+                                  mt-1"
+                           th:text="${sucursal.nombre}">
+
+                            Sucursal
+
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <p class="text-[10px]
+                                  uppercase
+                                  tracking-wider
+                                  text-slate-400
+                                  font-bold">
+
+                            Teléfono
+
+                        </p>
+
+                        <p class="text-sm
+                                  font-semibold
+                                  text-slate-700
+                                  mt-1"
+                           th:text="${sucursal.telefono != null
+                               and !#strings.isEmpty(sucursal.telefono)
+                               ? sucursal.telefono
+                               : 'No registrado'}">
+
+                            -
+
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <p class="text-[10px]
+                                  uppercase
+                                  tracking-wider
+                                  text-slate-400
+                                  font-bold">
+
+                            Departamento
+
+                        </p>
+
+                        <p class="text-sm
+                                  font-semibold
+                                  text-slate-700
+                                  mt-1"
+                           th:text="${sucursal.departamento}">
+
+                            Valle del Cauca
+
+                        </p>
+
+                    </div>
+
+                    <div class="sm:col-span-2
+                                lg:col-span-3">
+
+                        <p class="text-[10px]
+                                  uppercase
+                                  tracking-wider
+                                  text-slate-400
+                                  font-bold">
+
+                            Dirección
+
+                        </p>
+
+                        <p class="text-sm
+                                  font-semibold
+                                  text-slate-700
+                                  mt-1"
+                           th:text="${sucursal.direccion + ', '
+                               + sucursal.ciudad + ' - '
+                               + sucursal.departamento}">
+
+                            Dirección
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="branch-detail-panel rounded-2xl overflow-hidden">
+
+                <div class="px-5
+                            py-4
+                            border-b
+                            border-slate-100
+                            flex
+                            items-center
+                            justify-between">
+
+                    <div>
+
+                        <h2 class="text-sm
+                                   font-bold
+                                   text-pillone-dark">
+
+                            Personal asociado
+
+                        </h2>
+
+                        <p class="text-[11px]
+                                  text-slate-400
+                                  mt-0.5">
+
+                            Empleados actualmente asignados
+                            a esta sucursal.
+
+                        </p>
+
+                    </div>
+
+                    <span class="inline-flex
+                                 px-2.5
+                                 py-1
+                                 rounded-full
+                                 bg-pillone-bg
+                                 text-pillone-dark
+                                 text-[10px]
+                                 font-bold"
+                          th:text="${cantidadEmpleados + ' empleados'}">
+
+                        0 empleados
+
+                    </span>
+
+                </div>
+
+                <div th:if="${empleadosSucursal == null
+                            or #lists.isEmpty(empleadosSucursal)}"
+                     class="p-10
+                            text-center
+                            text-slate-400">
+
+                    <svg class="w-9
+                                h-9
+                                mx-auto
+                                mb-3"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.5"
+                         viewBox="0 0 24 24">
+
+                        <circle cx="9"
+                                cy="7"
+                                r="4"/>
+
+                        <path d="M2 21v-2a7 7 0 0 1 14 0v2"/>
+
+                        <path d="M17 11h5M19.5 8.5v5"/>
+
+                    </svg>
+
+                    <p class="text-sm
+                              font-semibold">
+
+                        No hay empleados asociados
+                        a esta sucursal.
+
+                    </p>
+
+                </div>
+
+                <div th:if="${empleadosSucursal != null
+                            and !#lists.isEmpty(empleadosSucursal)}"
+                     class="employee-table-wrap overflow-x-auto">
+
+                    <table class="employee-table w-full min-w-[900px] text-sm">
+
+                        <thead class="bg-slate-50
+                                     text-slate-500
+                                     text-[10px]
+                                     uppercase
+                                     tracking-wider">
+
+                        <tr>
+
+                            <th class="px-4 py-3 text-left">
+                                Documento
+                            </th>
+
+                            <th class="px-4 py-3 text-left">
+                                Empleado
+                            </th>
+
+                            <th class="px-4 py-3 text-left">
+                                Cargo
+                            </th>
+
+                            <th class="px-4 py-3 text-left">
+                                Correo
+                            </th>
+
+                            <th class="px-4 py-3 text-left">
+                                Teléfono
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody class="divide-y divide-slate-100">
+
+                        <tr th:each="emp : ${empleadosSucursal}"
+                            class="employee-row">
+
+                            <td class="px-4 py-3" data-label="Documento">
+
+                                <span class="font-semibold
+                                             text-pillone-accent"
+                                      th:text="${emp.tipo_documento
+                                          + ' '
+                                          + emp.numero_documento}">
+
+                                    CC
+
+                                </span>
+
+                            </td>
+
+                            <td class="px-4
+                                       py-3
+                                       font-semibold
+                                       text-slate-700"
+                                th:text="${emp.nombre_completo}">
+
+                                Empleado
+
+                            </td>
+
+                            <td class="px-4
+                                       py-3
+                                       text-slate-600"
+                                th:text="${emp.cargo}">
+
+                                Cargo
+
+                            </td>
+
+                            <td class="px-4
+                                       py-3
+                                       text-slate-600"
+                                th:text="${emp.correo != null
+                                    ? emp.correo
+                                    : '-'}">
+
+                                Correo
+
+                            </td>
+
+                            <td class="px-4
+                                       py-3
+                                       text-slate-600"
+                                th:text="${emp.telefono != null
+                                    ? emp.telefono
+                                    : '-'}">
 
                                 Teléfono
 
-                            </label>
+                            </td>
 
-                            <input type="tel"
-                                   th:field="*{telefono}"
-                                   maxlength="15"
-                                   placeholder="Ej. 3151234567"
-                                   class="w-full
-                                          px-3.5
-                                          py-2.5
-                                          rounded-xl
-                                          border
-                                          border-slate-200
-                                          bg-slate-50
-                                          outline-none
-                                          focus:border-pillone-accent
-                                          text-sm">
+                        </tr>
 
-                        </div>
+                        </tbody>
 
-                        <div class="md:col-span-2">
+                    </table>
 
-                            <label class="block
-                                          text-xs
-                                          font-bold
-                                          text-slate-600
-                                          mb-1.5">
-
-                                Dirección *
-
-                            </label>
-
-                            <input type="text"
-                                   th:field="*{direccion}"
-                                   maxlength="200"
-                                   required
-                                   placeholder="Ej. Carrera 26 # 28-15"
-                                   class="w-full
-                                          px-3.5
-                                          py-2.5
-                                          rounded-xl
-                                          border
-                                          border-slate-200
-                                          bg-slate-50
-                                          outline-none
-                                          focus:border-pillone-accent
-                                          text-sm">
-
-                        </div>
-
-                        <div>
-
-                            <label class="block
-                                          text-xs
-                                          font-bold
-                                          text-slate-600
-                                          mb-1.5">
-
-                                Ciudad
-
-                            </label>
-
-                            <input type="text"
-                                   th:field="*{ciudad}"
-                                   maxlength="100"
-                                   class="w-full
-                                          px-3.5
-                                          py-2.5
-                                          rounded-xl
-                                          border
-                                          border-slate-200
-                                          bg-slate-50
-                                          outline-none
-                                          focus:border-pillone-accent
-                                          text-sm">
-
-                        </div>
-
-                        <div>
-
-                            <label class="block
-                                          text-xs
-                                          font-bold
-                                          text-slate-600
-                                          mb-1.5">
-
-                                Departamento
-
-                            </label>
-
-                            <input type="text"
-                                   th:field="*{departamento}"
-                                   maxlength="100"
-                                   class="w-full
-                                          px-3.5
-                                          py-2.5
-                                          rounded-xl
-                                          border
-                                          border-slate-200
-                                          bg-slate-50
-                                          outline-none
-                                          focus:border-pillone-accent
-                                          text-sm">
-
-                        </div>
-
-                        <div th:if="${sucursal.idSucursal != null}"
-                             class="md:col-span-2">
-
-                            <label class="block
-                                          text-xs
-                                          font-bold
-                                          text-slate-600
-                                          mb-1.5">
-
-                                Estado
-
-                            </label>
-
-                            <div class="p-3
-                                        rounded-xl
-                                        bg-slate-50
-                                        border
-                                        border-slate-200">
-
-                                <span th:if="${sucursal.estado == 'ACTIVA'}"
-                                      class="inline-flex
-                                             px-2.5
-                                             py-1
-                                             rounded-full
-                                             bg-emerald-100
-                                             text-emerald-700
-                                             text-[10px]
-                                             font-bold">
-
-                                    ACTIVA
-
-                                </span>
-
-                                <span th:unless="${sucursal.estado == 'ACTIVA'}"
-                                      class="inline-flex
-                                             px-2.5
-                                             py-1
-                                             rounded-full
-                                             bg-slate-200
-                                             text-slate-600
-                                             text-[10px]
-                                             font-bold">
-
-                                    INACTIVA
-
-                                </span>
-
-                                <input type="hidden"
-                                       th:field="*{estado}">
-
-                                <p class="text-[10px]
-                                          text-slate-400
-                                          mt-2">
-
-                                    El estado se administra
-                                    desde el listado de sucursales.
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="flex
-                                flex-col-reverse
-                                sm:flex-row
-                                sm:justify-end
-                                gap-3
-                                mt-7
-                                pt-5
-                                border-t
-                                border-slate-100">
-
-                        <a th:href="@{/view/sucursales}"
-                           class="px-5
-                                  py-2.5
-                                  rounded-xl
-                                  border
-                                  border-slate-200
-                                  text-slate-600
-                                  text-sm
-                                  font-semibold
-                                  text-center
-                                  hover:bg-slate-50">
-
-                            Cancelar
-
-                        </a>
-
-                        <button type="submit"
-                                class="inline-flex
-                                       items-center
-                                       justify-center
-                                       gap-2
-                                       px-5
-                                       py-2.5
-                                       rounded-xl
-                                       bg-pillone-accent
-                                       text-white
-                                       text-sm
-                                       font-bold
-                                       hover:opacity-90">
-
-                            <svg class="w-4 h-4"
-                                 fill="none"
-                                 stroke="currentColor"
-                                 stroke-width="2"
-                                 viewBox="0 0 24 24">
-
-                                <path stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      d="M5 12l4 4 10-10"/>
-
-                            </svg>
-
-                            <span th:text="${sucursal.idSucursal == null
-                                ? 'Registrar sucursal'
-                                : 'Guardar cambios'}">
-
-                                Guardar
-
-                            </span>
-
-                        </button>
-
-                    </div>
-
-                </form>
+                </div>
 
             </section>
 

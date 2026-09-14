@@ -27,35 +27,104 @@
             }
         }
     </script>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .lot-form-shell{background:var(--pillone-bg);}
+        .lot-form-panel{
+            background:#fff;
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .lot-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .lot-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .lot-label{
+            display:block;
+            color:#475467;
+            font-size:11px;
+            font-weight:700;
+            letter-spacing:.035em;
+            text-transform:uppercase;
+            margin-bottom:.45rem;
+        }
+        .entry-option{
+            text-align:center;
+            border:1px solid var(--ui-border);
+            border-radius:.85rem;
+            padding:.85rem;
+            background:#fff;
+            font-weight:600;
+            transition:border-color .15s ease,background .15s ease,color .15s ease,transform .15s ease;
+        }
+        .peer:checked + .entry-option{
+            border-color:var(--pillone-accent);
+            background:rgba(32,138,174,.08);
+            color:var(--pillone-accent);
+        }
+        .lot-actions{
+            position:sticky;
+            bottom:0;
+            z-index:5;
+            background:rgba(255,255,255,.97);
+            backdrop-filter:blur(10px);
+        }
+        @media(max-width:640px){
+            .lot-form-main{padding:1rem!important;}
+            .lot-entry-grid{grid-template-columns:1fr!important;}
+            .lot-summary-grid{grid-template-columns:1fr!important;}
+            .lot-actions{
+                display:grid!important;
+                grid-template-columns:1fr;
+            }
+            .lot-actions>*{width:100%;justify-content:center;text-align:center;}
+        }
+    </style>
+
 </head>
 
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
 <header th:replace="fragments/layout :: topbar('Nuevo Lote')"></header>
 
-<div class="flex flex-1 relative">
+<div class="lot-form-shell flex flex-1 relative">
 
     <div id="overlay"
          onclick="toggleSidebar()"
-         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+         class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden">
     </div>
 
     <aside th:replace="fragments/layout :: sidebar('productos')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full">
+        <main class="lot-form-main flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full">
 
             <div class="mb-6">
 
                 <a th:href="${productoId != null ? '/view/lotes?productoId='+productoId : '/view/lotes'}"
-                   class="text-pillone-accent font-semibold">
+                   class="inline-flex items-center gap-2 text-slate-500 hover:text-pillone-accent font-semibold">
 
-                    ← Volver a lotes
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>Volver a lotes
 
                 </a>
 
-                <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase mt-3">
+                <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark mt-3">
                     Registrar entrada de inventario
                 </h1>
 
@@ -72,13 +141,13 @@
 
             <form th:action="@{/view/lotes/save}"
                   method="post"
-                  class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  class="lot-form-panel rounded-2xl overflow-hidden">
 
                 <div class="p-5 md:p-6 space-y-5">
 
                     <div>
 
-                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1.5">
+                        <label class="lot-label">
                             Producto
                         </label>
 
@@ -86,7 +155,7 @@
                                 name="idProducto"
                                 required
                                 onchange="actualizarProducto()"
-                                class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white outline-none focus:border-pillone-accent">
+                                class="lot-control w-full px-3.5 py-3 rounded-xl outline-none">
 
                             <option value="">
                                 Seleccione un producto
@@ -108,15 +177,15 @@
                     </div>
 
                     <div id="resumenProducto"
-                         class="hidden rounded-xl bg-blue-50 border border-blue-100 p-4">
+                         class="hidden rounded-2xl bg-slate-50 border border-slate-200 p-4">
 
-                        <div class="text-[10px] uppercase font-bold text-blue-600 mb-2">
+                        <div class="text-[10px] uppercase font-bold text-pillone-accent mb-2">
                             Configuración del producto
                         </div>
 
-                        <div class="grid grid-cols-3 gap-2">
+                        <div class="lot-summary-grid grid grid-cols-3 gap-2">
 
-                            <div class="bg-white rounded-lg p-3 border border-blue-100">
+                            <div class="bg-white rounded-xl p-3 border border-slate-200">
 
                                 <div class="text-[9px] text-slate-400 uppercase">
                                     Sellos / caja
@@ -129,7 +198,7 @@
 
                             </div>
 
-                            <div class="bg-white rounded-lg p-3 border border-blue-100">
+                            <div class="bg-white rounded-xl p-3 border border-slate-200">
 
                                 <div class="text-[9px] text-slate-400 uppercase">
                                     Unidades / sello
@@ -142,7 +211,7 @@
 
                             </div>
 
-                            <div class="bg-white rounded-lg p-3 border border-blue-100">
+                            <div class="bg-white rounded-xl p-3 border border-slate-200">
 
                                 <div class="text-[9px] text-slate-400 uppercase">
                                     Unidades / caja
@@ -163,7 +232,7 @@
 
                         <div>
 
-                            <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1.5">
+                            <label class="lot-label">
                                 Número de lote
                             </label>
 
@@ -171,19 +240,19 @@
                                    name="numeroLote"
                                    required
                                    placeholder="Ej. ABC123"
-                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+                                   class="lot-control w-full px-3.5 py-3 rounded-xl outline-none">
 
                         </div>
 
                         <div>
 
-                            <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1.5">
+                            <label class="lot-label">
                                 Fecha de fabricación
                             </label>
 
                             <input type="date"
                                    name="fechaFabricacion"
-                                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+                                   class="lot-control w-full px-3.5 py-3 rounded-xl outline-none">
 
                         </div>
 
@@ -191,24 +260,24 @@
 
                     <div>
 
-                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1.5">
+                        <label class="lot-label">
                             Fecha de vencimiento
                         </label>
 
                         <input type="date"
                                name="fechaVencimiento"
                                required
-                               class="w-full px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+                               class="lot-control w-full px-3.5 py-3 rounded-xl outline-none">
 
                     </div>
 
                     <div>
 
-                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-2">
+                        <label class="lot-label">
                             ¿Qué recibió?
                         </label>
 
-                        <div class="grid grid-cols-3 gap-2">
+                        <div class="lot-entry-grid grid grid-cols-3 gap-2">
 
                             <label class="cursor-pointer">
 
@@ -219,7 +288,7 @@
                                        onchange="calcularTotal()"
                                        class="peer hidden">
 
-                                <div class="text-center border rounded-lg p-3 peer-checked:border-pillone-accent peer-checked:bg-blue-50 peer-checked:text-pillone-accent font-semibold">
+                                <div class="entry-option">
                                     Cajas
                                 </div>
 
@@ -233,7 +302,7 @@
                                        onchange="calcularTotal()"
                                        class="peer hidden">
 
-                                <div class="text-center border rounded-lg p-3 peer-checked:border-pillone-accent peer-checked:bg-blue-50 peer-checked:text-pillone-accent font-semibold">
+                                <div class="entry-option">
                                     Sellos
                                 </div>
 
@@ -247,7 +316,7 @@
                                        onchange="calcularTotal()"
                                        class="peer hidden">
 
-                                <div class="text-center border rounded-lg p-3 peer-checked:border-pillone-accent peer-checked:bg-blue-50 peer-checked:text-pillone-accent font-semibold">
+                                <div class="entry-option">
                                     Unidades
                                 </div>
 
@@ -259,7 +328,7 @@
 
                     <div>
 
-                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1.5">
+                        <label class="lot-label">
                             Cantidad recibida
                         </label>
 
@@ -270,11 +339,11 @@
                                required
                                oninput="calcularTotal()"
                                placeholder="Ej. 5"
-                               class="w-full px-3 py-2.5 rounded-lg border border-slate-200 outline-none focus:border-pillone-accent">
+                               class="lot-control w-full px-3.5 py-3 rounded-xl outline-none">
 
                     </div>
 
-                    <div class="rounded-xl bg-pillone-dark text-white p-4">
+                    <div class="rounded-2xl bg-pillone-dark text-white p-5">
 
                         <div class="text-[10px] uppercase text-white/60 font-bold">
                             Total ingresado al inventario
@@ -301,19 +370,19 @@
 
                 </div>
 
-                <div class="p-5 border-t bg-slate-50 flex flex-col sm:flex-row sm:justify-end gap-2">
+                <div class="lot-actions p-5 border-t border-slate-100 bg-white flex flex-col sm:flex-row sm:justify-end gap-2">
 
                     <a th:href="${productoId != null ? '/view/lotes?productoId='+productoId : '/view/lotes'}"
-                       class="px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-semibold text-center">
+                       class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-center hover:bg-slate-50 transition">
 
                         Cancelar
 
                     </a>
 
                     <button type="submit"
-                            class="px-5 py-2.5 rounded-lg bg-pillone-accent text-white font-bold">
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold hover:bg-pillone-darker transition">
 
-                        Registrar Lote
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Registrar lote
 
                     </button>
 

@@ -52,34 +52,143 @@
 
     </script>
 
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .employees-shell{background:var(--pillone-bg);}
+        .employees-panel{
+            background:#fff;
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .employees-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .employees-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .employee-row{transition:background .15s ease,box-shadow .15s ease;}
+        .employee-row:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.5);
+        }
+        .icon-action{
+            width:2.2rem;
+            height:2.2rem;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:.7rem;
+            transition:transform .15s ease,background .15s ease;
+        }
+        .icon-action:hover{transform:translateY(-1px);}
+        .employees-pagination{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:1rem;
+            padding:.9rem 1rem;
+            border-top:1px solid var(--ui-border);
+            background:#fff;
+        }
+        .page-controls{display:flex;align-items:center;gap:.35rem;}
+        .page-btn{
+            min-width:2.25rem;height:2.25rem;padding:0 .7rem;
+            display:inline-flex;align-items:center;justify-content:center;
+            border:1px solid var(--ui-border);border-radius:.65rem;
+            background:#fff;color:#475467;font-size:.72rem;font-weight:600;
+        }
+        .page-btn.active{background:var(--pillone-dark);color:#fff;border-color:var(--pillone-dark);}
+        .page-btn:disabled{opacity:.4;cursor:not-allowed;}
+        @media(max-width:767px){
+            .employees-main{padding:1rem!important;}
+            .employees-header{align-items:stretch!important;}
+            .employees-header>a{width:100%;}
+            .employees-toolbar{
+                position:sticky;top:0;z-index:6;
+                background:rgba(255,255,255,.96);
+                backdrop-filter:blur(10px);
+            }
+            #buscador-tabla{font-size:16px!important;}
+            .employees-table-wrap{overflow:visible!important;padding:.75rem;background:#F7F7FF;}
+            .employees-table,.employees-table tbody{display:block;width:100%;min-width:0!important;}
+            .employees-table thead{display:none;}
+            .employees-table tbody{border:0!important;}
+            .employees-table .fila-empleado{
+                display:block;background:#fff;border:1px solid var(--ui-border);
+                border-radius:1rem;margin-bottom:.75rem;overflow:hidden;
+                box-shadow:0 6px 18px rgba(7,0,77,.04);
+            }
+            .employees-table .fila-empleado td{
+                display:flex;align-items:flex-start;justify-content:space-between;
+                gap:1rem;padding:.68rem .85rem!important;text-align:right!important;border:0;
+            }
+            .employees-table .fila-empleado td::before{
+                content:attr(data-label);flex:0 0 6rem;text-align:left;color:#98A2B3;
+                font-size:.62rem;font-weight:700;text-transform:uppercase;
+            }
+            .employees-table .fila-empleado td:nth-child(2){
+                display:block;text-align:left!important;background:#FCFCFE;
+                border-bottom:1px solid #F0F1F5;
+            }
+            .employees-table .fila-empleado td:nth-child(2)::before{
+                display:block;margin-bottom:.35rem;
+            }
+            .employees-table .fila-empleado td:last-child{
+                display:block;border-top:1px solid #F0F1F5;
+            }
+            .employees-table .fila-empleado td:last-child::before{display:block;margin-bottom:.5rem;}
+            .employees-table .fila-empleado td:last-child>div{justify-content:flex-end!important;flex-wrap:wrap;}
+            .employees-pagination{
+                position:sticky;bottom:0;z-index:5;flex-direction:column;
+                align-items:stretch;gap:.55rem;padding:.75rem;
+                background:rgba(255,255,255,.97);backdrop-filter:blur(10px);
+            }
+            .page-controls{justify-content:center;}
+            #paginacion-info{text-align:center;}
+        }
+    </style>
+
 </head>
 
 <body class="bg-pillone-bg text-pillone-text antialiased min-h-screen flex flex-col text-xs font-sans">
 
 <header th:replace="fragments/layout :: topbar('Gestión de Empleados')"></header>
 
-<div class="flex flex-1 relative">
+<div class="employees-shell flex flex-1 relative">
 
     <div
             id="overlay"
             onclick="toggleSidebar()"
-            class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+            class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden">
     </div>
 
     <aside th:replace="fragments/layout :: sidebar('empleados')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+        <main class="employees-main flex-1 p-4 sm:p-6 lg:p-8 max-w-[1450px] mx-auto w-full">
 
             <!-- ENCABEZADO -->
             <section class="mb-5">
 
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="employees-header flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
                     <div>
 
-                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase tracking-tight">
+                        <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark">
 
                             Empleados y accesos
 
@@ -95,9 +204,9 @@
 
                     <a
                             th:href="@{/view/empleados/form}"
-                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-pillone-accent px-4 py-2.5 font-bold text-white shadow-sm hover:opacity-90 transition">
+                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-pillone-dark px-4 py-2.5 font-semibold text-white shadow-sm hover:bg-pillone-darker transition">
 
-                        + Nuevo Empleado
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>Nuevo empleado
 
                     </a>
 
@@ -119,16 +228,18 @@
                     th:text="${error}">
             </div>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <section class="employees-panel rounded-2xl overflow-hidden">
 
                 <!-- BUSCADOR -->
-                <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="employees-toolbar p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 
                     <div class="relative w-full sm:w-96">
 
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-
-                            ⌕
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <circle cx="11" cy="11" r="7"/>
+                                <path stroke-linecap="round" d="M20 20l-3.5-3.5"/>
+                            </svg>
 
                         </span>
 
@@ -137,7 +248,7 @@
                                 id="buscador-tabla"
                                 onkeyup="filtrarTabla()"
                                 placeholder="Buscar empleado, documento, usuario, rol..."
-                                class="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                class="employees-control w-full pl-9 pr-3 py-2.5 rounded-xl outline-none">
 
                     </div>
 
@@ -158,9 +269,9 @@
                 </div>
 
                 <!-- TABLA -->
-                <div class="overflow-x-auto">
+                <div class="employees-table-wrap overflow-x-auto">
 
-                    <table class="min-w-[1150px] w-full text-xs">
+                    <table class="employees-table min-w-[1150px] w-full text-xs">
 
                         <thead>
 
@@ -206,11 +317,11 @@
 
                         <tr
                                 th:each="empleado : ${empleados}"
-                                class="fila-empleado hover:bg-slate-50 transition"
+                                class="fila-empleado employee-row"
                                 th:with="u=${usuariosPorEmpleado.get(empleado.id_empleado)}">
 
                             <!-- DOCUMENTO -->
-                            <td class="px-4 py-3.5">
+                            <td class="px-4 py-3.5" data-label="Documento">
 
                                 <span
                                         class="font-bold text-pillone-accent"
@@ -226,7 +337,7 @@
                             </td>
 
                             <!-- CARGO -->
-                            <td class="px-4 py-3.5">
+                            <td class="px-4 py-3.5" data-label="Cargo / salario">
 
                                 <div
                                         class="text-slate-700 font-medium"
@@ -247,7 +358,7 @@
                             </td>
 
                             <!-- ACCESO -->
-                            <td class="px-4 py-3.5">
+                            <td class="px-4 py-3.5" data-label="Acceso / rol">
 
                                 <div th:if="${u != null}">
 
@@ -284,7 +395,7 @@
                             </td>
 
                             <!-- CONTACTO -->
-                            <td class="px-4 py-3.5">
+                            <td class="px-4 py-3.5" data-label="Contacto">
 
                                 <div
                                         class="text-slate-600"
@@ -299,7 +410,7 @@
                             </td>
 
                             <!-- ESTADO -->
-                            <td class="px-4 py-3.5 text-center">
+                            <td class="px-4 py-3.5 text-center" data-label="Estado">
 
                                 <span
                                         class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold"
@@ -310,15 +421,16 @@
                             </td>
 
                             <!-- ACCIONES -->
-                            <td class="px-4 py-3.5 text-center">
+                            <td class="px-4 py-3.5 text-center" data-label="Acciones">
 
                                 <div class="flex items-center justify-center gap-1.5">
 
                                     <a
                                             th:href="@{/view/empleados/edit/{id}(id=${empleado.id_empleado})}"
-                                            class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 transition">
-
-                                        Editar
+                                            class="icon-action bg-blue-50 text-blue-700 hover:bg-blue-100 transition" title="Editar empleado">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17l-1 3zM14.5 7.5l2 2"/>
+                                        </svg>
 
                                     </a>
 
@@ -329,9 +441,10 @@
 
                                         <button
                                                 type="submit"
-                                                class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-700 font-semibold hover:bg-red-100 transition">
-
-                                            Eliminar
+                                                class="icon-action bg-red-50 text-red-700 hover:bg-red-100 transition" title="Eliminar empleado">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/>
+                                            </svg>
 
                                         </button>
 
@@ -361,6 +474,19 @@
 
                 </div>
 
+                <div id="paginacion-empleados" class="employees-pagination hidden">
+                    <div id="paginacion-info" class="text-[11px] text-slate-500">Mostrando 0 de 0 empleados</div>
+                    <div class="page-controls">
+                        <button type="button" id="pagina-anterior" class="page-btn" onclick="cambiarPagina(-1)" aria-label="Página anterior">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <div id="numeros-pagina" class="page-controls"></div>
+                        <button type="button" id="pagina-siguiente" class="page-btn" onclick="cambiarPagina(1)" aria-label="Página siguiente">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                    </div>
+                </div>
+
             </section>
 
         </main>
@@ -376,35 +502,11 @@
 <script>
 
     function filtrarTabla(){
-
-        const q=
-            document
-                .getElementById('buscador-tabla')
-                .value
-                .toLowerCase()
-                .trim();
-
-        let visibles=0;
-
-        document
-            .querySelectorAll('.fila-empleado')
-            .forEach(
-                f=>{
-
-                    const mostrar=
-                        !q ||
-                        f.textContent
-                            .toLowerCase()
-                            .includes(q);
-
-                    f.style.display=
-                        mostrar
-                            ? ''
-                            : 'none';
-
-                    if(mostrar){
-                        visibles++;
-                    }
+        const q=document.getElementById('buscador-tabla').value.toLowerCase().trim();
+        filasFiltradas=obtenerFilas().filter(f=>!q || f.textContent.toLowerCase().includes(q));
+        paginaActual=1;
+        renderizarPagina();
+    }
                 }
             );
 
@@ -416,7 +518,100 @@
 
 </script>
 
-<script th:src="@{/js/script.js}" defer></script>
+<script th:src="@{/js/script.js}" defer>
+    let paginaActual=1;
+    let filasPorPagina=window.innerWidth<768?5:10;
+    let filasFiltradas=[];
+
+    function obtenerFilas(){
+        return Array.from(document.querySelectorAll('.fila-empleado'));
+    }
+
+    function renderizarPagina(){
+        const todas=obtenerFilas();
+        const total=filasFiltradas.length;
+        const totalPaginas=Math.max(1,Math.ceil(total/filasPorPagina));
+        if(paginaActual>totalPaginas) paginaActual=totalPaginas;
+
+        const inicio=(paginaActual-1)*filasPorPagina;
+        const fin=Math.min(inicio+filasPorPagina,total);
+
+        todas.forEach(f=>f.style.display='none');
+        filasFiltradas.slice(inicio,fin).forEach(f=>f.style.display='');
+
+        document.getElementById('contador-total').textContent=total;
+
+        const cont=document.getElementById('paginacion-empleados');
+        const info=document.getElementById('paginacion-info');
+        const nums=document.getElementById('numeros-pagina');
+        const anterior=document.getElementById('pagina-anterior');
+        const siguiente=document.getElementById('pagina-siguiente');
+
+        if(total===0){
+            cont.classList.add('hidden');
+            return;
+        }
+
+        cont.classList.remove('hidden');
+        info.textContent=`Mostrando ${inicio+1}–${fin} de ${total} empleados`;
+        anterior.disabled=paginaActual===1;
+        siguiente.disabled=paginaActual===totalPaginas;
+        nums.innerHTML='';
+
+        obtenerPaginasVisibles(totalPaginas,paginaActual).forEach(p=>{
+            if(p==='...'){
+                const span=document.createElement('span');
+                span.className='page-btn border-transparent bg-transparent pointer-events-none';
+                span.textContent='…';
+                nums.appendChild(span);
+                return;
+            }
+            const b=document.createElement('button');
+            b.type='button';
+            b.className='page-btn'+(p===paginaActual?' active':'');
+            b.textContent=p;
+            b.onclick=()=>irAPagina(p);
+            nums.appendChild(b);
+        });
+    }
+
+    function obtenerPaginasVisibles(total,actual){
+        if(total<=5) return Array.from({length:total},(_,i)=>i+1);
+        if(actual<=3) return [1,2,3,4,'...',total];
+        if(actual>=total-2) return [1,'...',total-3,total-2,total-1,total];
+        return [1,'...',actual-1,actual,actual+1,'...',total];
+    }
+
+    function irAPagina(p){
+        paginaActual=p;
+        renderizarPagina();
+        if(window.innerWidth<768){
+            document.getElementById('buscador-tabla')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+    }
+
+    function cambiarPagina(delta){
+        const totalPaginas=Math.max(1,Math.ceil(filasFiltradas.length/filasPorPagina));
+        const nueva=paginaActual+delta;
+        if(nueva<1||nueva>totalPaginas) return;
+        irAPagina(nueva);
+    }
+
+    window.addEventListener('resize',()=>{
+        const nuevo=window.innerWidth<768?5:10;
+        if(nuevo!==filasPorPagina){
+            filasPorPagina=nuevo;
+            paginaActual=1;
+            renderizarPagina();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded',()=>{
+        filasFiltradas=obtenerFilas();
+        renderizarPagina();
+    });
+
+</script>
 
 </body>
 

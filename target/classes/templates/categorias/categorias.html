@@ -31,30 +31,200 @@
             }
         }
     </script>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-soft:#FAFBFE;
+            --ui-muted:#667085;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .categories-shell{
+            background:
+                radial-gradient(circle at top right,rgba(32,138,174,.055),transparent 28rem),
+                var(--pillone-bg);
+        }
+        .categories-panel{
+            background:rgba(255,255,255,.98);
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .categories-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .categories-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .category-row{
+            transition:background .15s ease,box-shadow .15s ease;
+        }
+        .category-row:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.5);
+        }
+        .icon-action{
+            width:2.2rem;
+            height:2.2rem;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:.7rem;
+            transition:transform .15s ease,background .15s ease;
+        }
+        .icon-action:hover{transform:translateY(-1px);}
+        .categories-pagination{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:1rem;
+            padding:.9rem 1rem;
+            border-top:1px solid var(--ui-border);
+            background:#fff;
+        }
+        .page-controls{
+            display:flex;
+            align-items:center;
+            gap:.35rem;
+        }
+        .page-btn{
+            min-width:2.25rem;
+            height:2.25rem;
+            padding:0 .7rem;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border:1px solid var(--ui-border);
+            border-radius:.65rem;
+            background:#fff;
+            color:#475467;
+            font-size:.72rem;
+            font-weight:600;
+        }
+        .page-btn.active{
+            background:var(--pillone-dark);
+            color:#fff;
+            border-color:var(--pillone-dark);
+        }
+        .page-btn:disabled{
+            opacity:.4;
+            cursor:not-allowed;
+        }
+        @media(max-width:767px){
+            .categories-main{padding:1rem!important;}
+            .categories-header{align-items:stretch!important;}
+            .categories-header>a{width:100%;}
+            .categories-toolbar{
+                position:sticky;
+                top:0;
+                z-index:6;
+                background:rgba(255,255,255,.96);
+                backdrop-filter:blur(10px);
+            }
+            #buscador{font-size:16px!important;}
+            .categories-table-wrap{
+                overflow:visible!important;
+                padding:.75rem;
+                background:#F7F7FF;
+            }
+            .categories-table,
+            .categories-table tbody{
+                display:block;
+                width:100%;
+                min-width:0!important;
+            }
+            .categories-table thead{display:none;}
+            .categories-table tbody{border:0!important;}
+            .categories-table .fila-categoria{
+                display:block;
+                background:#fff;
+                border:1px solid var(--ui-border);
+                border-radius:1rem;
+                margin-bottom:.7rem;
+                overflow:hidden;
+                box-shadow:0 6px 18px rgba(7,0,77,.04);
+            }
+            .categories-table .fila-categoria td{
+                display:flex;
+                align-items:flex-start;
+                justify-content:space-between;
+                gap:1rem;
+                padding:.68rem .85rem!important;
+                text-align:right!important;
+                border:0;
+            }
+            .categories-table .fila-categoria td::before{
+                content:attr(data-label);
+                flex:0 0 5.5rem;
+                text-align:left;
+                color:#98A2B3;
+                font-size:.62rem;
+                font-weight:700;
+                text-transform:uppercase;
+            }
+            .categories-table .fila-categoria td:nth-child(2){
+                background:#FCFCFE;
+                border-bottom:1px solid #F0F1F5;
+            }
+            .categories-table .fila-categoria td:last-child{
+                display:block;
+                border-top:1px solid #F0F1F5;
+            }
+            .categories-table .fila-categoria td:last-child::before{
+                display:block;
+                margin-bottom:.5rem;
+            }
+            .categories-table .fila-categoria td:last-child>div{
+                justify-content:flex-end!important;
+            }
+            .categories-pagination{
+                position:sticky;
+                bottom:0;
+                z-index:5;
+                flex-direction:column;
+                align-items:stretch;
+                gap:.55rem;
+                padding:.75rem;
+                background:rgba(255,255,255,.97);
+                backdrop-filter:blur(10px);
+            }
+            .page-controls{justify-content:center;}
+            #paginacion-info{text-align:center;}
+        }
+    </style>
+
 </head>
 
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
 <header th:replace="fragments/layout :: topbar('Gestión de Categorías')"></header>
 
-<div class="flex flex-1 relative">
+<div class="flex flex-1 relative categories-shell">
 
     <div id="overlay"
          onclick="toggleSidebar()"
-         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+         class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden">
     </div>
 
     <aside th:replace="fragments/layout :: sidebar('categorias')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+        <main class="categories-main flex-1 p-4 sm:p-6 lg:p-8 max-w-[1450px] mx-auto w-full">
 
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+            <div class="categories-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
 
                 <div>
 
-                    <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase">
+                    <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark">
                         Categorías
                     </h1>
 
@@ -65,8 +235,8 @@
                 </div>
 
                 <a th:href="@{/view/categorias/form}"
-                   class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
-                    + Nueva Categoría
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold hover:bg-pillone-darker transition shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>Nueva categoría
                 </a>
 
             </div>
@@ -81,15 +251,15 @@
                  th:text="${error}">
             </div>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <section class="categories-panel rounded-2xl overflow-hidden">
 
-                <div class="p-4 border-b flex flex-col md:flex-row md:items-center gap-3">
+                <div class="categories-toolbar p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center gap-3">
 
                     <input id="buscador"
                            type="text"
                            oninput="filtrar()"
                            placeholder="Buscar categoría..."
-                           class="w-full md:w-80 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                           class="categories-control w-full md:w-80 px-3.5 py-2.5 rounded-xl outline-none">
 
                     <div class="md:ml-auto text-slate-500">
                         Total:
@@ -102,9 +272,9 @@
 
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="categories-table-wrap overflow-x-auto">
 
-                    <table class="min-w-full text-xs">
+                    <table class="categories-table min-w-full text-xs">
 
                         <thead>
 
@@ -133,7 +303,7 @@
                         <tbody class="divide-y divide-slate-100">
 
                         <tr th:each="cat : ${categorias}"
-                            class="fila-categoria hover:bg-slate-50 transition">
+                            class="fila-categoria category-row">
 
                             <td class="px-4 py-3">
 
@@ -200,6 +370,19 @@
 
                 </div>
 
+                <div id="paginacion-categorias" class="categories-pagination hidden">
+                    <div id="paginacion-info" class="text-[11px] text-slate-500">Mostrando 0 de 0 categorías</div>
+                    <div class="page-controls">
+                        <button type="button" id="pagina-anterior" class="page-btn" onclick="cambiarPagina(-1)" aria-label="Página anterior">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <div id="numeros-pagina" class="page-controls"></div>
+                        <button type="button" id="pagina-siguiente" class="page-btn" onclick="cambiarPagina(1)" aria-label="Página siguiente">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                    </div>
+                </div>
+
             </section>
 
         </main>
@@ -216,33 +399,111 @@
         document.getElementById('overlay').classList.toggle('hidden');
     }
 
-    function filtrar(){
-        const texto=
-            document.getElementById('buscador')
-                .value
-                .toLowerCase()
-                .trim();
+    let paginaActual=1;
+    let filasPorPagina=window.innerWidth<768?5:10;
+    let filasFiltradas=[];
 
-        let visibles=0;
-
-        document.querySelectorAll('.fila-categoria').forEach(fila=>{
-
-            const mostrar=
-                fila.textContent
-                    .toLowerCase()
-                    .includes(texto);
-
-            fila.style.display=
-                mostrar ? '' : 'none';
-
-            if(mostrar){
-                visibles++;
-            }
-        });
-
-        document.getElementById('contador').textContent=
-            visibles;
+    function obtenerFilas(){
+        return Array.from(document.querySelectorAll('.fila-categoria'));
     }
+
+    function filtrar(){
+        const texto=document.getElementById('buscador').value.toLowerCase().trim();
+
+        filasFiltradas=obtenerFilas().filter(fila=>
+            !texto || fila.textContent.toLowerCase().includes(texto)
+        );
+
+        paginaActual=1;
+        renderizarPagina();
+    }
+
+    function renderizarPagina(){
+        const todas=obtenerFilas();
+        const total=filasFiltradas.length;
+        const totalPaginas=Math.max(1,Math.ceil(total/filasPorPagina));
+        if(paginaActual>totalPaginas) paginaActual=totalPaginas;
+
+        const inicio=(paginaActual-1)*filasPorPagina;
+        const fin=Math.min(inicio+filasPorPagina,total);
+
+        todas.forEach(f=>f.style.display='none');
+        filasFiltradas.slice(inicio,fin).forEach(f=>f.style.display='');
+
+        document.getElementById('contador').textContent=total;
+        actualizarPaginacion(total,totalPaginas,inicio,fin);
+    }
+
+    function actualizarPaginacion(total,totalPaginas,inicio,fin){
+        const cont=document.getElementById('paginacion-categorias');
+        const info=document.getElementById('paginacion-info');
+        const nums=document.getElementById('numeros-pagina');
+        const anterior=document.getElementById('pagina-anterior');
+        const siguiente=document.getElementById('pagina-siguiente');
+
+        if(total===0){
+            cont.classList.add('hidden');
+            return;
+        }
+
+        cont.classList.remove('hidden');
+        info.textContent=`Mostrando ${inicio+1}–${fin} de ${total} categorías`;
+        anterior.disabled=paginaActual===1;
+        siguiente.disabled=paginaActual===totalPaginas;
+        nums.innerHTML='';
+
+        obtenerPaginasVisibles(totalPaginas,paginaActual).forEach(p=>{
+            if(p==='...'){
+                const span=document.createElement('span');
+                span.className='page-btn border-transparent bg-transparent pointer-events-none';
+                span.textContent='…';
+                nums.appendChild(span);
+                return;
+            }
+            const b=document.createElement('button');
+            b.type='button';
+            b.className='page-btn'+(p===paginaActual?' active':'');
+            b.textContent=p;
+            b.onclick=()=>irAPagina(p);
+            nums.appendChild(b);
+        });
+    }
+
+    function obtenerPaginasVisibles(total,actual){
+        if(total<=5) return Array.from({length:total},(_,i)=>i+1);
+        if(actual<=3) return [1,2,3,4,'...',total];
+        if(actual>=total-2) return [1,'...',total-3,total-2,total-1,total];
+        return [1,'...',actual-1,actual,actual+1,'...',total];
+    }
+
+    function irAPagina(p){
+        paginaActual=p;
+        renderizarPagina();
+        if(window.innerWidth<768){
+            document.getElementById('buscador').scrollIntoView({behavior:'smooth',block:'start'});
+        }
+    }
+
+    function cambiarPagina(delta){
+        const totalPaginas=Math.max(1,Math.ceil(filasFiltradas.length/filasPorPagina));
+        const nueva=paginaActual+delta;
+        if(nueva<1||nueva>totalPaginas) return;
+        irAPagina(nueva);
+    }
+
+    window.addEventListener('resize',()=>{
+        const nuevo=window.innerWidth<768?5:10;
+        if(nuevo!==filasPorPagina){
+            filasPorPagina=nuevo;
+            paginaActual=1;
+            renderizarPagina();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded',()=>{
+        filasFiltradas=obtenerFilas();
+        renderizarPagina();
+    });
 </script>
 
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>

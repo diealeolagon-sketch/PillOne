@@ -33,7 +33,29 @@
         }
     </script>
 
+
     <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-surface:#FFFFFF;
+            --ui-border:#E7E9F0;
+            --ui-muted:#667085;
+            --ui-soft:#FAFBFE;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+            --ui-shadow-hover:0 14px 34px rgba(7,0,77,.09);
+        }
+
+        .dashboard-shell{
+            background:
+                radial-gradient(circle at top right, rgba(32,138,174,.07), transparent 31rem),
+                radial-gradient(circle at 18% 12%, rgba(7,0,77,.035), transparent 24rem),
+                var(--pillone-bg);
+        }
+
         .dashboard-scroll{
             scrollbar-width:thin;
             scrollbar-color:#cbd5e1 #f8fafc;
@@ -53,33 +75,168 @@
             border-radius:20px;
         }
 
-        .card-hover{
-            transition:transform .2s ease,box-shadow .2s ease;
+        .dashboard-panel{
+            background:rgba(255,255,255,.97);
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
         }
 
-        .card-hover:hover{
-            transform:translateY(-2px);
-            box-shadow:0 10px 25px rgba(15,23,42,.07);
+        .dashboard-card{
+            position:relative;
+            overflow:hidden;
+            background:rgba(255,255,255,.98);
+            border:1px solid var(--ui-border);
+            box-shadow:0 6px 20px rgba(7,0,77,.04);
+            transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+        }
+
+        .dashboard-card:hover{
+            transform:translateY(-1px);
+            box-shadow:var(--ui-shadow-hover);
+            border-color:#DDE1EA;
+        }
+
+        .dashboard-card::after{
+            content:"";
+            position:absolute;
+            width:7rem;
+            height:7rem;
+            right:-2.8rem;
+            bottom:-3.8rem;
+            border-radius:999px;
+            background:currentColor;
+            opacity:.025;
+            pointer-events:none;
+        }
+
+        .metric-icon{
+            width:2.75rem;
+            height:2.75rem;
+            border-radius:.9rem;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex:none;
+        }
+
+        .section-kicker{
+            display:inline-flex;
+            align-items:center;
+            gap:.45rem;
+            color:var(--pillone-accent);
+            font-size:10px;
+            font-weight:700;
+            letter-spacing:.16em;
+            text-transform:uppercase;
+        }
+
+        .panel-heading{
+            font-size:13px;
+            font-weight:700;
+            color:var(--pillone-dark);
+        }
+
+        .panel-subtitle{
+            margin-top:.2rem;
+            color:#98A2B3;
+            font-size:10px;
+            line-height:1.45;
+        }
+
+        .dashboard-link{
+            color:var(--pillone-accent);
+            font-size:10px;
+            font-weight:700;
+            transition:opacity .15s ease;
+        }
+
+        .dashboard-link:hover{
+            opacity:.72;
+        }
+
+        .soft-row{
+            border:1px solid transparent;
+            transition:background .15s ease,border-color .15s ease,transform .15s ease;
+        }
+
+        .soft-row:hover{
+            transform:translateX(1px);
+            border-color:#E7E9F0;
+        }
+
+        .status-line{
+            position:relative;
+            padding-left:1rem;
+        }
+
+        .status-line::before{
+            content:"";
+            position:absolute;
+            left:0;
+            top:.35rem;
+            width:.45rem;
+            height:.45rem;
+            border-radius:999px;
+            background:currentColor;
+        }
+
+        .dashboard-table tbody tr{
+            transition:background .15s ease,box-shadow .15s ease;
+        }
+
+        .dashboard-table tbody tr:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.55);
+        }
+
+        .loading-shimmer{
+            position:relative;
+            overflow:hidden;
+        }
+
+        .loading-shimmer::after{
+            content:"";
+            position:absolute;
+            inset:0;
+            transform:translateX(-100%);
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);
+            animation:dashboard-shimmer 1.4s infinite;
+        }
+
+        @keyframes dashboard-shimmer{
+            100%{transform:translateX(100%);}
+        }
+
+        @media(max-width:767px){
+            .dashboard-mobile-actions{
+                width:100%;
+            }
+
+            .dashboard-mobile-actions>*{
+                flex:1;
+                justify-content:center;
+            }
         }
     </style>
+
 </head>
 
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
 <header th:replace="fragments/layout :: topbar('Dashboard')"></header>
 
-<div class="flex flex-1 relative">
+<div class="flex flex-1 relative dashboard-shell">
 
     <div id="overlay"
          onclick="toggleSidebar()"
-         class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden">
+         class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden">
     </div>
 
     <aside th:replace="fragments/layout :: sidebar('dashboard')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
 
-        <main class="flex-1 p-4 sm:p-5 lg:p-6 max-w-[1600px] mx-auto w-full">
+        <main class="flex-1 p-4 sm:p-5 lg:p-6 xl:p-7 max-w-[1650px] mx-auto w-full">
 
             <!-- ENCABEZADO -->
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
@@ -87,11 +244,11 @@
                 <div>
 
                     <p class="text-[10px] uppercase tracking-[0.2em] text-pillone-accent font-bold">
-                        Panel General
+                        Centro de control
                     </p>
 
-                    <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark">
-                        Resumen de la operación
+                    <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark">
+                        Resumen operativo
                     </h1>
 
                     <p id="fecha-dashboard"
@@ -101,17 +258,24 @@
 
                 </div>
 
-                <div class="flex flex-wrap gap-2">
+                <div class="dashboard-mobile-actions flex flex-wrap gap-2">
 
                     <button type="button"
                             onclick="cargarDashboard()"
-                            class="px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition">
-                        ↻ Actualizar
+                            class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-semibold shadow-sm hover:bg-slate-50 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 6v5h-5M4 18v-5h5"/>
+                            <path stroke-linecap="round" d="M18.5 10A7 7 0 0 0 6 7m-.5 7A7 7 0 0 0 18 17"/>
+                        </svg>
+                        Actualizar
                     </button>
 
                     <a th:href="@{/view/ventas/form}"
-                       class="px-4 py-2 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 transition">
-                        + Nueva Venta
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold shadow-sm hover:bg-pillone-darker transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Nueva venta
                     </a>
 
                 </div>
@@ -120,12 +284,12 @@
 
             <!-- ERROR -->
             <div id="error-dashboard"
-                 class="hidden mb-4 bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+                 class="hidden mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 font-medium">
             </div>
 
             <!-- LOADING -->
             <div id="loading-dashboard"
-                 class="mb-4 rounded-xl bg-white border border-slate-200 p-4 text-slate-500">
+                 class="loading-shimmer mb-4 rounded-2xl bg-white border border-slate-200 p-4 text-slate-500 shadow-sm">
                 Cargando indicadores del dashboard...
             </div>
 
@@ -137,7 +301,7 @@
                 <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
 
                     <!-- VENTAS -->
-                    <article class="card-hover bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <article class="dashboard-card rounded-2xl p-5 text-pillone-dark">
 
                         <div class="flex items-start justify-between gap-3">
 
@@ -148,14 +312,17 @@
                                 </p>
 
                                 <h2 id="ventas-hoy"
-                                    class="text-2xl font-extrabold text-pillone-dark mt-2">
+                                    class="text-2xl md:text-[28px] font-bold text-pillone-dark mt-2 tracking-tight">
                                     $0
                                 </h2>
 
                             </div>
 
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-lg">
-                                💰
+                            <div class="metric-icon bg-[rgba(32,138,174,.10)] text-pillone-accent">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7.5h16v10H4zM7 5h10M7 20h10"/>
+                                    <circle cx="12" cy="12.5" r="2.5"/>
+                                </svg>
                             </div>
 
                         </div>
@@ -176,7 +343,7 @@
                     </article>
 
                     <!-- TICKET -->
-                    <article class="card-hover bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <article class="dashboard-card rounded-2xl p-5 text-pillone-dark">
 
                         <div class="flex items-start justify-between gap-3">
 
@@ -187,14 +354,17 @@
                                 </p>
 
                                 <h2 id="ticket-promedio"
-                                    class="text-2xl font-extrabold text-pillone-dark mt-2">
+                                    class="text-2xl md:text-[28px] font-bold text-pillone-dark mt-2 tracking-tight">
                                     $0
                                 </h2>
 
                             </div>
 
-                            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-lg">
-                                🧾
+                            <div class="metric-icon bg-slate-100 text-pillone-dark">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/>
+                                    <path stroke-linecap="round" d="M9 8h6M9 12h6"/>
+                                </svg>
                             </div>
 
                         </div>
@@ -210,7 +380,7 @@
                     </article>
 
                     <!-- STOCK -->
-                    <article class="card-hover bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <article class="dashboard-card rounded-2xl p-5 text-pillone-dark">
 
                         <div class="flex items-start justify-between gap-3">
 
@@ -221,14 +391,17 @@
                                 </p>
 
                                 <h2 id="stock-bajo"
-                                    class="text-2xl font-extrabold text-amber-600 mt-2">
+                                    class="text-2xl md:text-[28px] font-bold text-amber-600 mt-2 tracking-tight">
                                     0
                                 </h2>
 
                             </div>
 
-                            <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-lg">
-                                📦
+                            <div class="metric-icon bg-amber-50 text-amber-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.5 7.5 12 3l8.5 4.5V17L12 21l-8.5-4V7.5Z"/>
+                                    <path stroke-linecap="round" d="m3.5 7.5 8.5 4 8.5-4M12 11.5V21"/>
+                                </svg>
                             </div>
 
                         </div>
@@ -249,7 +422,7 @@
                     </article>
 
                     <!-- VENCIMIENTOS -->
-                    <article class="card-hover bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <article class="dashboard-card rounded-2xl p-5 text-pillone-dark">
 
                         <div class="flex items-start justify-between gap-3">
 
@@ -260,14 +433,16 @@
                                 </p>
 
                                 <h2 id="lotes-criticos"
-                                    class="text-2xl font-extrabold text-red-600 mt-2">
+                                    class="text-2xl md:text-[28px] font-bold text-red-600 mt-2 tracking-tight">
                                     0
                                 </h2>
 
                             </div>
 
-                            <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-lg">
-                                ⚠️
+                            <div class="metric-icon bg-red-50 text-red-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.7 2.8 17a2 2 0 0 0 1.74 3h14.92A2 2 0 0 0 21.2 17L13.7 3.7a2 2 0 0 0-3.4 0Z"/>
+                                </svg>
                             </div>
 
                         </div>
@@ -283,7 +458,7 @@
                             </span>
 
                             <a th:href="@{/view/alertas/vencimientos}"
-                               class="font-semibold text-pillone-accent">
+                               class="dashboard-link">
                                 Ver →
                             </a>
 
@@ -297,30 +472,30 @@
                 <section class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,.7fr)] gap-4 mb-4">
 
                     <!-- VENTAS SEMANA -->
-                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <article class="dashboard-panel rounded-2xl overflow-hidden">
 
                         <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
 
                             <div>
 
-                                <h2 class="font-bold text-pillone-dark text-sm">
+                                <h2 class="panel-heading">
                                     Ventas de los últimos 7 días
                                 </h2>
 
-                                <p class="text-[10px] text-slate-400 mt-1">
+                                <p class="panel-subtitle">
                                     Total diario de ventas pagadas
                                 </p>
 
                             </div>
 
                             <a th:href="@{/view/ventas}"
-                               class="text-[10px] font-bold text-pillone-accent">
+                               class="dashboard-link">
                                 Historial →
                             </a>
 
                         </div>
 
-                        <div class="p-5 h-[300px]">
+                        <div class="p-5 h-[310px]">
 
                             <canvas id="graficoVentas">
                             </canvas>
@@ -330,15 +505,15 @@
                     </article>
 
                     <!-- DOMICILIOS -->
-                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <article class="dashboard-panel rounded-2xl overflow-hidden">
 
                         <div class="px-5 py-4 border-b border-slate-100">
 
-                            <h2 class="font-bold text-pillone-dark text-sm">
+                            <h2 class="panel-heading">
                                 Domicilios
                             </h2>
 
-                            <p class="text-[10px] text-slate-400 mt-1">
+                            <p class="panel-subtitle">
                                 Estado actual de las entregas
                             </p>
 
@@ -346,7 +521,7 @@
 
                         <div class="p-5 space-y-3">
 
-                            <div class="flex items-center justify-between p-3 rounded-xl bg-amber-50">
+                            <div class="soft-row flex items-center justify-between p-3 rounded-xl bg-amber-50/70">
 
                                 <div>
 
@@ -367,7 +542,7 @@
 
                             </div>
 
-                            <div class="flex items-center justify-between p-3 rounded-xl bg-blue-50">
+                            <div class="soft-row flex items-center justify-between p-3 rounded-xl bg-blue-50/70">
 
                                 <div>
 
@@ -388,7 +563,7 @@
 
                             </div>
 
-                            <div class="flex items-center justify-between p-3 rounded-xl bg-purple-50">
+                            <div class="soft-row flex items-center justify-between p-3 rounded-xl bg-violet-50/70">
 
                                 <div>
 
@@ -409,7 +584,7 @@
 
                             </div>
 
-                            <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50">
+                            <div class="soft-row flex items-center justify-between p-3 rounded-xl bg-emerald-50/70">
 
                                 <div>
 
@@ -431,7 +606,7 @@
                             </div>
 
                             <a th:href="@{/view/domicilios}"
-                               class="block w-full text-center py-2.5 rounded-xl bg-pillone-dark text-white font-bold mt-2">
+                               class="inline-flex items-center justify-center w-full py-2.5 rounded-xl bg-pillone-dark text-white font-semibold mt-2 hover:bg-pillone-darker transition">
                                 Gestionar domicilios
                             </a>
 
@@ -445,15 +620,15 @@
                 <section class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
 
                     <!-- ALERTAS -->
-                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <article class="dashboard-panel rounded-2xl overflow-hidden">
 
                         <div class="px-5 py-4 border-b border-slate-100">
 
-                            <h2 class="font-bold text-pillone-dark">
+                            <h2 class="panel-heading">
                                 Alertas de inventario
                             </h2>
 
-                            <p class="text-[10px] text-slate-400 mt-1">
+                            <p class="panel-subtitle">
                                 Situaciones que requieren atención
                             </p>
 
@@ -462,7 +637,7 @@
                         <div class="p-5 space-y-2.5">
 
                             <a th:href="@{/view/alertas/vencimientos}"
-                               class="flex items-center justify-between p-3 rounded-xl hover:bg-red-50 transition">
+                               class="soft-row flex items-center justify-between p-3 rounded-xl hover:bg-red-50/70 transition">
 
                                 <div>
                                     <p class="font-semibold text-slate-700">
@@ -481,7 +656,7 @@
                             </a>
 
                             <a th:href="@{/view/alertas/vencimientos}"
-                               class="flex items-center justify-between p-3 rounded-xl hover:bg-amber-50 transition">
+                               class="soft-row flex items-center justify-between p-3 rounded-xl hover:bg-amber-50/70 transition">
 
                                 <div>
                                     <p class="font-semibold text-slate-700">
@@ -500,7 +675,7 @@
                             </a>
 
                             <a th:href="@{/view/alertas/vencimientos}"
-                               class="flex items-center justify-between p-3 rounded-xl hover:bg-blue-50 transition">
+                               class="soft-row flex items-center justify-between p-3 rounded-xl hover:bg-blue-50/70 transition">
 
                                 <div>
                                     <p class="font-semibold text-slate-700">
@@ -519,7 +694,7 @@
                             </a>
 
                             <a th:href="@{/view/productos}"
-                               class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition">
+                               class="soft-row flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition">
 
                                 <div>
                                     <p class="font-semibold text-slate-700">
@@ -538,7 +713,7 @@
                             </a>
 
                             <a th:href="@{/view/productos}"
-                               class="flex items-center justify-between p-3 rounded-xl hover:bg-red-50 transition">
+                               class="soft-row flex items-center justify-between p-3 rounded-xl hover:bg-red-50/70 transition">
 
                                 <div>
                                     <p class="font-semibold text-slate-700">
@@ -561,15 +736,15 @@
                     </article>
 
                     <!-- MÁS VENDIDOS -->
-                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <article class="dashboard-panel rounded-2xl overflow-hidden">
 
                         <div class="px-5 py-4 border-b border-slate-100">
 
-                            <h2 class="font-bold text-pillone-dark">
+                            <h2 class="panel-heading">
                                 Productos más vendidos
                             </h2>
 
-                            <p class="text-[10px] text-slate-400 mt-1">
+                            <p class="panel-subtitle">
                                 Últimos 30 días
                             </p>
 
@@ -582,21 +757,21 @@
                     </article>
 
                     <!-- MÉTODOS -->
-                    <article class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <article class="dashboard-panel rounded-2xl overflow-hidden">
 
                         <div class="px-5 py-4 border-b border-slate-100">
 
-                            <h2 class="font-bold text-pillone-dark">
+                            <h2 class="panel-heading">
                                 Métodos de pago
                             </h2>
 
-                            <p class="text-[10px] text-slate-400 mt-1">
+                            <p class="panel-subtitle">
                                 Últimos 30 días
                             </p>
 
                         </div>
 
-                        <div class="p-5 h-[285px]">
+                        <div class="p-5 h-[300px]">
 
                             <canvas id="graficoPagos">
                             </canvas>
@@ -608,24 +783,24 @@
                 </section>
 
                 <!-- ÚLTIMAS VENTAS -->
-                <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <section class="dashboard-panel rounded-2xl overflow-hidden">
 
                     <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
 
                         <div>
 
-                            <h2 class="font-bold text-pillone-dark">
+                            <h2 class="panel-heading">
                                 Últimas ventas
                             </h2>
 
-                            <p class="text-[10px] text-slate-400 mt-1">
+                            <p class="panel-subtitle">
                                 Actividad reciente del punto de venta
                             </p>
 
                         </div>
 
                         <a th:href="@{/view/ventas}"
-                           class="font-semibold text-pillone-accent">
+                           class="dashboard-link">
                             Ver historial →
                         </a>
 
@@ -633,9 +808,9 @@
 
                     <div class="overflow-x-auto dashboard-scroll">
 
-                        <table class="w-full min-w-[850px]">
+                        <table class="dashboard-table w-full min-w-[850px]">
 
-                            <thead class="bg-slate-50 text-[10px] uppercase text-slate-500">
+                            <thead class="bg-slate-50/90 text-[10px] uppercase tracking-[.06em] text-slate-500">
 
                             <tr>
 
@@ -842,11 +1017,16 @@
                         {
                             label:'Ventas',
                             data:lista.map(x=>Number(x.total||0)),
+                            borderColor:'#208AAE',
+                            backgroundColor:'rgba(32,138,174,.10)',
                             borderWidth:3,
                             tension:.35,
-                            fill:false,
-                            pointRadius:4,
-                            pointHoverRadius:6
+                            fill:true,
+                            pointRadius:3,
+                            pointHoverRadius:5,
+                            pointBackgroundColor:'#FFFFFF',
+                            pointBorderColor:'#208AAE',
+                            pointBorderWidth:2
                         }
                     ]
                 },
@@ -881,11 +1061,18 @@
                                 }
                             },
                             grid:{
-                                color:'rgba(148,163,184,.12)'
+                                color:'rgba(148,163,184,.12)',
+                                drawBorder:false
+                            },
+                            border:{
+                                display:false
                             }
                         },
                         x:{
                             grid:{
+                                display:false
+                            },
+                            border:{
                                 display:false
                             }
                         }
@@ -903,7 +1090,12 @@
 
             cont.innerHTML=`
                 <div class="py-10 text-center text-slate-400">
-                    <div class="text-3xl mb-2">📦</div>
+                    <div class="mx-auto mb-3 w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.5 7.5 12 3l8.5 4.5V17L12 21l-8.5-4V7.5Z"/>
+                            <path stroke-linecap="round" d="m3.5 7.5 8.5 4 8.5-4M12 11.5V21"/>
+                        </svg>
+                    </div>
                     <p>No hay ventas para analizar todavía.</p>
                 </div>
             `;
@@ -933,7 +1125,7 @@
 
                     <div class="text-right shrink-0">
 
-                        <p class="font-bold text-pillone-dark">
+                        <p class="panel-heading">
                             ${Number(p.cantidadVendida||0)}
                         </p>
 
@@ -978,7 +1170,17 @@
                             data:lista.map(
                                 x=>Number(x.total||0)
                             ),
-                            borderWidth:2
+                            backgroundColor:[
+                                '#07004D',
+                                '#208AAE',
+                                'rgba(7,0,77,.72)',
+                                'rgba(32,138,174,.68)',
+                                'rgba(7,0,77,.42)',
+                                'rgba(32,138,174,.36)'
+                            ],
+                            borderColor:'#FFFFFF',
+                            borderWidth:3,
+                            hoverOffset:3
                         }
                     ]
                 },
@@ -993,8 +1195,11 @@
                                 boxWidth:10,
                                 boxHeight:10,
                                 font:{
-                                    size:10
-                                }
+                                    size:10,
+                                    family:'Poppins'
+                                },
+                                color:'#667085',
+                                padding:14
                             }
                         },
                         tooltip:{
@@ -1056,7 +1261,7 @@
                             : 'bg-amber-50 text-amber-700';
 
                 return `
-                    <tr class="hover:bg-slate-50 transition">
+                    <tr>
 
                         <td class="px-4 py-3">
                             <span class="font-bold text-pillone-accent">

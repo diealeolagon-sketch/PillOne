@@ -5,60 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Devoluciones - PillOne</title>
     <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-soft:#FAFBFE;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .returns-shell{background:var(--pillone-bg);}
+        .returns-panel{
+            background:#fff;
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .returns-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .returns-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .return-row{
+            transition:background .15s ease,box-shadow .15s ease;
+        }
+        .return-row:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.5);
+        }
+        .returns-pagination{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:1rem;
+            padding:.9rem 1rem;
+            border-top:1px solid var(--ui-border);
+            background:#fff;
+        }
+        .page-controls{
+            display:flex;
+            align-items:center;
+            gap:.35rem;
+        }
+        .page-btn{
+            min-width:2.25rem;
+            height:2.25rem;
+            padding:0 .7rem;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border:1px solid var(--ui-border);
+            border-radius:.65rem;
+            background:#fff;
+            color:#475467;
+            font-size:.72rem;
+            font-weight:600;
+        }
+        .page-btn.active{
+            background:var(--pillone-dark);
+            color:#fff;
+            border-color:var(--pillone-dark);
+        }
+        .page-btn:disabled{
+            opacity:.4;
+            cursor:not-allowed;
+        }
+        @media(max-width:767px){
+            .returns-main{padding:1rem!important;}
+            .returns-toolbar{
+                position:sticky;
+                top:0;
+                z-index:6;
+                background:rgba(255,255,255,.96);
+                backdrop-filter:blur(10px);
+            }
+            #buscar{font-size:16px!important;}
+            .returns-table-wrap{
+                overflow:visible!important;
+                padding:.75rem;
+                background:#F7F7FF;
+            }
+            .returns-table,
+            .returns-table tbody{
+                display:block;
+                width:100%;
+                min-width:0!important;
+            }
+            .returns-table thead{display:none;}
+            .returns-table tbody{border:0!important;}
+            .returns-table .fila{
+                display:block;
+                background:#fff;
+                border:1px solid var(--ui-border);
+                border-radius:1rem;
+                margin-bottom:.75rem;
+                overflow:hidden;
+                box-shadow:0 6px 18px rgba(7,0,77,.04);
+            }
+            .returns-table .fila td{
+                display:flex;
+                align-items:flex-start;
+                justify-content:space-between;
+                gap:1rem;
+                padding:.68rem .85rem!important;
+                text-align:right!important;
+                border:0;
+            }
+            .returns-table .fila td::before{
+                content:attr(data-label);
+                flex:0 0 6.7rem;
+                text-align:left;
+                color:#98A2B3;
+                font-size:.62rem;
+                font-weight:700;
+                text-transform:uppercase;
+                letter-spacing:.03em;
+            }
+            .returns-table .fila td:nth-child(3){
+                display:block;
+                text-align:left!important;
+                background:#FCFCFE;
+                border-bottom:1px solid #F0F1F5;
+            }
+            .returns-table .fila td:nth-child(3)::before{
+                display:block;
+                margin-bottom:.35rem;
+            }
+            .returns-table .fila td:nth-child(4){
+                display:block;
+                text-align:left!important;
+            }
+            .returns-table .fila td:nth-child(4)::before{
+                display:block;
+                margin-bottom:.35rem;
+            }
+            .returns-table .fila td:last-child{
+                display:block;
+                text-align:left!important;
+                border-top:1px solid #F0F1F5;
+            }
+            .returns-table .fila td:last-child::before{
+                display:block;
+                margin-bottom:.35rem;
+            }
+            .returns-pagination{
+                position:sticky;
+                bottom:0;
+                z-index:5;
+                flex-direction:column;
+                align-items:stretch;
+                gap:.55rem;
+                padding:.75rem;
+                background:rgba(255,255,255,.97);
+                backdrop-filter:blur(10px);
+            }
+            .page-controls{justify-content:center;}
+            #paginacion-info{text-align:center;}
+        }
+    </style>
 </head>
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen">
 <header th:replace="~{fragments/layout :: topbar('Devoluciones')}"></header>
 
-<div class="flex min-h-[calc(100vh-4rem)]">
+<div class="returns-shell flex min-h-[calc(100vh-4rem)]">
     <aside th:replace="~{fragments/layout :: sidebar('devoluciones')}"></aside>
 
-    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+    <main class="returns-main flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
         <div class="max-w-[1500px] mx-auto space-y-5">
-
             <div>
                 <p class="text-[11px] uppercase tracking-[.2em] text-pillone-accent font-bold">
                     Historial
                 </p>
-
-                <h1 class="text-2xl sm:text-3xl font-bold text-pillone-dark">
+                <h1 class="text-2xl sm:text-[30px] leading-tight font-bold text-pillone-dark">
                     Devoluciones
                 </h1>
-
                 <p class="text-sm text-slate-500 mt-1">
-                    Esta pantalla es únicamente de consulta. Las devoluciones se originan desde la operación correspondiente.
+                    Consulta las devoluciones registradas desde domicilios, ventas o compras.
                 </p>
             </div>
 
             <div th:if="${mensaje}"
-                 class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold"
-                 th:text="${mensaje}">
+                 class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold flex items-center gap-2">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span th:text="${mensaje}"></span>
             </div>
 
             <div th:if="${error}"
-                 class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold"
-                 th:text="${error}">
+                 class="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold flex items-center gap-2">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l9 16H3L12 3zm0 6v4m0 3h.01"/>
+                </svg>
+                <span th:text="${error}"></span>
             </div>
 
-            <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-
-                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <input id="buscar"
-                           type="text"
-                           oninput="filtrar()"
-                           placeholder="Buscar factura, cliente, producto, lote..."
-                           class="w-full sm:w-96 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-pillone-accent text-sm">
+            <section class="returns-panel rounded-2xl overflow-hidden">
+                <div class="returns-toolbar p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="relative w-full sm:w-96">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+                             fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="7"/>
+                            <path stroke-linecap="round" d="M20 20l-3.5-3.5"/>
+                        </svg>
+                        <input id="buscar"
+                               type="text"
+                               oninput="filtrar()"
+                               placeholder="Buscar factura, cliente, producto, lote..."
+                               class="returns-control w-full pl-9 pr-4 py-2.5 rounded-xl outline-none text-sm">
+                    </div>
 
                     <span class="text-xs text-slate-500">
                         Total:
                         <strong id="contador"
+                                class="text-pillone-dark"
                                 th:text="${#lists.size(devoluciones)}">
                             0
                         </strong>
                     </span>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-[1250px] text-sm">
+                <div class="returns-table-wrap overflow-x-auto">
+                    <table class="returns-table w-full min-w-[1250px] text-sm">
                         <thead class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
                         <tr>
                             <th class="p-3 text-left">Fecha</th>
@@ -75,91 +249,126 @@
                         </thead>
 
                         <tbody class="divide-y divide-slate-100">
-
                         <tr th:if="${#lists.isEmpty(devoluciones)}">
-                            <td colspan="10"
-                                class="p-10 text-center text-slate-400">
-                                Todavía no hay devoluciones registradas.
+                            <td colspan="10" class="p-12 text-center text-slate-400">
+                                <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-slate-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H4v4M4.5 10A8 8 0 1020 12"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8M9 13l3 3 3-3"/>
+                                    </svg>
+                                </div>
+                                <p class="font-semibold text-slate-500">Todavía no hay devoluciones registradas.</p>
+                                <p class="text-[11px] mt-1">Las devoluciones aparecerán aquí cuando se generen desde la operación correspondiente.</p>
                             </td>
                         </tr>
 
                         <tr th:each="d : ${devoluciones}"
-                            class="fila hover:bg-slate-50">
+                            class="fila return-row">
 
-                            <td class="p-3 text-xs text-slate-500"
+                            <td class="p-3 text-xs text-slate-500 whitespace-nowrap"
+                                data-label="Fecha"
                                 th:text="${d.fecha_devolucion != null ? #temporals.format(d.fecha_devolucion,'dd/MM/yyyy HH:mm') : '-'}">
                                 -
                             </td>
 
-                            <td class="p-3">
+                            <td class="p-3" data-label="Origen">
                                 <span class="inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700"
                                       th:text="${d.tipo_devolucion}">
                                     CLIENTE
                                 </span>
-
                                 <div th:if="${d.id_domicilio != null}"
                                      class="text-[10px] text-slate-400 mt-1"
                                      th:text="${'Domicilio #' + d.id_domicilio}">
                                 </div>
                             </td>
 
-                            <td class="p-3">
-                                <div class="font-semibold"
+                            <td class="p-3" data-label="Cliente / factura">
+                                <div class="font-semibold text-pillone-dark"
                                      th:text="${d.cliente != null ? d.cliente : '-'}">
                                     Cliente
                                 </div>
-
-                                <div class="text-[10px] text-pillone-accent"
+                                <div class="text-[10px] text-pillone-accent mt-0.5"
                                      th:text="${d.numero_factura != null ? d.numero_factura : (d.numero_factura_proveedor != null ? d.numero_factura_proveedor : '-')}">
                                     Factura
                                 </div>
                             </td>
 
-                            <td class="p-3">
+                            <td class="p-3" data-label="Producto">
                                 <div class="font-semibold"
                                      th:text="${d.nombre_comercial}">
                                     Producto
                                 </div>
-
-                                <div class="text-[10px] text-slate-400"
+                                <div class="text-[10px] text-slate-400 mt-0.5"
                                      th:text="${d.codigo_interno}">
                                     Código
                                 </div>
                             </td>
 
                             <td class="p-3"
+                                data-label="Lote"
                                 th:text="${d.numero_lote != null ? d.numero_lote : 'Sin lote histórico'}">
                                 Lote
                             </td>
 
-                            <td class="p-3 text-center font-bold"
+                            <td class="p-3 text-center font-bold text-pillone-dark"
+                                data-label="Cantidad"
                                 th:text="${d.cantidad}">
                                 0
                             </td>
 
                             <td class="p-3 text-xs"
+                                data-label="Motivo"
                                 th:text="${#strings.replace(d.motivo,'_',' ')}">
                                 Motivo
                             </td>
 
                             <td class="p-3 text-xs"
+                                data-label="Destino producto"
                                 th:text="${#strings.replace(d.estado_producto,'_',' ')}">
                                 Estado
                             </td>
 
                             <td class="p-3 text-xs"
+                                data-label="Autorizó"
                                 th:text="${d.username}">
                                 Usuario
                             </td>
 
                             <td class="p-3 max-w-[250px] text-xs text-slate-500"
+                                data-label="Observaciones"
                                 th:text="${d.observaciones != null ? d.observaciones : '-'}">
                                 -
                             </td>
                         </tr>
-
                         </tbody>
                     </table>
+                </div>
+
+                <div id="paginacion-devoluciones" class="returns-pagination hidden">
+                    <div id="paginacion-info" class="text-[11px] text-slate-500">
+                        Mostrando 0 de 0 devoluciones
+                    </div>
+                    <div class="page-controls">
+                        <button type="button" id="pagina-anterior"
+                                class="page-btn"
+                                onclick="cambiarPagina(-1)"
+                                aria-label="Página anterior">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/>
+                            </svg>
+                        </button>
+
+                        <div id="numeros-pagina" class="page-controls"></div>
+
+                        <button type="button" id="pagina-siguiente"
+                                class="page-btn"
+                                onclick="cambiarPagina(1)"
+                                aria-label="Página siguiente">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </section>
         </div>
@@ -170,21 +379,131 @@
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 
 <script>
-    function filtrar(){
-        const q=(document.getElementById('buscar').value||'').toLowerCase();
-        let n=0;
+    let paginaActual=1;
+    let filasPorPagina=window.innerWidth<768?5:10;
+    let filasFiltradas=[];
 
-        document.querySelectorAll('.fila').forEach(f=>{
-            const ok=f.textContent.toLowerCase().includes(q);
-            f.style.display=ok?'':'none';
-
-            if(ok){
-                n++;
-            }
-        });
-
-        document.getElementById('contador').textContent=n;
+    function obtenerFilas(){
+        return Array.from(document.querySelectorAll('.fila'));
     }
+
+    function filtrar(){
+        const q=(document.getElementById('buscar').value||'').toLowerCase().trim();
+
+        filasFiltradas=obtenerFilas().filter(fila=>
+            !q || fila.textContent.toLowerCase().includes(q)
+        );
+
+        paginaActual=1;
+        renderizarPagina();
+    }
+
+    function renderizarPagina(){
+        const todas=obtenerFilas();
+        const total=filasFiltradas.length;
+        const totalPaginas=Math.max(1,Math.ceil(total/filasPorPagina));
+
+        if(paginaActual>totalPaginas){
+            paginaActual=totalPaginas;
+        }
+
+        const inicio=(paginaActual-1)*filasPorPagina;
+        const fin=Math.min(inicio+filasPorPagina,total);
+
+        todas.forEach(fila=>fila.style.display='none');
+        filasFiltradas.slice(inicio,fin).forEach(fila=>fila.style.display='');
+
+        document.getElementById('contador').textContent=total;
+        actualizarPaginacion(total,totalPaginas,inicio,fin);
+    }
+
+    function actualizarPaginacion(total,totalPaginas,inicio,fin){
+        const cont=document.getElementById('paginacion-devoluciones');
+        const info=document.getElementById('paginacion-info');
+        const nums=document.getElementById('numeros-pagina');
+        const anterior=document.getElementById('pagina-anterior');
+        const siguiente=document.getElementById('pagina-siguiente');
+
+        if(total===0){
+            cont.classList.add('hidden');
+            return;
+        }
+
+        cont.classList.remove('hidden');
+        info.textContent=`Mostrando ${inicio+1}–${fin} de ${total} devoluciones`;
+        anterior.disabled=paginaActual===1;
+        siguiente.disabled=paginaActual===totalPaginas;
+        nums.innerHTML='';
+
+        obtenerPaginasVisibles(totalPaginas,paginaActual).forEach(p=>{
+            if(p==='...'){
+                const span=document.createElement('span');
+                span.className='page-btn border-transparent bg-transparent pointer-events-none';
+                span.textContent='…';
+                nums.appendChild(span);
+                return;
+            }
+
+            const boton=document.createElement('button');
+            boton.type='button';
+            boton.className='page-btn'+(p===paginaActual?' active':'');
+            boton.textContent=p;
+            boton.onclick=()=>irAPagina(p);
+            nums.appendChild(boton);
+        });
+    }
+
+    function obtenerPaginasVisibles(total,actual){
+        if(total<=5){
+            return Array.from({length:total},(_,i)=>i+1);
+        }
+
+        if(actual<=3){
+            return [1,2,3,4,'...',total];
+        }
+
+        if(actual>=total-2){
+            return [1,'...',total-3,total-2,total-1,total];
+        }
+
+        return [1,'...',actual-1,actual,actual+1,'...',total];
+    }
+
+    function irAPagina(p){
+        paginaActual=p;
+        renderizarPagina();
+
+        if(window.innerWidth<768){
+            document.getElementById('buscar')
+                .scrollIntoView({behavior:'smooth',block:'start'});
+        }
+    }
+
+    function cambiarPagina(delta){
+        const totalPaginas=Math.max(1,Math.ceil(filasFiltradas.length/filasPorPagina));
+        const nueva=paginaActual+delta;
+
+        if(nueva<1||nueva>totalPaginas){
+            return;
+        }
+
+        irAPagina(nueva);
+    }
+
+    window.addEventListener('resize',()=>{
+        const nuevo=window.innerWidth<768?5:10;
+
+        if(nuevo!==filasPorPagina){
+            filasPorPagina=nuevo;
+            paginaActual=1;
+            renderizarPagina();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded',()=>{
+        filasFiltradas=obtenerFilas();
+        renderizarPagina();
+    });
 </script>
 </body>
 </html>

@@ -47,6 +47,49 @@
                         opacity .2s ease-in-out;
             }
 
+            /* Sidebar más cómodo para etiquetas largas y submenús */
+            #pillone-sidebar {
+                width: 18rem;
+                min-width: 18rem;
+            }
+
+            #pillone-sidebar nav {
+                overflow-x: hidden;
+                overscroll-behavior: contain;
+                scrollbar-gutter: stable;
+            }
+
+            #pillone-sidebar .nav-link,
+            #pillone-sidebar button {
+                min-width: 0;
+            }
+
+            #pillone-sidebar .nav-link > span,
+            #pillone-sidebar button span,
+            #pillone-sidebar .submenu-link > span {
+                min-width: 0;
+                line-height: 1.35;
+            }
+
+            #pillone-sidebar .submenu-container {
+                margin-left: 2rem;
+                padding-left: .75rem;
+                padding-right: .25rem;
+            }
+
+            #pillone-sidebar .submenu-link {
+                width: 100%;
+                min-width: 0;
+                padding-left: .7rem;
+                padding-right: .7rem;
+                align-items: flex-start;
+            }
+
+            #pillone-sidebar .submenu-link > span {
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+
             .nav-icon {
                 width: 1rem;
                 height: 1rem;
@@ -57,10 +100,18 @@
                 width: .9rem;
                 height: .9rem;
                 flex-shrink: 0;
+                margin-top: .08rem;
+            }
+
+            @media (max-width: 767px) {
+                #pillone-sidebar {
+                    width: min(19rem, 88vw);
+                    min-width: min(19rem, 88vw);
+                }
             }
 
             #pillone-sidebar::-webkit-scrollbar {
-                width: 4px;
+                width: 5px;
             }
 
             #pillone-sidebar::-webkit-scrollbar-track {
@@ -452,7 +503,7 @@
     <aside th:fragment="sidebar(activeMenu)"
            id="pillone-sidebar"
            data-open="false"
-           class="w-64 bg-gradient-to-b from-pillone-dark to-pillone-darker text-white flex flex-col fixed md:sticky top-16 h-[calc(100vh-4rem)] z-40 transition-transform duration-300 ease-out -translate-x-full md:translate-x-0 shadow-2xl border-r border-white/10 flex-shrink-0">
+           class="w-72 bg-gradient-to-b from-pillone-dark to-pillone-darker text-white flex flex-col fixed md:sticky top-16 h-[calc(100vh-4rem)] z-40 transition-transform duration-300 ease-out -translate-x-full md:translate-x-0 shadow-2xl border-r border-white/10 flex-shrink-0">
 
         <div class="px-4 py-3 border-b border-white/5">
 
@@ -577,7 +628,7 @@
 
 
                 <div id="submenu-inventario"
-                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
+                     class="submenu-container space-y-1 border-l border-white/10">
 
                     <!-- MEDICAMENTOS -->
                     <a th:href="@{/view/productos}"
@@ -745,7 +796,7 @@
 
 
                 <div id="submenu-dispensacion"
-                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
+                     class="submenu-container space-y-1 border-l border-white/10">
 
                     <!-- NUEVA VENTA -->
                     <a th:href="@{/view/ventas/form}"
@@ -874,7 +925,7 @@
 
 
                 <div id="submenu-proveedores"
-                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
+                     class="submenu-container space-y-1 border-l border-white/10">
 
                     <!-- PROVEEDORES -->
                     <a th:href="@{/view/proveedores}"
@@ -1071,7 +1122,7 @@
 
 
                 <div id="submenu-empleados"
-                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
+                     class="submenu-container space-y-1 border-l border-white/10">
 
                     <!-- EMPLEADOS -->
                     <a th:href="@{/view/empleados}"
@@ -1218,7 +1269,7 @@
 
 
                 <div id="submenu-config"
-                     class="submenu-container pl-5 pr-1 space-y-1 border-l border-white/10 ml-6">
+                     class="submenu-container space-y-1 border-l border-white/10">
 
                     <!-- SUCURSALES -->
                     <a th:href="@{/view/sucursales}"
@@ -1546,6 +1597,25 @@
                             'rotate-180'
                         );
                 }
+
+                /*
+                 * Cuando el submenú está cerca del final del sidebar,
+                 * desplazamos suavemente el nav para que no quede cortado.
+                 */
+                requestAnimationFrame(function(){
+                    const nav = submenu.closest('nav');
+                    if(!nav) return;
+
+                    const submenuRect = submenu.getBoundingClientRect();
+                    const navRect = nav.getBoundingClientRect();
+
+                    if(submenuRect.bottom > navRect.bottom - 12){
+                        nav.scrollBy({
+                            top: submenuRect.bottom - navRect.bottom + 20,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
             }
         };
 
@@ -1686,6 +1756,11 @@
 
                                 submenu.style.opacity =
                                     '1';
+
+                                requestAnimationFrame(function(){
+                                    submenu.style.maxHeight =
+                                        submenu.scrollHeight + 'px';
+                                });
 
 
                                 const nombre =

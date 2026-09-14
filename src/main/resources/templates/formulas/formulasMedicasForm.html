@@ -11,22 +11,94 @@
     <script>
         tailwind.config={theme:{extend:{colors:{pillone:{bg:'#F7F7FF',dark:'#07004D',darker:'#04002C',accent:'#208AAE',text:'#1D1E18'}},fontFamily:{sans:['Poppins','sans-serif']}}}}
     </script>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-border:#E7E9F0;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+        .formula-form-shell{background:var(--pillone-bg);}
+        .formula-form-panel{
+            background:#fff;
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+        .formula-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+        .formula-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+        .formula-section-title{
+            display:flex;
+            align-items:center;
+            gap:.55rem;
+            color:var(--pillone-dark);
+            font-size:13px;
+            font-weight:700;
+        }
+        .formula-section-title::before{
+            content:"";
+            width:.22rem;
+            height:1rem;
+            border-radius:999px;
+            background:var(--pillone-accent);
+            flex:none;
+        }
+        .formula-label{
+            display:block;
+            color:#475467;
+            font-size:11px;
+            font-weight:700;
+            letter-spacing:.035em;
+            text-transform:uppercase;
+            margin-bottom:.45rem;
+        }
+        .formula-actions{
+            position:sticky;
+            bottom:0;
+            z-index:5;
+            background:rgba(255,255,255,.97);
+            backdrop-filter:blur(10px);
+        }
+        @media(max-width:767px){
+            .formula-form-main{padding:1rem!important;}
+            .formula-form-header{align-items:stretch!important;}
+            .formula-form-header a{width:100%;justify-content:center;}
+            .formula-actions{
+                display:grid!important;
+                grid-template-columns:1fr;
+            }
+            .formula-actions>*{width:100%;justify-content:center;text-align:center;}
+            #archivo{font-size:16px;}
+        }
+    </style>
+
 </head>
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
 <header th:replace="fragments/layout :: topbar('Fórmula Médica')"></header>
 
-<div class="flex flex-1 relative">
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-10 hidden md:hidden"></div>
+<div class="formula-form-shell flex flex-1 relative">
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-10 hidden md:hidden"></div>
     <aside th:replace="fragments/layout :: sidebar('clientes')"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto w-full">
+        <main class="formula-form-main flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto w-full">
 
             <section class="mb-5">
-                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div class="formula-form-header flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div>
-                        <h1 class="text-xl md:text-2xl font-extrabold text-pillone-dark uppercase"
+                        <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark"
                             th:text="${formulaMedica.idFormula != null ? 'Editar Fórmula Médica' : 'Nueva Fórmula Médica'}">
                             Nueva Fórmula Médica
                         </h1>
@@ -37,14 +109,14 @@
 
                     <a th:if="${retorno == 'ventas'}"
                        th:href="@{/view/ventas/form(cliente=${formulaMedica.idCliente})}"
-                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50">
-                        ← Volver a la venta
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>Volver a la venta
                     </a>
 
                     <a th:unless="${retorno == 'ventas'}"
                        th:href="@{/view/clientes}"
-                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50">
-                        ← Volver a clientes
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold hover:bg-slate-50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>Volver a clientes
                     </a>
                 </div>
             </section>
@@ -54,26 +126,26 @@
                  th:text="${error}">
             </div>
 
-            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <section class="formula-form-panel rounded-2xl overflow-hidden">
                 <form th:action="@{/view/formulas/save}"
                       th:object="${formulaMedica}"
                       method="post"
                       enctype="multipart/form-data"
-                      class="p-6 space-y-6">
+                      class="p-5 sm:p-7 space-y-7">
 
                     <input type="hidden" th:field="*{idFormula}">
                     <input type="hidden" name="retorno" th:value="${retorno}">
 
                     <div>
-                        <h2 class="font-bold text-pillone-dark text-sm mb-4">Paciente</h2>
+                        <h2 class="formula-section-title mb-4">Paciente</h2>
 
-                        <label class="block font-semibold text-slate-700 mb-1">
+                        <label class="formula-label">
                             Cliente <span class="text-red-500">*</span>
                         </label>
 
                         <select th:field="*{idCliente}"
                                 required
-                                class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                class="formula-control w-full px-3.5 py-3 rounded-xl outline-none">
                             <option value="">Seleccione un cliente</option>
                             <option th:each="cliente : ${clientes}"
                                     th:value="${cliente.id_cliente}"
@@ -88,57 +160,57 @@
                     </div>
 
                     <div class="border-t border-slate-100 pt-6">
-                        <h2 class="font-bold text-pillone-dark text-sm mb-4">Datos de la prescripción</h2>
+                        <h2 class="formula-section-title mb-4">Datos de la prescripción</h2>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">
+                                <label class="formula-label">
                                     Médico <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text"
                                        th:field="*{nombreMedico}"
                                        required
                                        placeholder="Nombre completo del médico"
-                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                       class="formula-control w-full px-3.5 py-3 rounded-xl outline-none">
                             </div>
 
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">
+                                <label class="formula-label">
                                     Tarjeta profesional <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text"
                                        th:field="*{tarjetaProfesional}"
                                        required
                                        placeholder="Ej. RM-12345"
-                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                       class="formula-control w-full px-3.5 py-3 rounded-xl outline-none">
                             </div>
 
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Entidad de salud</label>
+                                <label class="formula-label">Entidad de salud</label>
                                 <input type="text"
                                        th:field="*{entidadSalud}"
                                        placeholder="EPS, IPS, clínica..."
-                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                       class="formula-control w-full px-3.5 py-3 rounded-xl outline-none">
                             </div>
 
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">
+                                <label class="formula-label">
                                     Fecha de expedición <span class="text-red-500">*</span>
                                 </label>
                                 <input type="date"
                                        th:field="*{fechaExpedicion}"
                                        required
-                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                       class="formula-control w-full px-3.5 py-3 rounded-xl outline-none">
                             </div>
 
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Vigencia</label>
+                                <label class="formula-label">Vigencia</label>
                                 <div class="relative">
                                     <input type="number"
                                            th:field="*{vigenciaDias}"
                                            min="1"
                                            required
-                                           class="w-full px-3 py-2.5 pr-16 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                           class="formula-control w-full px-3.5 py-3 pr-16 rounded-xl outline-none">
                                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">días</span>
                                 </div>
                             </div>
@@ -147,7 +219,7 @@
 
                     <div class="border-t border-slate-100 pt-6">
                         <div class="mb-4">
-                            <h2 class="font-bold text-pillone-dark text-sm">Medicamento autorizado</h2>
+                            <h2 class="formula-section-title">Medicamento autorizado</h2>
                             <p class="text-[10px] text-slate-400 mt-1">
                                 La venta solo aceptará esta fórmula para medicamentos incluidos aquí.
                             </p>
@@ -155,14 +227,14 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2">
-                                <label class="block font-semibold text-slate-700 mb-1">
+                                <label class="formula-label">
                                     Producto
                                     <span th:if="${formulaMedica.idFormula == null}" class="text-red-500">*</span>
                                 </label>
 
                                 <select name="idProducto"
                                         th:attr="required=${formulaMedica.idFormula == null ? 'required' : null}"
-                                        class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                        class="formula-control w-full px-3.5 py-3 rounded-xl outline-none">
                                     <option value="">Seleccione medicamento</option>
                                     <option th:each="producto : ${productos}"
                                             th:value="${producto.idProducto}"
@@ -173,36 +245,36 @@
                             </div>
 
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Dosis</label>
+                                <label class="formula-label">Dosis</label>
                                 <input type="text"
                                        name="dosis"
                                        placeholder="Ej. 1 cápsula de 500 mg"
-                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                       class="formula-control w-full px-3.5 py-3 rounded-xl outline-none">
                             </div>
 
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Frecuencia</label>
+                                <label class="formula-label">Frecuencia</label>
                                 <input type="text"
                                        name="frecuencia"
                                        placeholder="Ej. Cada 8 horas"
-                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                       class="formula-control w-full px-3.5 py-3 rounded-xl outline-none">
                             </div>
 
                             <div>
-                                <label class="block font-semibold text-slate-700 mb-1">Duración del tratamiento</label>
+                                <label class="formula-label">Duración del tratamiento</label>
                                 <input type="text"
                                        name="duracionTratamiento"
                                        placeholder="Ej. 7 días"
-                                       class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                       class="formula-control w-full px-3.5 py-3 rounded-xl outline-none">
                             </div>
                         </div>
                     </div>
 
                     <div class="border-t border-slate-100 pt-6">
-                        <h2 class="font-bold text-pillone-dark text-sm mb-4">Foto o PDF de la fórmula</h2>
+                        <h2 class="formula-section-title mb-4">Foto o PDF de la fórmula</h2>
 
                         <label for="archivo"
-                               class="block border-2 border-dashed border-slate-200 rounded-xl p-7 text-center cursor-pointer hover:border-pillone-accent hover:bg-blue-50/30 transition">
+                               class="block border-2 border-dashed border-slate-200 rounded-2xl p-7 text-center cursor-pointer hover:border-pillone-accent hover:bg-slate-50 transition">
                             <div class="w-12 h-12 mx-auto rounded-xl bg-pillone-accent/10 text-pillone-accent flex items-center justify-center mb-3">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5"></path>
@@ -221,7 +293,7 @@
                         <div id="nombre-archivo" class="text-pillone-accent font-semibold mt-2"></div>
 
                         <div th:if="${formulaMedica.archivoAdjuntoUrl != null && !formulaMedica.archivoAdjuntoUrl.isEmpty()}"
-                             class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                             class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                             <div class="font-semibold text-slate-700 mb-2">Archivo guardado actualmente</div>
                             <a th:href="${formulaMedica.archivoAdjuntoUrl}"
                                target="_blank"
@@ -232,28 +304,28 @@
                     </div>
 
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Observaciones</label>
+                        <label class="formula-label">Observaciones</label>
                         <textarea th:field="*{observaciones}"
                                   rows="4"
                                   placeholder="Indicaciones u observaciones adicionales..."
-                                  class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent"></textarea>
+                                  class="formula-control w-full px-3.5 py-3 rounded-xl outline-none"></textarea>
                     </div>
 
-                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                    <div class="formula-actions flex justify-end gap-3 pt-4 border-t border-slate-200">
                         <a th:if="${retorno == 'ventas'}"
                            th:href="@{/view/ventas/form(cliente=${formulaMedica.idCliente})}"
-                           class="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100">
+                           class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50">
                             Cancelar
                         </a>
 
                         <a th:unless="${retorno == 'ventas'}"
                            th:href="@{/view/clientes}"
-                           class="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100">
+                           class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold hover:bg-slate-50">
                             Cancelar
                         </a>
 
                         <button type="submit"
-                                class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-pillone-accent text-white font-bold hover:opacity-90 shadow-sm">
+                                class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-pillone-dark text-white font-semibold hover:bg-pillone-darker shadow-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                             </svg>

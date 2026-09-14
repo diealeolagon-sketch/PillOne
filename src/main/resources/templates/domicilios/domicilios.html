@@ -5,19 +5,449 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Domicilios - PillOne</title>
     <th:block th:replace="~{fragments/layout :: styles}"></th:block>
+
+    <style>
+        :root{
+            --pillone-bg:#F7F7FF;
+            --pillone-dark:#07004D;
+            --pillone-darker:#04002C;
+            --pillone-accent:#208AAE;
+            --pillone-text:#1D1E18;
+            --ui-surface:#FFFFFF;
+            --ui-soft:#FAFBFE;
+            --ui-border:#E7E9F0;
+            --ui-muted:#667085;
+            --ui-shadow:0 10px 30px rgba(7,0,77,.055);
+        }
+
+        .delivery-shell{
+            background:
+                radial-gradient(circle at top right, rgba(32,138,174,.065), transparent 29rem),
+                var(--pillone-bg);
+        }
+
+        .delivery-panel{
+            background:rgba(255,255,255,.98);
+            border:1px solid var(--ui-border);
+            box-shadow:var(--ui-shadow);
+        }
+
+        .delivery-stat{
+            position:relative;
+            overflow:hidden;
+            background:#fff;
+            border:1px solid var(--ui-border);
+            transition:transform .15s ease,box-shadow .15s ease;
+        }
+
+        .delivery-stat:hover{
+            transform:translateY(-1px);
+            box-shadow:0 10px 24px rgba(7,0,77,.06);
+        }
+
+        .delivery-stat::after{
+            content:"";
+            position:absolute;
+            width:5.5rem;
+            height:5.5rem;
+            right:-2.2rem;
+            bottom:-3rem;
+            border-radius:999px;
+            background:currentColor;
+            opacity:.03;
+        }
+
+        .delivery-control{
+            border:1px solid var(--ui-border);
+            background:#FBFCFE;
+            transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+        }
+
+        .delivery-control:focus{
+            border-color:var(--pillone-accent)!important;
+            box-shadow:0 0 0 3px rgba(32,138,174,.12);
+            background:#fff;
+        }
+
+        .delivery-table tbody tr{
+            transition:background .15s ease,box-shadow .15s ease;
+        }
+
+        .delivery-table tbody tr:hover{
+            background:#FAFBFE;
+            box-shadow:inset 3px 0 0 rgba(32,138,174,.5);
+        }
+
+        .delivery-action{
+            min-height:2.35rem;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:.4rem;
+            border-radius:.7rem;
+            font-weight:700;
+            transition:transform .15s ease,background .15s ease,opacity .15s ease;
+        }
+
+        .delivery-action:hover{
+            transform:translateY(-1px);
+        }
+
+        .modal-sheet{
+            max-height:92vh;
+            overflow-y:auto;
+        }
+
+        @media(max-width:767px){
+            body{
+                background:var(--pillone-bg);
+            }
+
+            .delivery-main{
+                padding:1rem!important;
+            }
+
+            .delivery-summary{
+                display:grid!important;
+                grid-template-columns:repeat(2,minmax(0,1fr))!important;
+                gap:.65rem!important;
+            }
+
+            .delivery-summary .delivery-stat:first-child{
+                grid-column:span 2;
+            }
+
+            .delivery-stat{
+                padding:.85rem!important;
+                border-radius:.9rem!important;
+            }
+
+            .delivery-stat p:last-child{
+                font-size:1.35rem!important;
+                line-height:1.2;
+                margin-top:.15rem;
+            }
+
+            .delivery-toolbar{
+                position:sticky;
+                top:0;
+                z-index:8;
+                background:rgba(255,255,255,.96);
+                backdrop-filter:blur(10px);
+                padding:.75rem!important;
+            }
+
+            .delivery-table-wrap{
+                overflow:visible!important;
+                padding:.75rem;
+                background:#F7F7FF;
+            }
+
+            .delivery-table,
+            .delivery-table tbody{
+                display:block;
+                width:100%;
+                min-width:0!important;
+            }
+
+            .delivery-table thead{
+                display:none;
+            }
+
+            .delivery-table tbody{
+                border:0!important;
+            }
+
+            .delivery-table tr.fila{
+                display:block;
+                width:100%;
+                background:#fff;
+                border:1px solid var(--ui-border);
+                border-radius:1rem;
+                margin-bottom:.8rem;
+                padding:.15rem 0;
+                box-shadow:0 6px 18px rgba(7,0,77,.045);
+                overflow:hidden;
+            }
+
+            .delivery-table tr.fila:hover{
+                box-shadow:0 6px 18px rgba(7,0,77,.045);
+                background:#fff;
+            }
+
+            .delivery-table tr.fila td{
+                display:flex;
+                width:100%;
+                align-items:flex-start;
+                justify-content:space-between;
+                gap:1rem;
+                padding:.7rem .9rem!important;
+                border:0;
+                text-align:right!important;
+                max-width:none!important;
+                font-size:.75rem;
+            }
+
+            .delivery-table tr.fila td::before{
+                content:attr(data-label);
+                flex:0 0 6.6rem;
+                text-align:left;
+                color:#98A2B3;
+                font-size:.63rem;
+                font-weight:700;
+                text-transform:uppercase;
+                letter-spacing:.04em;
+            }
+
+            .delivery-table tr.fila td:nth-child(1){
+                padding-top:.9rem!important;
+                padding-bottom:.45rem!important;
+                border-bottom:1px solid #F0F1F5;
+            }
+
+            .delivery-table tr.fila td:nth-child(1)::before{
+                color:var(--pillone-accent);
+            }
+
+            .delivery-table tr.fila td:nth-child(2),
+            .delivery-table tr.fila td:nth-child(3){
+                background:#FCFCFE;
+            }
+
+            .delivery-table tr.fila td:last-child{
+                display:block;
+                padding:.8rem .9rem .95rem!important;
+                border-top:1px solid #F0F1F5;
+                text-align:left!important;
+            }
+
+            .delivery-table tr.fila td:last-child::before{
+                display:block;
+                margin-bottom:.55rem;
+            }
+
+            .delivery-table tr.fila td:last-child>div{
+                display:grid!important;
+                grid-template-columns:repeat(2,minmax(0,1fr));
+                gap:.5rem!important;
+            }
+
+            .delivery-table tr.fila td:last-child form,
+            .delivery-table tr.fila td:last-child a,
+            .delivery-table tr.fila td:last-child button{
+                width:100%;
+            }
+
+            .delivery-table tr.fila td:last-child form button,
+            .delivery-table tr.fila td:last-child>a,
+            .delivery-table tr.fila td:last-child>div>button{
+                min-height:2.7rem;
+            }
+
+            .delivery-table .empty-row{
+                display:block;
+                background:#fff;
+                border:1px solid var(--ui-border);
+                border-radius:1rem;
+            }
+
+            .delivery-table .empty-row td{
+                display:block!important;
+                text-align:center!important;
+                padding:2.5rem 1rem!important;
+            }
+
+            .delivery-table .empty-row td::before{
+                display:none!important;
+            }
+
+            #modal-entrega,
+            #modal-devolucion{
+                align-items:flex-end!important;
+                padding:0!important;
+            }
+
+            #modal-entrega>div,
+            #modal-devolucion>div{
+                max-width:none!important;
+                width:100%!important;
+                border-radius:1.25rem 1.25rem 0 0!important;
+                max-height:94vh;
+            }
+
+            .modal-sheet{
+                max-height:94vh;
+                overflow-y:auto;
+            }
+
+            .modal-footer{
+                position:sticky;
+                bottom:0;
+                background:rgba(255,255,255,.98);
+                backdrop-filter:blur(10px);
+                z-index:5;
+            }
+
+            .modal-footer{
+                display:grid!important;
+                grid-template-columns:1fr 1fr;
+            }
+
+            .modal-footer button{
+                width:100%;
+            }
+
+            .photo-drop{
+                min-height:8.5rem!important;
+            }
+        }
+
+        @media(min-width:768px){
+            .delivery-table-wrap{
+                overflow-x:auto;
+            }
+        }
+
+        .delivery-pagination{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:1rem;
+            padding:.9rem 1rem;
+            border-top:1px solid var(--ui-border);
+            background:#fff;
+        }
+
+        .pagination-controls{
+            display:flex;
+            align-items:center;
+            gap:.35rem;
+        }
+
+        .pagination-btn{
+            min-width:2.25rem;
+            height:2.25rem;
+            padding:0 .7rem;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border:1px solid var(--ui-border);
+            border-radius:.65rem;
+            background:#fff;
+            color:#475467;
+            font-size:.72rem;
+            font-weight:600;
+            transition:background .15s ease,border-color .15s ease,color .15s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled){
+            background:#F8FAFC;
+            border-color:#D0D5DD;
+        }
+
+        .pagination-btn.active{
+            background:var(--pillone-dark);
+            color:#fff;
+            border-color:var(--pillone-dark);
+        }
+
+        .pagination-btn:disabled{
+            opacity:.4;
+            cursor:not-allowed;
+        }
+
+        .pagination-meta{
+            color:#667085;
+            font-size:.7rem;
+        }
+
+        .mobile-card-head{
+            display:none;
+        }
+
+        @media(max-width:767px){
+            .delivery-pagination{
+                position:sticky;
+                bottom:0;
+                z-index:7;
+                flex-direction:column;
+                align-items:stretch;
+                gap:.6rem;
+                padding:.75rem;
+                background:rgba(255,255,255,.96);
+                backdrop-filter:blur(10px);
+            }
+
+            .pagination-meta{
+                text-align:center;
+            }
+
+            .pagination-controls{
+                justify-content:center;
+            }
+
+            .pagination-btn{
+                min-width:2.5rem;
+                height:2.5rem;
+                font-size:.75rem;
+            }
+
+            .delivery-table tr.fila{
+                margin-bottom:.65rem;
+            }
+
+            .delivery-table tr.fila td{
+                padding:.6rem .8rem!important;
+            }
+
+            .delivery-table tr.fila td:nth-child(1){
+                background:linear-gradient(180deg,#FFFFFF,#FCFCFE);
+            }
+
+            .delivery-table tr.fila td:last-child>div{
+                grid-template-columns:1fr 1fr;
+            }
+
+            .delivery-table tr.fila td:last-child form:only-child,
+            .delivery-table tr.fila td:last-child button:only-child{
+                grid-column:1/-1;
+            }
+
+            .delivery-toolbar{
+                gap:.6rem!important;
+            }
+
+            .delivery-toolbar #buscar{
+                font-size:16px; /* evita zoom automático en iOS */
+            }
+
+            .mobile-card-head{
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:.75rem;
+                padding:.7rem .8rem;
+                margin:-.15rem 0 .2rem;
+                border-bottom:1px solid #F0F1F5;
+                background:#FBFCFE;
+            }
+        }
+
+    </style>
+
 </head>
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen">
 <header th:replace="~{fragments/layout :: topbar('Domicilios')}"></header>
 
-<div class="flex min-h-[calc(100vh-4rem)]">
+<div class="flex min-h-[calc(100vh-4rem)] delivery-shell">
     <aside th:replace="~{fragments/layout :: sidebar('domicilios')}"></aside>
 
-    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+    <main class="delivery-main flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
         <div class="max-w-[1600px] mx-auto space-y-5">
 
             <div>
-                <p class="text-[11px] uppercase tracking-[.2em] text-pillone-accent font-bold">Operación</p>
-                <h1 class="text-2xl sm:text-3xl font-bold text-pillone-dark">Gestión de domicilios</h1>
+                <p class="text-[10px] uppercase tracking-[.16em] text-pillone-accent font-bold">Operación</p>
+                <h1 class="text-2xl sm:text-[30px] leading-tight font-bold text-pillone-dark">Gestión de domicilios</h1>
                 <p class="text-sm text-slate-500 mt-1">
                     Los domicilios nacen desde Ventas. Aquí solo se controla preparación, salida, entrega o devolución.
                 </p>
@@ -26,40 +456,74 @@
             <div th:if="${mensaje}" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold" th:text="${mensaje}"></div>
             <div th:if="${error}" class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold" th:text="${error}"></div>
 
-            <section class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-                <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <section class="delivery-summary grid grid-cols-2 lg:grid-cols-5 gap-3">
+                <div class="delivery-stat rounded-xl p-4">
                     <p class="text-[10px] uppercase text-slate-400 font-bold">Total</p>
                     <p class="text-2xl font-bold text-pillone-dark" th:text="${#lists.size(domicilios)}">0</p>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="delivery-stat rounded-xl p-4">
                     <p class="text-[10px] uppercase text-slate-400 font-bold">Pendientes</p>
                     <p class="text-2xl font-bold text-amber-600" th:text="${#lists.size(domicilios.?[estado == 'PENDIENTE'])}">0</p>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="delivery-stat rounded-xl p-4">
                     <p class="text-[10px] uppercase text-slate-400 font-bold">Preparación</p>
                     <p class="text-2xl font-bold text-blue-600" th:text="${#lists.size(domicilios.?[estado == 'EN_PREPARACION'])}">0</p>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="delivery-stat rounded-xl p-4">
                     <p class="text-[10px] uppercase text-slate-400 font-bold">En camino</p>
                     <p class="text-2xl font-bold text-violet-600" th:text="${#lists.size(domicilios.?[estado == 'EN_CAMINO'])}">0</p>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="delivery-stat rounded-xl p-4">
                     <p class="text-[10px] uppercase text-slate-400 font-bold">Entregados</p>
                     <p class="text-2xl font-bold text-emerald-600" th:text="${#lists.size(domicilios.?[estado == 'ENTREGADO'])}">0</p>
                 </div>
+
+                <div id="paginacion-domicilios"
+                     class="delivery-pagination hidden">
+                    <div id="paginacion-info"
+                         class="pagination-meta">
+                        Mostrando 0 de 0 registros
+                    </div>
+
+                    <div class="pagination-controls">
+                        <button type="button"
+                                id="pagina-anterior"
+                                class="pagination-btn"
+                                onclick="cambiarPagina(-1)"
+                                aria-label="Página anterior">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/>
+                            </svg>
+                        </button>
+
+                        <div id="numeros-pagina"
+                             class="pagination-controls">
+                        </div>
+
+                        <button type="button"
+                                id="pagina-siguiente"
+                                class="pagination-btn"
+                                onclick="cambiarPagina(1)"
+                                aria-label="Página siguiente">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </section>
 
-            <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <section class="delivery-panel rounded-2xl overflow-hidden">
+                <div class="delivery-toolbar p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <input id="buscar"
                            type="text"
                            oninput="filtrar()"
                            placeholder="Buscar factura, cliente, dirección, teléfono..."
-                           class="w-full sm:w-96 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-pillone-accent text-sm">
+                           class="delivery-control w-full sm:w-96 px-4 py-2.5 rounded-xl outline-none text-sm">
 
                     <span class="text-xs text-slate-500">
                         Registros:
@@ -67,8 +531,8 @@
                     </span>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-[1180px] text-sm">
+                <div class="delivery-table-wrap overflow-x-auto">
+                    <table class="delivery-table w-full min-w-[1180px] text-sm">
                         <thead class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
                         <tr>
                             <th class="p-3 text-left">Factura</th>
@@ -84,21 +548,21 @@
                         </thead>
 
                         <tbody class="divide-y divide-slate-100">
-                        <tr th:if="${#lists.isEmpty(domicilios)}">
+                        <tr th:if="${#lists.isEmpty(domicilios)}" class="empty-row">
                             <td colspan="9" class="p-10 text-center text-slate-400">
                                 No hay domicilios registrados.
                             </td>
                         </tr>
 
                         <tr th:each="d : ${domicilios}" class="fila hover:bg-slate-50">
-                            <td class="p-3">
+                            <td class="p-3" data-label="Factura">
                                 <strong class="text-pillone-accent"
                                         th:text="${d.venta != null ? d.venta.numeroFactura : 'Venta'}">
                                     Factura
                                 </strong>
                             </td>
 
-                            <td class="p-3">
+                            <td class="p-3" data-label="Cliente">
                                 <div class="font-semibold"
                                      th:text="${d.cliente != null ? d.cliente.nombreCompleto : '-'}">
                                     Cliente
@@ -110,31 +574,31 @@
                                 </div>
                             </td>
 
-                            <td class="p-3 max-w-[260px]">
+                            <td class="p-3 max-w-[260px]" data-label="Entrega">
                                 <div class="font-medium"
                                      th:text="${d.direccionEntrega}">
                                     Dirección
                                 </div>
                             </td>
 
-                            <td class="p-3"
+                            <td class="p-3" data-label="Domiciliario"
                                 th:text="${d.nombreDomiciliario != null ? d.nombreDomiciliario : 'Sin asignar'}">
                                 -
                             </td>
 
-                            <td class="p-3 text-right font-semibold"
+                            <td class="p-3 text-right font-semibold" data-label="Costo"
                                 th:text="${'$' + #numbers.formatDecimal(d.costoDomicilio,0,'POINT',0,'COMMA')}">
                                 $0
                             </td>
 
-                            <td class="p-3 text-center">
+                            <td class="p-3 text-center" data-label="Pago">
                                 <span th:class="${d.pagado ? 'inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700' : 'inline-flex px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700'}"
                                       th:text="${d.pagado ? 'PAGADO' : 'PENDIENTE'}">
                                     PAGO
                                 </span>
                             </td>
 
-                            <td class="p-3 text-center">
+                            <td class="p-3 text-center" data-label="Estado">
                                 <span class="inline-flex px-2 py-1 rounded-full text-[10px] font-bold"
                                       th:classappend="${d.estado == 'ENTREGADO' ? ' bg-emerald-100 text-emerald-700' : d.estado == 'EN_CAMINO' ? ' bg-violet-100 text-violet-700' : d.estado == 'EN_PREPARACION' ? ' bg-blue-100 text-blue-700' : d.estado == 'CANCELADO' ? ' bg-red-100 text-red-700' : ' bg-amber-100 text-amber-700'}"
                                       th:text="${#strings.replace(d.estado,'_',' ')}">
@@ -142,7 +606,7 @@
                                 </span>
                             </td>
 
-                            <td class="p-3 text-[11px] text-slate-500">
+                            <td class="p-3 text-[11px] text-slate-500" data-label="Tiempos">
                                 <div>
                                     Salida:
                                     <span th:text="${d.fechaHoraSalida != null ? #temporals.format(d.fechaHoraSalida,'dd/MM HH:mm') : '-'}">-</span>
@@ -154,21 +618,21 @@
                                 </div>
                             </td>
 
-                            <td class="p-3">
+                            <td class="p-3" data-label="Acciones">
                                 <div class="flex items-center justify-center gap-2 flex-wrap">
 
                                     <form th:if="${d.estado == 'PENDIENTE' or d.estado == 'EN_PREPARACION'}"
                                           th:action="@{/view/domicilios/avanzar/{id}(id=${d.idDomicilio})}"
                                           method="post">
                                         <button type="submit"
-                                                class="px-3 py-2 rounded-lg bg-pillone-accent text-white text-[11px] font-bold">
+                                                class="delivery-action px-3 py-2 bg-pillone-accent text-white text-[11px]">
                                             Avanzar
                                         </button>
                                     </form>
 
                                     <button th:if="${d.estado == 'EN_CAMINO'}"
                                             type="button"
-                                            class="px-3 py-2 rounded-lg bg-violet-100 text-violet-700 text-[11px] font-bold"
+                                            class="delivery-action px-3 py-2 bg-violet-100 text-violet-700 text-[11px]"
                                             th:attr="data-id-domicilio=${d.idDomicilio},
                                                      data-id-venta=${d.venta != null ? d.venta.idVenta : ''},
                                                      data-factura=${d.venta != null ? d.venta.numeroFactura : ''},
@@ -181,7 +645,7 @@
 
                                     <button th:if="${d.estado == 'EN_CAMINO'}"
                                             type="button"
-                                            class="px-3 py-2 rounded-lg bg-emerald-600 text-white text-[11px] font-bold"
+                                            class="delivery-action px-3 py-2 bg-emerald-600 text-white text-[11px]"
                                             th:attr="data-id=${d.idDomicilio},
                                                      data-factura=${d.venta != null ? d.venta.numeroFactura : ''},
                                                      data-cliente=${d.cliente != null ? d.cliente.nombreCompleto : ''},
@@ -194,7 +658,7 @@
                                     <a th:if="${d.evidenciaEntrega != null}"
                                        th:href="@{${d.evidenciaEntrega}}"
                                        target="_blank"
-                                       class="p-2 rounded-lg bg-slate-100 text-pillone-dark"
+                                       class="delivery-action p-2 bg-slate-100 text-pillone-dark"
                                        title="Ver evidencia">
                                         <svg class="w-4 h-4"
                                              fill="none"
@@ -213,7 +677,7 @@
                                           method="post"
                                           onsubmit="return confirm('¿Cancelar este domicilio?');">
                                         <button type="submit"
-                                                class="p-2 rounded-lg bg-red-50 text-red-600"
+                                                class="delivery-action p-2 bg-red-50 text-red-600"
                                                 title="Cancelar">
                                             <svg class="w-4 h-4"
                                                  fill="none"
@@ -251,8 +715,8 @@
 
 <!-- MODAL ENTREGA -->
 <div id="modal-entrega"
-     class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4">
-    <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
+     class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/55 backdrop-blur-[2px] p-4">
+    <div class="modal-sheet w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
         <form id="form-entrega"
               method="post"
               enctype="multipart/form-data">
@@ -309,7 +773,7 @@
                     </label>
 
                     <label for="foto-entrega"
-                           class="flex flex-col items-center justify-center min-h-36 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:border-pillone-accent cursor-pointer">
+                           class="photo-drop flex flex-col items-center justify-center min-h-36 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:border-pillone-accent hover:bg-white cursor-pointer transition">
 
                         <svg class="w-8 h-8 text-pillone-accent mb-2"
                              fill="none"
@@ -354,7 +818,7 @@
                            type="text"
                            maxlength="120"
                            placeholder="Ej. Juan Pérez - titular"
-                           class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                           class="delivery-control w-full px-3.5 py-2.5 rounded-xl outline-none">
                 </div>
 
                 <div>
@@ -366,7 +830,7 @@
                               rows="3"
                               maxlength="350"
                               placeholder="Novedad de la entrega, referencia, portería..."
-                              class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent"></textarea>
+                              class="delivery-control w-full px-3.5 py-2.5 rounded-xl outline-none"></textarea>
                 </div>
 
                 <label class="flex items-center justify-between gap-4 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
@@ -387,15 +851,15 @@
                 </label>
             </div>
 
-            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
+            <div class="modal-footer p-5 border-t border-slate-100 flex justify-end gap-3">
                 <button type="button"
                         onclick="cerrarModalEntrega()"
-                        class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold">
+                        class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 transition">
                     Cancelar
                 </button>
 
                 <button type="submit"
-                        class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-bold">
+                        class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition">
                     Confirmar entrega
                 </button>
             </div>
@@ -405,9 +869,9 @@
 
 <!-- MODAL DEVOLUCIÓN -->
 <div id="modal-devolucion"
-     class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/50 p-4">
+     class="fixed inset-0 z-[110] hidden items-center justify-center bg-slate-950/55 backdrop-blur-[2px] p-4">
 
-    <div class="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div class="modal-sheet w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden">
         <form id="form-devolucion"
               method="post">
 
@@ -466,7 +930,7 @@
                             name="idDetalleVenta"
                             required
                             onchange="actualizarCantidadDevolucion()"
-                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            class="delivery-control w-full px-3.5 py-2.5 rounded-xl outline-none">
                     </select>
 
                     <p id="dev-producto-info"
@@ -485,7 +949,7 @@
                                type="number"
                                min="1"
                                required
-                               class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                               class="delivery-control w-full px-3.5 py-2.5 rounded-xl outline-none">
                     </div>
 
                     <div>
@@ -495,7 +959,7 @@
 
                         <select name="motivo"
                                 required
-                                class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                                class="delivery-control w-full px-3.5 py-2.5 rounded-xl outline-none">
                             <option value="ERROR_ENTREGA">Error / novedad en la entrega</option>
                             <option value="PRODUCTO_DEFECTUOSO">Producto defectuoso</option>
                             <option value="EMPAQUE_DANADO">Empaque dañado</option>
@@ -513,7 +977,7 @@
 
                     <select name="estadoProducto"
                             required
-                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-pillone-accent">
+                            class="delivery-control w-full px-3.5 py-2.5 rounded-xl outline-none">
                         <option value="APTO_PARA_REINGRESO">
                             Apto para reingresar al inventario
                         </option>
@@ -542,15 +1006,15 @@
                 </div>
             </div>
 
-            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
+            <div class="modal-footer p-5 border-t border-slate-100 flex justify-end gap-3">
                 <button type="button"
                         onclick="cerrarModalDevolucion()"
-                        class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold">
+                        class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 transition">
                     Cancelar
                 </button>
 
                 <button type="submit"
-                        class="px-5 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-bold">
+                        class="px-5 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-bold hover:bg-violet-700 transition">
                     Registrar devolución
                 </button>
             </div>
@@ -562,18 +1026,145 @@
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 
 <script>
-    function filtrar(){
-        const q=(document.getElementById('buscar').value||'').toLowerCase();
-        let n=0;
+    let paginaActual=1;
+    let filasPorPagina=window.innerWidth<768?5:10;
+    let filasFiltradas=[];
 
-        document.querySelectorAll('.fila').forEach(f=>{
-            const ok=f.textContent.toLowerCase().includes(q);
-            f.style.display=ok?'':'none';
-            if(ok)n++;
+    function obtenerFilas(){
+        return Array.from(document.querySelectorAll('.fila'));
+    }
+
+    function filtrar(){
+        const q=(document.getElementById('buscar').value||'').toLowerCase().trim();
+
+        filasFiltradas=obtenerFilas().filter(f=>{
+            return !q || f.textContent.toLowerCase().includes(q);
         });
 
-        document.getElementById('contador').textContent=n;
+        paginaActual=1;
+        renderizarPagina();
     }
+
+    function renderizarPagina(){
+        const todas=obtenerFilas();
+        const total=filasFiltradas.length;
+        const totalPaginas=Math.max(1,Math.ceil(total/filasPorPagina));
+
+        if(paginaActual>totalPaginas){
+            paginaActual=totalPaginas;
+        }
+
+        const inicio=(paginaActual-1)*filasPorPagina;
+        const fin=inicio+filasPorPagina;
+
+        todas.forEach(f=>f.style.display='none');
+
+        filasFiltradas
+            .slice(inicio,fin)
+            .forEach(f=>f.style.display='');
+
+        document.getElementById('contador').textContent=total;
+
+        actualizarPaginacion(total,totalPaginas,inicio,Math.min(fin,total));
+    }
+
+    function actualizarPaginacion(total,totalPaginas,inicio,fin){
+        const contenedor=document.getElementById('paginacion-domicilios');
+        const info=document.getElementById('paginacion-info');
+        const numeros=document.getElementById('numeros-pagina');
+        const anterior=document.getElementById('pagina-anterior');
+        const siguiente=document.getElementById('pagina-siguiente');
+
+        if(total===0){
+            contenedor.classList.add('hidden');
+            return;
+        }
+
+        contenedor.classList.remove('hidden');
+
+        info.textContent=
+            'Mostrando '+(inicio+1)+'–'+fin+' de '+total+' registros';
+
+        anterior.disabled=paginaActual===1;
+        siguiente.disabled=paginaActual===totalPaginas;
+
+        numeros.innerHTML='';
+
+        const paginas=obtenerPaginasVisibles(totalPaginas,paginaActual);
+
+        paginas.forEach(p=>{
+            if(p==='...'){
+                const span=document.createElement('span');
+                span.className='pagination-btn border-transparent bg-transparent pointer-events-none';
+                span.textContent='…';
+                numeros.appendChild(span);
+                return;
+            }
+
+            const btn=document.createElement('button');
+            btn.type='button';
+            btn.className='pagination-btn'+(p===paginaActual?' active':'');
+            btn.textContent=p;
+            btn.onclick=()=>irAPagina(p);
+            numeros.appendChild(btn);
+        });
+    }
+
+    function obtenerPaginasVisibles(total,actual){
+        if(total<=5){
+            return Array.from({length:total},(_,i)=>i+1);
+        }
+
+        if(actual<=3){
+            return [1,2,3,4,'...',total];
+        }
+
+        if(actual>=total-2){
+            return [1,'...',total-3,total-2,total-1,total];
+        }
+
+        return [1,'...',actual-1,actual,actual+1,'...',total];
+    }
+
+    function irAPagina(pagina){
+        paginaActual=pagina;
+        renderizarPagina();
+        desplazarAListado();
+    }
+
+    function cambiarPagina(delta){
+        const totalPaginas=Math.max(1,Math.ceil(filasFiltradas.length/filasPorPagina));
+        const nueva=paginaActual+delta;
+
+        if(nueva<1||nueva>totalPaginas){
+            return;
+        }
+
+        paginaActual=nueva;
+        renderizarPagina();
+        desplazarAListado();
+    }
+
+    function desplazarAListado(){
+        if(window.innerWidth<768){
+            document.getElementById('buscar').scrollIntoView({
+                behavior:'smooth',
+                block:'start'
+            });
+        }
+    }
+
+    function recalcularFilasPorPagina(){
+        const nuevo=window.innerWidth<768?5:10;
+
+        if(nuevo!==filasPorPagina){
+            filasPorPagina=nuevo;
+            paginaActual=1;
+            renderizarPagina();
+        }
+    }
+
+    window.addEventListener('resize',recalcularFilasPorPagina);
 
     function abrirModalEntrega(btn){
         document.getElementById('form-entrega').action='/view/domicilios/entregar/'+btn.dataset.id;
@@ -691,6 +1282,11 @@
             ' · Lote: '+(opcion.dataset.lote||'-')+
             ' · Máximo disponible para devolver: '+disponible;
     }
+
+    document.addEventListener('DOMContentLoaded',()=>{
+        filasFiltradas=obtenerFilas();
+        renderizarPagina();
+    });
 
     document.getElementById('modal-entrega').addEventListener('click',e=>{
         if(e.target.id==='modal-entrega'){
