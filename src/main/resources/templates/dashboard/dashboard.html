@@ -308,7 +308,7 @@
                             <div>
 
                                 <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
-                                    Ventas de hoy
+                                    Ventas netas hoy
                                 </p>
 
                                 <h2 id="ventas-hoy"
@@ -327,16 +327,27 @@
 
                         </div>
 
-                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between">
+                        <div class="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 gap-3">
 
-                            <span class="text-slate-400">
-                                Transacciones
-                            </span>
+                            <div>
+                                <span class="block text-slate-400">
+                                    Transacciones
+                                </span>
+                                <b id="cantidad-ventas-hoy"
+                                   class="text-pillone-dark">
+                                    0
+                                </b>
+                            </div>
 
-                            <b id="cantidad-ventas-hoy"
-                               class="text-pillone-dark">
-                                0
-                            </b>
+                            <div class="text-right">
+                                <span class="block text-slate-400">
+                                    Devoluciones hoy
+                                </span>
+                                <b id="devoluciones-hoy"
+                                   class="text-orange-600">
+                                    0 · $0
+                                </b>
+                            </div>
 
                         </div>
 
@@ -372,7 +383,7 @@
                         <div class="mt-4 pt-3 border-t border-slate-100">
 
                             <span class="text-slate-400">
-                                Promedio por venta realizada hoy
+                                Promedio neto por venta efectiva hoy
                             </span>
 
                         </div>
@@ -949,6 +960,9 @@
 
         document.getElementById('cantidad-ventas-hoy').textContent=
             r.cantidadVentasHoy||0;
+
+        document.getElementById('devoluciones-hoy').textContent=
+            Number(r.cantidadDevolucionesHoy||0)+' · '+dinero(r.devolucionesHoy||0);
 
         document.getElementById('ticket-promedio').textContent=
             dinero(r.ticketPromedio);

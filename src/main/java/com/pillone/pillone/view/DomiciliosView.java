@@ -32,6 +32,21 @@ public class DomiciliosView {
     public String lista(Model model){
         model.addAttribute("domicilios",repo.findAllByOrderByIdDomicilioDesc());
 
+        /*
+         * Una devolución parcial no debe cerrar el domicilio: todavía puede
+         * quedar mercancía por entregar o devolver. Por eso conservamos
+         * EN_CAMINO en BD y enviamos al HTML las ventas que ya tienen al menos
+         * una devolución para mostrarlas como "DEVOLUCIÓN PARCIAL".
+         */
+        model.addAttribute("ventasConDevolucion",jdbc.queryForList("""
+            SELECT DISTINCT id_venta
+            FROM devoluciones
+            WHERE tipo_devolucion='CLIENTE'
+              AND id_venta IS NOT NULL
+        """).stream()
+                .map(fila -> ((Number)fila.get("id_venta")).longValue())
+                .toList());
+
         model.addAttribute("detallesVentas",jdbc.queryForList("""
             SELECT dv.id_detalle_venta,dv.id_venta,dv.id_producto,dv.id_lote,
                    p.nombre_comercial,p.codigo_interno,l.numero_lote,

@@ -185,6 +185,9 @@ public class DevolucionesView {
                 jdbc.update("""
                     UPDATE domicilios
                     SET estado='CANCELADO',
+                        pagado=FALSE,
+                        fecha_pago=NULL,
+                        fecha_hora_entrega=NULL,
                         observaciones_entrega=CONCAT(
                             COALESCE(observaciones_entrega,''),
                             CASE WHEN COALESCE(observaciones_entrega,'')='' THEN '' ELSE ' | ' END,
@@ -193,9 +196,35 @@ public class DevolucionesView {
                     WHERE id_domicilio=?
                     """,idDomicilio);
 
-                ra.addFlashAttribute("mensaje","Devolución registrada. El domicilio quedó cerrado como CANCELADO porque ya no quedan unidades pendientes.");
+                /*
+                 * Una devolución completa del domicilio invalida comercialmente
+                 * la venta. Al pasarla a DEVUELTA deja de sumar en Dashboard y
+                 * Reportes, que contabilizan únicamente ventas PAGADA.
+                 *
+                 * Los detalles de la venta NO se borran: se conservan para
+                 * trazabilidad, auditoría y relación con las devoluciones.
+                 */
+                jdbc.update("""
+                    UPDATE ventas
+                    SET estado='DEVUELTA'
+                    WHERE id_venta=?
+                    """,idVenta);
+
+                ra.addFlashAttribute(
+                        "mensaje",
+                        "Devolución registrada. El domicilio y la venta quedaron CANCELADOS. " +
+                                ("APTO_PARA_REINGRESO".equals(estadoN)
+                                        ? "El producto apto fue reintegrado al inventario."
+                                        : "El producto no apto quedó registrado como desechado.")
+                );
             }else{
-                ra.addFlashAttribute("mensaje","Devolución registrada. El domicilio continúa EN CAMINO con las unidades restantes.");
+                ra.addFlashAttribute(
+                        "mensaje",
+                        "Devolución registrada. El domicilio continúa EN CAMINO con las unidades restantes. " +
+                                ("APTO_PARA_REINGRESO".equals(estadoN)
+                                        ? "Las unidades devueltas aptas fueron reintegradas al inventario."
+                                        : "Las unidades no aptas quedaron registradas como desechadas.")
+                );
             }
 
             return "redirect:/view/domicilios";
@@ -269,10 +298,17 @@ public class DevolucionesView {
             """,nuevo,idLote);
 
         jdbc.update("""
-            UPDATE productos
-            SET stock_total=COALESCE(stock_total,0)+?
-            WHERE id_producto=?
-            """,cantidad,idProducto);
+            UPDATE productos p
+            SET p.stock_total=(
+                SELECT COALESCE(SUM(l.cantidad_actual),0)
+                FROM lotes l
+                WHERE l.id_producto=p.id_producto
+                  AND l.cantidad_actual>0
+                  AND l.estado IN ('DISPONIBLE','PROXIMO_A_VENCER')
+                  AND l.fecha_vencimiento>=CURRENT_DATE
+            )
+            WHERE p.id_producto=?
+            """,idProducto);
 
         jdbc.update("""
             INSERT INTO movimientos_inventario

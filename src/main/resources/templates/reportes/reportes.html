@@ -415,7 +415,7 @@
                     <article class="report-card rounded-2xl p-4 sm:p-5 text-pillone-dark">
 
                         <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                            Ventas
+                            Ventas netas
                         </p>
 
                         <h2 id="resumen-total"
@@ -424,7 +424,7 @@
                         </h2>
 
                         <p class="text-[10px] text-slate-400 mt-2">
-                            Total recaudado
+                            Venta efectiva después de devoluciones
                         </p>
 
                     </article>
@@ -441,7 +441,7 @@
                         </h2>
 
                         <p class="text-[10px] text-slate-400 mt-2">
-                            Ventas pagadas
+                            Ventas efectivas del período
                         </p>
 
                     </article>
@@ -485,7 +485,7 @@
                 <!-- RESUMEN SECUNDARIO -->
                 <section class="report-panel rounded-2xl p-4 sm:p-5 mb-4">
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
 
                         <div>
 
@@ -539,6 +539,19 @@
 
                         </div>
 
+                        <div>
+
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">
+                                Devoluciones
+                            </p>
+
+                            <p id="resumen-devoluciones"
+                               class="font-bold text-orange-600 mt-1">
+                                $0
+                            </p>
+
+                        </div>
+
                     </div>
 
                 </section>
@@ -555,7 +568,7 @@
                             </h2>
 
                             <p class="report-subtitle">
-                                Evolución dentro del período seleccionado
+                                Evolución neta después de devoluciones
                             </p>
 
                         </div>
@@ -578,7 +591,7 @@
                             </h2>
 
                             <p class="report-subtitle">
-                                Participación por valor vendido
+                                Participación sobre venta neta
                             </p>
 
                         </div>
@@ -1234,6 +1247,9 @@
 
         document.getElementById('resumen-domicilio').textContent=
             Number(r.ventasDomicilio||0);
+
+        document.getElementById('resumen-devoluciones').textContent=
+            dinero(r.totalDevoluciones||0);
     }
 
     function pintarVentasPorDia(lista){

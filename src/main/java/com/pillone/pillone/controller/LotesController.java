@@ -4,6 +4,7 @@ import com.pillone.pillone.model.Lotes;
 import com.pillone.pillone.model.Productos;
 import com.pillone.pillone.repository.LotesRepository;
 import com.pillone.pillone.repository.ProductosRepository;
+import com.pillone.pillone.service.InventarioStockService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,13 +20,16 @@ public class LotesController {
 
     private final LotesRepository lotesRepository;
     private final ProductosRepository productosRepository;
+    private final InventarioStockService inventarioStockService;
 
     public LotesController(
             LotesRepository lotesRepository,
-            ProductosRepository productosRepository
+            ProductosRepository productosRepository,
+            InventarioStockService inventarioStockService
     ){
         this.lotesRepository=lotesRepository;
         this.productosRepository=productosRepository;
+        this.inventarioStockService=inventarioStockService;
     }
 
     @GetMapping
@@ -128,21 +132,6 @@ public class LotesController {
     }
 
     private void sincronizarStockProducto(Long idProducto){
-        Productos producto=productosRepository
-                .findById(idProducto)
-                .orElse(null);
-
-        if(producto==null){
-            return;
-        }
-
-        Integer stock=lotesRepository.sumarStockDisponible(
-                idProducto,
-                LocalDate.now()
-        );
-
-        producto.setStockTotal(stock==null ? 0 : stock);
-
-        productosRepository.save(producto);
+        inventarioStockService.sincronizarProducto(idProducto);
     }
 }

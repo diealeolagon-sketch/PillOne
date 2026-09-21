@@ -4,6 +4,7 @@ import com.pillone.pillone.model.Lotes;
 import com.pillone.pillone.model.Productos;
 import com.pillone.pillone.repository.LotesRepository;
 import com.pillone.pillone.repository.ProductosRepository;
+import com.pillone.pillone.service.InventarioStockService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,17 +20,23 @@ public class AlertasVencimientoView {
 
     private final LotesRepository lotesRepository;
     private final ProductosRepository productosRepository;
+    private final InventarioStockService inventarioStockService;
 
     public AlertasVencimientoView(
             LotesRepository lotesRepository,
-            ProductosRepository productosRepository
+            ProductosRepository productosRepository,
+            InventarioStockService inventarioStockService
     ){
         this.lotesRepository=lotesRepository;
         this.productosRepository=productosRepository;
+        this.inventarioStockService=inventarioStockService;
     }
 
     @GetMapping("/view/alertas/vencimientos")
     public String vencimientos(Model model){
+        // Actualiza estados por fecha y stock antes de construir las alertas.
+        inventarioStockService.sincronizarTodo();
+
         LocalDate hoy=LocalDate.now();
         LocalDate limite=hoy.plusDays(90);
 

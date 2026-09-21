@@ -139,6 +139,33 @@
                 z-index:5;
             }
         }
+
+        /* ===== TABLA COMPACTA + MODAL DE DETALLE ===== */
+        .compact-secondary-column{display:none!important;}
+        .compact-eye-button{
+            width:2.3rem;height:2.3rem;display:inline-flex;align-items:center;justify-content:center;
+            border-radius:.7rem;border:1px solid #E7E9F0;background:#F8FAFC;color:#208AAE;
+            transition:background .15s ease,transform .15s ease;
+        }
+        .compact-eye-button:hover{background:#EEF7FB;transform:translateY(-1px);}
+        #compact-detail-modal{overflow:hidden;overscroll-behavior:contain;}
+        .compact-detail-sheet{width:100%;max-width:38rem;max-height:calc(100dvh - 2rem);display:flex;flex-direction:column;overflow:hidden;}
+        .compact-detail-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+        .compact-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;}
+        .compact-detail-item{padding:.8rem;border:1px solid #E7E9F0;border-radius:.85rem;background:#FAFBFE;min-width:0;}
+        .compact-detail-label{display:block;font-size:.61rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#98A2B3;margin-bottom:.2rem;}
+        .compact-detail-value{display:block;font-size:.77rem;line-height:1.2rem;font-weight:600;color:#07004D;word-break:break-word;white-space:pre-line;}
+        @media(max-width:767px){
+            #compact-detail-modal{align-items:flex-end!important;padding:0!important;}
+            .compact-detail-sheet{max-width:none;max-height:94dvh;border-radius:1.25rem 1.25rem 0 0!important;}
+            .compact-detail-grid{grid-template-columns:1fr;gap:.55rem;}
+        }
+
+
+        .alerts-pagination{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1rem;border-top:1px solid #E7E9F0;background:#fff;}
+        .alerts-page-controls{display:flex;align-items:center;gap:.35rem}.alerts-page-btn{min-width:2.25rem;height:2.25rem;padding:0 .7rem;border:1px solid #E7E9F0;border-radius:.65rem;background:#fff;font-weight:600}.alerts-page-btn.active{background:#07004D;color:#fff}.alerts-page-btn:disabled{opacity:.4}
+        @media(max-width:767px){.alerts-pagination{flex-direction:column;align-items:stretch}.alerts-page-controls{justify-content:center}}
+
     </style>
 </head>
 
@@ -638,6 +665,10 @@
                     </table>
 
                 </div>
+                <div id="paginacion-alertas" class="alerts-pagination hidden">
+                    <div id="paginacion-alertas-info" class="text-[11px] text-slate-500">Mostrando 0 alertas</div>
+                    <div class="alerts-page-controls"><button id="alertas-anterior" class="alerts-page-btn" type="button" onclick="cambiarPaginaAlertas(-1)">‹</button><div id="alertas-numeros" class="alerts-page-controls"></div><button id="alertas-siguiente" class="alerts-page-btn" type="button" onclick="cambiarPaginaAlertas(1)">›</button></div>
+                </div>
 
             </section>
 
@@ -649,26 +680,54 @@
 
 </div>
 
+
+<!-- MODAL GENÉRICO DE DETALLE PARA TABLAS COMPACTAS -->
+<div id="compact-detail-modal" class="fixed inset-0 z-[140] hidden items-center justify-center bg-slate-950/60 backdrop-blur-[2px] p-4">
+    <div class="compact-detail-sheet bg-white rounded-2xl shadow-2xl">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex items-start justify-between gap-4">
+            <div class="min-w-0">
+                <p class="text-[10px] uppercase tracking-[.18em] font-bold text-pillone-accent">Detalle</p>
+                <h2 id="compact-detail-title" class="text-lg font-bold text-pillone-dark mt-1 truncate">Registro</h2>
+            </div>
+            <button type="button" onclick="cerrarCompactDetail()" class="p-2 rounded-lg hover:bg-slate-100" aria-label="Cerrar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+        </div>
+        <div class="compact-detail-body p-4 sm:p-5">
+            <div id="compact-detail-grid" class="compact-detail-grid"></div>
+        </div>
+        <div class="p-4 border-t border-slate-100 bg-white">
+            <button type="button" onclick="cerrarCompactDetail()" class="w-full px-4 py-2.5 rounded-xl bg-pillone-dark text-white text-sm font-bold">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <script>
     function toggleSidebar(){
         document.querySelector('aside').classList.toggle('-translate-x-full');
         document.getElementById('overlay').classList.toggle('hidden');
     }
 
+    let paginaAlertas=1;
+    const filasPorPaginaAlertas=6;
+    let alertasFiltradas=[];
+
     function filtrarAlertas(){
         const texto=document.getElementById('buscador').value.toLowerCase();
         const nivel=document.getElementById('filtroNivel').value;
-
-        document.querySelectorAll('.fila-alerta').forEach(fila=>{
-            const coincideTexto=fila.textContent.toLowerCase().includes(texto);
-            const coincideNivel=!nivel || fila.dataset.nivel===nivel;
-
-            fila.style.display=
-                coincideTexto && coincideNivel
-                    ? ''
-                    : 'none';
-        });
+        alertasFiltradas=Array.from(document.querySelectorAll('.fila-alerta')).filter(fila=>fila.textContent.toLowerCase().includes(texto) && (!nivel || fila.dataset.nivel===nivel));
+        paginaAlertas=1; renderAlertasPaginadas();
     }
+    function renderAlertasPaginadas(){
+        const todas=Array.from(document.querySelectorAll('.fila-alerta'));
+        const total=alertasFiltradas.length; const paginas=Math.max(1,Math.ceil(total/filasPorPaginaAlertas));
+        if(paginaAlertas>paginas) paginaAlertas=paginas; const inicio=(paginaAlertas-1)*filasPorPaginaAlertas; const fin=Math.min(inicio+filasPorPaginaAlertas,total);
+        todas.forEach(f=>f.style.display='none'); alertasFiltradas.slice(inicio,fin).forEach(f=>f.style.display='');
+        const pag=document.getElementById('paginacion-alertas'); if(total<=filasPorPaginaAlertas){pag.classList.add('hidden');return;} pag.classList.remove('hidden');
+        document.getElementById('paginacion-alertas-info').textContent=`Mostrando ${inicio+1}–${fin} de ${total} alertas`; document.getElementById('alertas-anterior').disabled=paginaAlertas===1; document.getElementById('alertas-siguiente').disabled=paginaAlertas===paginas;
+        const nums=document.getElementById('alertas-numeros'); nums.innerHTML=''; for(let i=1;i<=paginas;i++){const b=document.createElement('button');b.type='button';b.className='alerts-page-btn'+(i===paginaAlertas?' active':'');b.textContent=i;b.onclick=()=>{paginaAlertas=i;renderAlertasPaginadas();};nums.appendChild(b);}
+    }
+    function cambiarPaginaAlertas(delta){const pags=Math.max(1,Math.ceil(alertasFiltradas.length/filasPorPaginaAlertas));const n=paginaAlertas+delta;if(n<1||n>pags)return;paginaAlertas=n;renderAlertasPaginadas();}
 
     function seleccionarNivel(nivel){
         document.getElementById('filtroNivel').value=nivel;
@@ -683,6 +742,107 @@
 </script>
 
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+
+
+<script>
+    (function(){
+        const TABLE_SELECTOR = ".alert-table";
+        const ROW_SELECTOR = ".fila-alerta";
+        const HIDDEN_COLUMNS = [4, 6];
+
+        function prepararTablaCompacta(){
+            const table=document.querySelector(TABLE_SELECTOR);
+            if(!table || table.dataset.compactReady==='true') return;
+            const headRow=table.querySelector('thead tr');
+            if(!headRow) return;
+            const originalHeaders=Array.from(headRow.querySelectorAll('th'));
+            const labels=originalHeaders.map(th=>th.textContent.trim());
+            let actionIndex=labels.findIndex(l=>/acci[oó]n|acciones/i.test(l));
+
+            HIDDEN_COLUMNS.forEach(i=>{
+                const th=originalHeaders[i-1];
+                if(th) th.classList.add('compact-secondary-column');
+            });
+
+            const rows=Array.from(table.querySelectorAll(ROW_SELECTOR));
+            if(actionIndex<0){
+                const th=document.createElement('th');
+                th.textContent='Ver';
+                th.className='px-4 py-3 text-center';
+                headRow.appendChild(th);
+                actionIndex=originalHeaders.length;
+            }
+
+            rows.forEach(row=>{
+                const originalCells=Array.from(row.children).filter(el=>el.tagName==='TD');
+                if(originalCells.length===0) return;
+                HIDDEN_COLUMNS.forEach(i=>{
+                    const td=originalCells[i-1];
+                    if(td) td.classList.add('compact-secondary-column');
+                });
+
+                let actionCell=originalCells[actionIndex];
+                if(!actionCell){
+                    actionCell=document.createElement('td');
+                    actionCell.className='px-4 py-3 text-center';
+                    actionCell.dataset.label='Acciones';
+                    row.appendChild(actionCell);
+                }
+
+                const host=actionCell.querySelector('.flex') || actionCell;
+                if(!host.querySelector('.compact-eye-button')){
+                    const btn=document.createElement('button');
+                    btn.type='button';
+                    btn.className='compact-eye-button';
+                    btn.title='Ver detalle';
+                    btn.setAttribute('aria-label','Ver detalle');
+                    btn.innerHTML='<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>';
+                    btn.addEventListener('click',()=>abrirCompactDetail(row,labels,originalCells));
+                    host.insertBefore(btn,host.firstChild);
+                }
+            });
+
+            table.querySelectorAll('tbody tr:not('+ROW_SELECTOR+') td[colspan]').forEach(td=>{
+                td.colSpan=Math.max(td.colSpan, headRow.children.length);
+            });
+            table.dataset.compactReady='true';
+        }
+
+        function abrirCompactDetail(row,labels,cells){
+            const grid=document.getElementById('compact-detail-grid');
+            const title=document.getElementById('compact-detail-title');
+            grid.innerHTML='';
+            let firstValue='Registro';
+            labels.forEach((label,index)=>{
+                if(/acci[oó]n|acciones/i.test(label)) return;
+                const cell=cells[index];
+                if(!cell) return;
+                const value=(cell.innerText||cell.textContent||'').trim() || '-';
+                if(firstValue==='Registro' && value!=='-') firstValue=value.split('\n')[0];
+                const item=document.createElement('div');
+                item.className='compact-detail-item';
+                const l=document.createElement('span');
+                l.className='compact-detail-label';
+                l.textContent=label||'Dato';
+                const v=document.createElement('span');
+                v.className='compact-detail-value';
+                v.textContent=value;
+                item.appendChild(l); item.appendChild(v); grid.appendChild(item);
+            });
+            title.textContent=firstValue;
+            const modal=document.getElementById('compact-detail-modal');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+        }
+        window.cerrarCompactDetail=function(){
+            const modal=document.getElementById('compact-detail-modal');
+            if(!modal) return;
+            modal.classList.add('hidden'); modal.classList.remove('flex');
+        };
+        document.addEventListener('DOMContentLoaded',()=>{prepararTablaCompacta();alertasFiltradas=Array.from(document.querySelectorAll('.fila-alerta'));renderAlertasPaginadas();});
+        document.addEventListener('click',e=>{if(e.target?.id==='compact-detail-modal') cerrarCompactDetail();});
+        document.addEventListener('keydown',e=>{if(e.key==='Escape') cerrarCompactDetail();});
+    })();
+</script>
 
 </body>
 </html>

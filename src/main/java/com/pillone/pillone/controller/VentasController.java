@@ -2,6 +2,7 @@ package com.pillone.pillone.controller;
 
 import com.pillone.pillone.model.*;
 import com.pillone.pillone.repository.*;
+import com.pillone.pillone.service.InventarioStockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class VentasController {
     @Autowired private VentasRepository ventasRepository;
     @Autowired private DetallesVentasRepository detallesVentasRepository;
     @Autowired private ProductosRepository productosRepository;
+    @Autowired private InventarioStockService inventarioStockService;
     @Autowired private ClientesRepository clientesRepository;
     @Autowired private EmpleadosRepository empleadosRepository;
     @Autowired private SucursalesRepository sucursalesRepository;
@@ -91,6 +93,8 @@ public class VentasController {
     @PostMapping
     @Transactional
     public ResponseEntity<Map<String,Object>> crearVenta(@RequestBody VentaRequest request, HttpSession session){
+        inventarioStockService.sincronizarTodo();
+
         validarRequest(request);
 
         Sucursales sucursal=sucursalesRepository.findById(request.getIdSucursal())
@@ -287,14 +291,6 @@ public class VentasController {
             domicilio.setDireccionEntrega(request.getDireccionEntrega().trim());
             domicilio.setTelefonoContacto(request.getTelefonoContacto().trim());
 
-            domicilio.setNombreDomiciliario(
-                    request.getNombreDomiciliario()==null
-                            ||
-                            request.getNombreDomiciliario().trim().isEmpty()
-                            ? null
-                            : request.getNombreDomiciliario().trim()
-            );
-
             domicilio.setCostoDomicilio(costoDomicilio);
             domicilio.setEstado("PENDIENTE");
 
@@ -402,13 +398,18 @@ public class VentasController {
                         : producto.getUnidadesPorEmpaque();
 
         return switch(tipo){
-            case "SELLO" ->
-                    new PrecioVenta(
-                            unidadesPorSello,
-                            precioUnidad
-                                    .multiply(BigDecimal.valueOf(unidadesPorSello))
-                                    .setScale(2,RoundingMode.HALF_UP)
-                    );
+            case "SELLO" -> {
+                BigDecimal precioSello=
+                        producto.getPrecioVentaSello()!=null
+                                && producto.getPrecioVentaSello()>0
+                                ? BigDecimal.valueOf(producto.getPrecioVentaSello())
+                                : precioUnidad.multiply(BigDecimal.valueOf(unidadesPorSello));
+
+                yield new PrecioVenta(
+                        unidadesPorSello,
+                        precioSello.setScale(2,RoundingMode.HALF_UP)
+                );
+            }
 
             case "CAJA" -> {
                 BigDecimal precioCaja=
@@ -643,7 +644,6 @@ public class VentasController {
         private Boolean esDomicilio=false;
         private String direccionEntrega;
         private String telefonoContacto;
-        private String nombreDomiciliario;
         private BigDecimal costoDomicilio=BigDecimal.ZERO;
         private List<ItemVentaRequest> items;
 
@@ -665,8 +665,6 @@ public class VentasController {
         public void setDireccionEntrega(String direccionEntrega){this.direccionEntrega=direccionEntrega;}
         public String getTelefonoContacto(){return telefonoContacto;}
         public void setTelefonoContacto(String telefonoContacto){this.telefonoContacto=telefonoContacto;}
-        public String getNombreDomiciliario(){return nombreDomiciliario;}
-        public void setNombreDomiciliario(String nombreDomiciliario){this.nombreDomiciliario=nombreDomiciliario;}
         public BigDecimal getCostoDomicilio(){return costoDomicilio;}
         public void setCostoDomicilio(BigDecimal costoDomicilio){this.costoDomicilio=costoDomicilio;}
         public List<ItemVentaRequest> getItems(){return items;}

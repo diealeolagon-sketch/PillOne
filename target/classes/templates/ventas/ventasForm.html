@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -20,82 +19,130 @@
             --ui-muted:#667085;
             --ui-shadow:0 10px 30px rgba(7,0,77,.055);
         }
+
         .pos-shell{
             background:
                 radial-gradient(circle at top right,rgba(32,138,174,.06),transparent 30rem),
                 var(--pillone-bg);
         }
+
         .pos-panel{
             background:rgba(255,255,255,.98);
             border:1px solid var(--ui-border);
             box-shadow:var(--ui-shadow);
         }
+
         .pos-control{
             border:1px solid var(--ui-border);
             background:#FBFCFE;
             transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
         }
+
         .pos-control:focus{
             border-color:var(--pillone-accent)!important;
             box-shadow:0 0 0 3px rgba(32,138,174,.12);
             background:#fff;
         }
+
         .pos-table tbody tr{
             transition:background .15s ease,box-shadow .15s ease;
         }
+
         .pos-table tbody tr:hover{
             background:#FAFBFE;
             box-shadow:inset 3px 0 0 rgba(32,138,174,.5);
         }
+
         .summary-box{
             border:1px solid var(--ui-border);
             background:#FBFCFE;
         }
+
         .checkout-total{
             background:linear-gradient(180deg,#FBFCFE,#F7F8FC);
             border:1px solid var(--ui-border);
         }
+
         .product-result{
             transition:background .15s ease,border-color .15s ease;
         }
+
         .product-result:hover{
             background:#FAFBFE;
         }
+
+        @media(min-width:1024px){
+            .pos-summary{
+                position:sticky!important;
+                top:5.25rem;
+                max-height:calc(100vh - 6.25rem);
+                overflow-y:auto;
+                overscroll-behavior:contain;
+                scrollbar-width:thin;
+                scrollbar-color:#CBD5E1 transparent;
+                padding-right:1.15rem!important;
+            }
+
+            .pos-summary::-webkit-scrollbar{width:6px;}
+            .pos-summary::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:999px;}
+        }
+
+        .product-result-card{
+            border:1px solid var(--ui-border);
+            border-radius:1rem;
+            background:#fff;
+            box-shadow:0 4px 14px rgba(7,0,77,.035);
+        }
+
+        .product-result-card:hover{
+            border-color:rgba(32,138,174,.35);
+            box-shadow:0 10px 24px rgba(7,0,77,.07);
+        }
+
         @media(max-width:1023px){
             .pos-layout{
                 grid-template-columns:1fr!important;
             }
+
             .pos-summary{
                 position:static!important;
             }
         }
+
         @media(max-width:767px){
             .pos-main{
                 padding:1rem!important;
             }
+
             .pos-header{
                 align-items:stretch!important;
             }
+
             .pos-header button{
                 width:100%;
             }
+
             .pos-cart-wrap{
                 overflow:visible!important;
                 padding:.75rem;
                 background:#F7F7FF;
             }
+
             .pos-table,
             .pos-table tbody{
                 display:block;
                 width:100%;
                 min-width:0!important;
             }
+
             .pos-table thead{
                 display:none;
             }
+
             .pos-table tbody{
                 border:0!important;
             }
+
             .pos-table tbody tr{
                 display:block;
                 width:100%;
@@ -107,6 +154,7 @@
                 box-shadow:0 6px 18px rgba(7,0,77,.04);
                 overflow:hidden;
             }
+
             .pos-table tbody tr td{
                 display:flex;
                 align-items:flex-start;
@@ -116,6 +164,7 @@
                 text-align:right!important;
                 border:0;
             }
+
             .pos-table tbody tr td::before{
                 content:attr(data-label);
                 flex:0 0 6.4rem;
@@ -126,67 +175,132 @@
                 text-transform:uppercase;
                 letter-spacing:.04em;
             }
+
             .pos-table tbody tr td:first-child{
                 display:block;
                 text-align:left!important;
                 border-bottom:1px solid #F0F1F5;
                 background:#FCFCFE;
             }
+
             .pos-table tbody tr td:first-child::before{
                 display:none;
             }
+
             .pos-table tbody tr td select,
             .pos-table tbody tr td input{
                 max-width:65%;
             }
+
             .pos-table tbody tr td:nth-child(3){
                 display:block;
                 text-align:left!important;
             }
+
             .pos-table tbody tr td:nth-child(3)::before{
                 display:block;
                 margin-bottom:.4rem;
             }
+
             .pos-summary{
                 margin-top:.2rem;
             }
+
             .pos-summary #btn-guardar{
                 position:sticky;
                 bottom:.75rem;
                 z-index:10;
                 box-shadow:0 10px 28px rgba(7,0,77,.18);
             }
+
             #modal-productos .relative.h-full{
                 align-items:flex-end!important;
                 padding:0!important;
             }
+
             #modal-productos .bg-white.w-full{
                 max-height:94vh!important;
                 border-radius:1.25rem 1.25rem 0 0!important;
             }
+
             #buscar-producto{
                 font-size:16px!important;
             }
+
             #lista-productos .product-result{
                 padding:.9rem!important;
             }
         }
-    </style>
 
+        /*
+         * PRESENTACIÓN DE VENTA
+         * Esta columna NO debe ocultarse.
+         * Es necesaria para vender por unidad, sello/blíster o caja.
+         */
+        .pos-table th:nth-child(2),
+        .pos-table td:nth-child(2){
+            display:table-cell!important;
+            min-width:190px;
+        }
+
+        .pos-table th:nth-child(4),
+        .pos-table td:nth-child(4){
+            width:5.5rem;
+        }
+
+        @media(max-width:767px){
+
+            .pos-table tbody tr td:nth-child(2){
+                display:flex!important;
+                align-items:center;
+                background:#FCFCFE;
+            }
+
+            .pos-table tbody tr td:nth-child(4){
+                display:none!important;
+            }
+
+            .pos-table tbody tr td:nth-child(6){
+                display:none!important;
+            }
+
+            .pos-table tbody tr td:nth-child(3){
+                background:#FCFCFE;
+            }
+
+            .pos-table tbody tr td:nth-child(5),
+            .pos-table tbody tr td:nth-child(7),
+            .pos-table tbody tr td:nth-child(8){
+                padding:.7rem .85rem!important;
+            }
+        }
+
+    </style>
 </head>
+
 <body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen">
+
 <header th:replace="~{fragments/layout :: topbar('Nueva Venta')}"></header>
 
 <div class="flex min-h-[calc(100vh-4rem)] pos-shell">
+
     <aside th:replace="~{fragments/layout :: sidebar('ventas')}"></aside>
 
     <main class="pos-main flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+
         <div class="max-w-[1600px] mx-auto space-y-5">
 
             <div class="pos-header flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+
                 <div>
-                    <p class="text-[11px] uppercase tracking-[0.2em] text-pillone-accent font-bold">Punto de venta</p>
-                    <h1 class="text-2xl sm:text-[30px] leading-tight font-bold text-pillone-dark">Nueva dispensación</h1>
+                    <p class="text-[11px] uppercase tracking-[0.2em] text-pillone-accent font-bold">
+                        Punto de venta
+                    </p>
+
+                    <h1 class="text-2xl sm:text-[30px] leading-tight font-bold text-pillone-dark">
+                        Nueva dispensación
+                    </h1>
+
                     <p class="text-sm text-slate-500 mt-1">
                         Agrega productos, valida fórmula médica cuando aplique y finaliza la venta.
                     </p>
@@ -195,33 +309,57 @@
                 <button type="button"
                         onclick="abrirModalProductos()"
                         class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-pillone-dark text-white font-semibold text-sm hover:bg-pillone-darker shadow-sm transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" d="M12 5v14M5 12h14"></path>
+
+                    <svg class="w-4 h-4"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              d="M12 5v14M5 12h14">
+                        </path>
                     </svg>
+
                     Agregar producto
                 </button>
+
             </div>
 
-            <div class="pos-layout grid 2xl:grid-cols-[minmax(0,1fr)_370px] gap-5 items-start">
+            <div class="pos-layout grid lg:grid-cols-[minmax(0,1fr)_370px] gap-5 items-start">
 
                 <section class="pos-panel rounded-2xl overflow-hidden min-h-[520px]">
+
                     <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-4">
+
                         <div>
-                            <h2 class="font-bold text-pillone-dark">Productos de la venta</h2>
-                            <p class="text-xs text-slate-400">La salida de inventario usa lotes vigentes por FEFO.</p>
+                            <h2 class="font-bold text-pillone-dark">
+                                Productos de la venta
+                            </h2>
+
+                            <p class="text-xs text-slate-400">
+                                La salida de inventario usa lotes vigentes por FEFO.
+                            </p>
                         </div>
+
                         <span id="contador-lineas"
                               class="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full">
                             0 líneas
                         </span>
+
                     </div>
 
                     <div class="px-4 sm:px-5 pt-4">
+
                         <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
-                            <label for="codigo-barras-venta" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+
+                            <label for="codigo-barras-venta"
+                                   class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                 Escanear código de barras
                             </label>
+
                             <div class="flex flex-col sm:flex-row gap-2">
+
                                 <input id="codigo-barras-venta"
                                        type="text"
                                        inputmode="numeric"
@@ -229,32 +367,58 @@
                                        placeholder="Escanea o escribe el código y presiona Enter"
                                        onkeydown="manejarCodigoBarras(event)"
                                        class="pos-control flex-1 px-3.5 py-2.5 rounded-xl text-sm outline-none">
+
                                 <button type="button"
                                         onclick="agregarPorCodigoBarras()"
                                         class="px-4 py-2.5 rounded-xl bg-pillone-accent text-white text-sm font-bold whitespace-nowrap">
                                     Agregar
                                 </button>
+
                             </div>
-                            <p id="mensaje-codigo-barras" class="text-[10px] text-slate-400 mt-1.5">
+
+                            <p id="mensaje-codigo-barras"
+                               class="text-[10px] text-slate-400 mt-1.5">
                                 Los lectores USB/Bluetooth normalmente escriben el código y envían Enter automáticamente.
                             </p>
+
                         </div>
+
                     </div>
 
                     <div id="alerta-formula"
                          class="hidden m-4 p-4 rounded-xl border border-amber-200 bg-amber-50">
 
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
                             <div class="flex items-start gap-3">
+
                                 <div class="w-9 h-9 shrink-0 rounded-xl bg-white text-amber-600 flex items-center justify-center border border-amber-100">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 3h6a2 2 0 012 2v16H7V5a2 2 0 012-2zM9 8h6M9 12h6M9 16h4"></path>
+
+                                    <svg class="w-4 h-4"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         viewBox="0 0 24 24">
+
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="M9 3h6a2 2 0 012 2v16H7V5a2 2 0 012-2zM9 8h6M9 12h6M9 16h4">
+                                        </path>
+
                                     </svg>
+
                                 </div>
+
                                 <div>
-                                    <p class="font-bold text-amber-800">Validación de fórmula médica</p>
-                                    <p id="texto-formula" class="text-[11px] text-amber-700 mt-1"></p>
+                                    <p class="font-bold text-amber-800">
+                                        Validación de fórmula médica
+                                    </p>
+
+                                    <p id="texto-formula"
+                                       class="text-[11px] text-amber-700 mt-1">
+                                    </p>
                                 </div>
+
                             </div>
 
                             <a id="btn-registrar-formula"
@@ -262,42 +426,97 @@
                                class="hidden px-4 py-2.5 rounded-xl bg-amber-600 text-white font-bold whitespace-nowrap">
                                 Registrar fórmula
                             </a>
+
                         </div>
+
                     </div>
 
                     <div class="pos-cart-wrap overflow-x-auto">
-                        <table class="pos-table w-full min-w-[850px] text-sm">
+
+                        <table class="pos-table w-full min-w-[1000px] text-sm">
+
                             <thead class="bg-pillone-dark text-white text-[11px] uppercase tracking-wider">
+
                             <tr>
                                 <th class="text-left p-3.5">Producto</th>
-                                <th class="text-left p-3.5">Presentación</th>
-                                <th class="text-left p-3.5 min-w-[250px]">Fórmula médica</th>
-                                <th class="text-center p-3.5">Stock</th>
-                                <th class="text-center p-3.5">Cantidad</th>
-                                <th class="text-right p-3.5">Precio</th>
-                                <th class="text-right p-3.5">Subtotal</th>
-                                <th class="text-center p-3.5">Acción</th>
+
+                                <th class="text-left p-3.5 min-w-[190px]">
+                                    Presentación
+                                </th>
+
+                                <th class="text-left p-3.5 min-w-[250px]">
+                                    Fórmula médica
+                                </th>
+
+                                <th class="text-center p-3.5">
+                                    Stock
+                                </th>
+
+                                <th class="text-center p-3.5">
+                                    Cantidad
+                                </th>
+
+                                <th class="text-right p-3.5">
+                                    Precio
+                                </th>
+
+                                <th class="text-right p-3.5">
+                                    Subtotal
+                                </th>
+
+                                <th class="text-center p-3.5">
+                                    Acción
+                                </th>
                             </tr>
+
                             </thead>
-                            <tbody id="carrito-body" class="divide-y divide-slate-100"></tbody>
+
+                            <tbody id="carrito-body"
+                                   class="divide-y divide-slate-100">
+                            </tbody>
+
                         </table>
+
                     </div>
 
-                    <div id="carrito-vacio" class="py-24 text-center text-slate-400">
-                        <svg class="w-10 h-10 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l2.4 10.5a2 2 0 002 1.5h7.7a2 2 0 002-1.5L21 7H6"></path>
+                    <div id="carrito-vacio"
+                         class="py-24 text-center text-slate-400">
+
+                        <svg class="w-10 h-10 mx-auto mb-3"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.5"
+                             viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M3 3h2l2.4 10.5a2 2 0 002 1.5h7.7a2 2 0 002-1.5L21 7H6">
+                            </path>
+
                             <circle cx="10" cy="19" r="1"></circle>
                             <circle cx="18" cy="19" r="1"></circle>
+
                         </svg>
-                        <p class="font-semibold text-slate-500">Aún no has agregado productos</p>
-                        <p class="text-xs mt-1">Usa “Agregar producto” para comenzar.</p>
+
+                        <p class="font-semibold text-slate-500">
+                            Aún no has agregado productos
+                        </p>
+
+                        <p class="text-xs mt-1">
+                            Usa “Agregar producto” para comenzar.
+                        </p>
+
                     </div>
+
                 </section>
 
-                <aside class="pos-summary pos-panel rounded-2xl p-5 space-y-5 2xl:sticky 2xl:top-20">
+                <aside class="pos-summary pos-panel rounded-2xl p-5 space-y-5">
 
                     <div>
-                        <h2 class="font-bold text-pillone-dark">Datos de la venta</h2>
+                        <h2 class="font-bold text-pillone-dark">
+                            Datos de la venta
+                        </h2>
+
                         <p class="text-xs text-slate-400">
                             El cliente es obligatorio cuando un medicamento exige fórmula.
                         </p>
@@ -309,6 +528,7 @@
                             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                 Sucursal
                             </label>
+
                             <select id="sucursal"
                                     class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                             </select>
@@ -318,43 +538,61 @@
                             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                 Usuario que registra la venta
                             </label>
-                            <input type="text" th:value="${session.nombreEmpleado}" readonly
+
+                            <input type="text"
+                                   th:value="${session.nombreEmpleado}"
+                                   readonly
                                    class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none bg-slate-100">
-                            <input id="empleado" type="hidden" th:value="${session.idEmpleado}">
+
+                            <input id="empleado"
+                                   type="hidden"
+                                   th:value="${session.idEmpleado}">
                         </div>
 
                         <div>
                             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                 Cliente
                             </label>
+
                             <input id="buscar-cliente"
                                    type="search"
                                    autocomplete="off"
                                    placeholder="Buscar por cédula, nombre, teléfono o correo..."
                                    oninput="programarBusquedaCliente()"
                                    class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none mb-2">
+
                             <select id="cliente"
                                     onchange="seleccionarClienteVenta()"
                                     class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
-                                <option value="">Cliente ocasional / sin registrar</option>
+
+                                <option value="">
+                                    Cliente ocasional / sin registrar
+                                </option>
+
                             </select>
-                            <p id="ayuda-cliente" class="text-[10px] text-slate-400 mt-1">
+
+                            <p id="ayuda-cliente"
+                               class="text-[10px] text-slate-400 mt-1">
                                 Escribe mínimo 2 caracteres. Se muestran hasta 30 coincidencias.
                             </p>
+
                         </div>
 
                         <div>
                             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                 Método de pago
                             </label>
+
                             <select id="metodo-pago"
                                     class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
+
                                 <option value="EFECTIVO">Efectivo</option>
                                 <option value="TARJETA_DEBITO">Tarjeta débito</option>
                                 <option value="TARJETA_CREDITO">Tarjeta crédito</option>
                                 <option value="TRANSFERENCIA">Transferencia</option>
                                 <option value="NEQUI_DAVIPLATA">Nequi / Daviplata</option>
                                 <option value="PAGO_MIXTO">Pago mixto</option>
+
                             </select>
                         </div>
 
@@ -362,6 +600,7 @@
                             <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                 Descuento
                             </label>
+
                             <input id="descuento"
                                    type="number"
                                    min="0"
@@ -376,18 +615,29 @@
                     <div class="summary-box rounded-xl overflow-hidden">
 
                         <div class="p-3.5 bg-slate-50 flex items-center justify-between gap-4">
+
                             <div>
-                                <p class="text-sm font-semibold text-slate-700">Venta a domicilio</p>
-                                <p class="text-[10px] text-slate-400">Actívalo si requiere entrega.</p>
+                                <p class="text-sm font-semibold text-slate-700">
+                                    Venta a domicilio
+                                </p>
+
+                                <p class="text-[10px] text-slate-400">
+                                    Actívalo si requiere entrega.
+                                </p>
                             </div>
 
                             <label class="relative inline-flex items-center cursor-pointer">
+
                                 <input id="es-domicilio"
                                        type="checkbox"
                                        class="sr-only peer"
                                        onchange="toggleDomicilio()">
-                                <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-pillone-accent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+
+                                <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-pillone-accent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5">
+                                </div>
+
                             </label>
+
                         </div>
 
                         <div id="datos-domicilio"
@@ -401,6 +651,7 @@
                                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                     Dirección de entrega
                                 </label>
+
                                 <input id="direccion-entrega"
                                        type="text"
                                        maxlength="200"
@@ -412,6 +663,7 @@
                                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                     Teléfono
                                 </label>
+
                                 <input id="telefono-contacto"
                                        type="text"
                                        maxlength="15"
@@ -423,6 +675,7 @@
                                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                                     Costo domicilio
                                 </label>
+
                                 <input id="costo-domicilio"
                                        type="number"
                                        min="0"
@@ -432,56 +685,96 @@
                                        class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
                             </div>
 
-                            <div>
-                                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                    Domiciliario
-                                </label>
-                                <input id="nombre-domiciliario"
-                                       type="text"
-                                       maxlength="100"
-                                       placeholder="Nombre del domiciliario"
-                                       class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
-                            </div>
-
                         </div>
 
                     </div>
 
                     <div class="summary-box rounded-xl overflow-hidden">
+
                         <div class="p-3.5 bg-slate-50">
-                            <p id="texto-iva" class="text-sm font-semibold text-slate-700">IVA incluido por producto</p>
-                            <p class="text-[10px] text-slate-400">Cada producto usa su porcentaje parametrizado. El precio mostrado ya incluye IVA.</p>
-                            <input id="aplica-iva" type="hidden" value="true">
+
+                            <p id="texto-iva"
+                               class="text-sm font-semibold text-slate-700">
+                                IVA incluido por producto
+                            </p>
+
+                            <p class="text-[10px] text-slate-400">
+                                Cada producto usa su porcentaje parametrizado. El precio mostrado ya incluye IVA.
+                            </p>
+
+                            <input id="aplica-iva"
+                                   type="hidden"
+                                   value="true">
+
                         </div>
+
                     </div>
 
                     <div class="checkout-total rounded-xl p-4 space-y-2.5 text-sm">
 
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Subtotal</span>
-                            <span id="subtotal" class="font-semibold">$0</span>
-                        </div>
+                            <span class="text-slate-500">
+                                Subtotal
+                            </span>
 
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Descuento</span>
-                            <span id="descuento-vista" class="font-semibold">$0</span>
+                            <span id="subtotal"
+                                  class="font-semibold">
+                                $0
+                            </span>
                         </div>
 
                         <div class="flex justify-between">
                             <span class="text-slate-500">
-                                IVA incluido <span id="porcentaje-iva-info">por producto</span>
+                                Descuento
                             </span>
-                            <span id="valor-iva" class="font-semibold">$0</span>
+
+                            <span id="descuento-vista"
+                                  class="font-semibold">
+                                $0
+                            </span>
                         </div>
 
-                        <div id="fila-costo-domicilio" class="hidden flex justify-between">
-                            <span class="text-slate-500">Domicilio</span>
-                            <span id="costo-domicilio-vista" class="font-semibold">$0</span>
+                        <div class="flex justify-between">
+
+                            <span class="text-slate-500">
+                                IVA incluido
+                                <span id="porcentaje-iva-info">
+                                    por producto
+                                </span>
+                            </span>
+
+                            <span id="valor-iva"
+                                  class="font-semibold">
+                                $0
+                            </span>
+
+                        </div>
+
+                        <div id="fila-costo-domicilio"
+                             class="hidden flex justify-between">
+
+                            <span class="text-slate-500">
+                                Domicilio
+                            </span>
+
+                            <span id="costo-domicilio-vista"
+                                  class="font-semibold">
+                                $0
+                            </span>
+
                         </div>
 
                         <div class="flex justify-between text-lg border-t border-slate-100 pt-3">
-                            <span class="font-bold text-pillone-dark">Total</span>
-                            <span id="total" class="font-bold text-pillone-accent">$0</span>
+
+                            <span class="font-bold text-pillone-dark">
+                                Total
+                            </span>
+
+                            <span id="total"
+                                  class="font-bold text-pillone-accent">
+                                $0
+                            </span>
+
                         </div>
 
                     </div>
@@ -490,7 +783,9 @@
                             type="button"
                             onclick="guardarVenta()"
                             class="w-full py-3.5 rounded-xl bg-pillone-dark text-white text-sm font-bold hover:opacity-95 disabled:opacity-50">
+
                         Cobrar y finalizar venta
+
                     </button>
 
                     <p id="mensaje-error"
@@ -502,10 +797,13 @@
             </div>
 
         </div>
+
     </main>
+
 </div>
 
-<div id="modal-productos" class="hidden fixed inset-0 z-[100]">
+<div id="modal-productos"
+     class="hidden fixed inset-0 z-[100]">
 
     <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
          onclick="cerrarModalProductos()">
@@ -513,11 +811,15 @@
 
     <div class="relative h-full flex items-center justify-center p-3 sm:p-6">
 
-        <div class="bg-white w-full max-w-6xl max-h-[92vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        <div class="bg-white w-full max-w-7xl max-h-[94vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
 
             <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-4">
+
                 <div>
-                    <h2 class="text-lg font-bold text-pillone-dark">Seleccionar producto</h2>
+                    <h2 class="text-lg font-bold text-pillone-dark">
+                        Seleccionar producto
+                    </h2>
+
                     <p class="text-xs text-slate-400">
                         Busca por nombre, genérico, código, barras, laboratorio, concentración o INVIMA.
                     </p>
@@ -526,22 +828,35 @@
                 <button type="button"
                         onclick="cerrarModalProductos()"
                         class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/>
+
+                    <svg class="w-4 h-4"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              d="M6 6l12 12M18 6L6 18">
+                        </path>
+
                     </svg>
+
                 </button>
+
             </div>
 
             <div class="p-4 border-b border-slate-100">
+
                 <input id="buscar-producto"
                        type="text"
                        oninput="renderProductosModal()"
                        placeholder="Buscar producto..."
                        class="pos-control w-full px-4 py-3 rounded-xl text-sm outline-none">
+
             </div>
 
             <div id="lista-productos"
-                 class="overflow-y-auto flex-1 divide-y divide-slate-100">
+                 class="overflow-y-auto flex-1 p-3 sm:p-4 bg-slate-50/70 grid grid-cols-1 xl:grid-cols-2 gap-3 content-start">
             </div>
 
         </div>
@@ -553,6 +868,7 @@
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 
 <script th:inline="javascript">
+
     let productos=[];
     let clientes=[];
     let carrito=[];
@@ -587,48 +903,73 @@
     );
 
     async function iniciar(){
+
         try{
+
             await Promise.all([
                 cargarProductos(),
                 cargarSucursales(),
                 cargarClientes()
             ]);
 
-            const debeRetomar=sessionStorage.getItem(RETOMAR_KEY)==='1';
+            const debeRetomar=
+                sessionStorage.getItem(RETOMAR_KEY)==='1';
 
             if(debeRetomar){
+
                 await restaurarBorrador();
-                sessionStorage.removeItem(RETOMAR_KEY);
+
+                sessionStorage.removeItem(
+                    RETOMAR_KEY
+                );
+
             }else{
+
                 limpiarVentaNueva();
+
             }
 
             if(clienteInicial){
-                document.getElementById('cliente').value=String(clienteInicial);
+
+                document.getElementById(
+                    'cliente'
+                ).value=String(clienteInicial);
+
                 actualizarDatosCliente();
+
             }
 
             renderCarrito();
+
             await cargarFormulasCarrito();
+
         }catch(e){
+
             mostrarError(
                 e.message
                 ||
                 'No fue posible cargar el POS'
             );
+
         }
+
     }
 
     async function json(url){
-        const r=await fetch(url);
+
+        const r=
+            await fetch(url);
 
         if(!r.ok){
+
             throw new Error(
                 `Error cargando ${url}`
             );
+
         }
 
         return r.json();
+
     }
 
     async function cargarConfiguracion(){
@@ -636,13 +977,20 @@
     }
 
     async function cargarProductos(){
+
         productos=
-            await json('/api/productos');
+            await json(
+                '/api/productos'
+            );
+
     }
 
     async function cargarSucursales(){
+
         const datos=
-            await json('/api/sucursales');
+            await json(
+                '/api/sucursales'
+            );
 
         const s=
             document.getElementById(
@@ -664,109 +1012,338 @@
                         `<option value="${x.idSucursal}">${escapeHtml(x.nombre)}</option>`
                 )
                 .join('');
+
     }
 
     async function cargarClientes(){
+
         clientes=[];
-        const s=document.getElementById('cliente');
-        s.innerHTML='<option value="">Cliente ocasional / sin registrar</option>';
+
+        const s=
+            document.getElementById(
+                'cliente'
+            );
+
+        s.innerHTML=
+            '<option value="">Cliente ocasional / sin registrar</option>';
 
         if(clienteInicial){
-            await cargarClienteSeleccionado(clienteInicial);
+
+            await cargarClienteSeleccionado(
+                clienteInicial
+            );
+
         }
+
     }
 
     function registrarClienteLocal(cliente){
-        if(!cliente||cliente.id_cliente==null) return;
-        const i=clientes.findIndex(x=>Number(x.id_cliente)===Number(cliente.id_cliente));
-        if(i>=0) clientes[i]=cliente;
-        else clientes.push(cliente);
+
+        if(
+            !cliente
+            ||
+            cliente.id_cliente==null
+        ){
+            return;
+        }
+
+        const i=
+            clientes.findIndex(
+                x =>
+                    Number(x.id_cliente)
+                    ===
+                    Number(cliente.id_cliente)
+            );
+
+        if(i>=0){
+
+            clientes[i]=cliente;
+
+        }else{
+
+            clientes.push(cliente);
+
+        }
+
     }
 
     function etiquetaCliente(cliente){
-        const documento=cliente.numeroDocumento?` - ${escapeHtml(cliente.numeroDocumento)}`:'';
-        const telefono=cliente.telefono?` · ${escapeHtml(cliente.telefono)}`:'';
+
+        const documento=
+            cliente.numeroDocumento
+                ?
+                ` - ${escapeHtml(cliente.numeroDocumento)}`
+                :
+                '';
+
+        const telefono=
+            cliente.telefono
+                ?
+                ` · ${escapeHtml(cliente.telefono)}`
+                :
+                '';
+
         return `${escapeHtml(cliente.nombreCompleto||'Cliente')}${documento}${telefono}`;
+
     }
 
-    function renderSelectClientes(lista,seleccionado=''){
-        const select=document.getElementById('cliente');
-        const idActual=String(seleccionado||select.value||'');
-        let datos=[...(lista||[])];
+    function renderSelectClientes(
+        lista,
+        seleccionado=''
+    ){
+
+        const select=
+            document.getElementById(
+                'cliente'
+            );
+
+        const idActual=
+            String(
+                seleccionado
+                ||
+                select.value
+                ||
+                ''
+            );
+
+        let datos=[
+            ...(lista||[])
+        ];
 
         if(idActual){
-            const actual=clientes.find(x=>Number(x.id_cliente)===Number(idActual));
-            if(actual&&!datos.some(x=>Number(x.id_cliente)===Number(idActual))){
+
+            const actual=
+                clientes.find(
+                    x =>
+                        Number(x.id_cliente)
+                        ===
+                        Number(idActual)
+                );
+
+            if(
+                actual
+                &&
+                !datos.some(
+                    x =>
+                        Number(x.id_cliente)
+                        ===
+                        Number(idActual)
+                )
+            ){
                 datos.unshift(actual);
             }
+
         }
 
         const unicos=[];
         const ids=new Set();
-        datos.forEach(c=>{
-            const id=String(c.id_cliente);
-            if(!ids.has(id)){ ids.add(id); unicos.push(c); }
-        });
 
-        select.innerHTML='<option value="">Cliente ocasional / sin registrar</option>'+
-            unicos.map(c=>`<option value="${c.id_cliente}">${etiquetaCliente(c)}</option>`).join('');
+        datos.forEach(
+            c => {
 
-        if(idActual) select.value=idActual;
+                const id=
+                    String(
+                        c.id_cliente
+                    );
+
+                if(!ids.has(id)){
+
+                    ids.add(id);
+
+                    unicos.push(c);
+
+                }
+
+            }
+        );
+
+        select.innerHTML=
+            '<option value="">Cliente ocasional / sin registrar</option>'
+            +
+            unicos
+                .map(
+                    c =>
+                        `<option value="${c.id_cliente}">${etiquetaCliente(c)}</option>`
+                )
+                .join('');
+
+        if(idActual){
+
+            select.value=
+                idActual;
+
+        }
+
     }
 
     async function cargarClienteSeleccionado(id){
-        if(!id) return;
-        const existente=clientes.find(x=>Number(x.id_cliente)===Number(id));
-        if(existente){
-            renderSelectClientes([existente],id);
+
+        if(!id){
             return;
         }
-        const cliente=await json(`/api/clientes/${encodeURIComponent(id)}`);
-        if(cliente){
-            registrarClienteLocal(cliente);
-            renderSelectClientes([cliente],id);
+
+        const existente=
+            clientes.find(
+                x =>
+                    Number(x.id_cliente)
+                    ===
+                    Number(id)
+            );
+
+        if(existente){
+
+            renderSelectClientes(
+                [existente],
+                id
+            );
+
+            return;
+
         }
+
+        const cliente=
+            await json(
+                `/api/clientes/${encodeURIComponent(id)}`
+            );
+
+        if(cliente){
+
+            registrarClienteLocal(
+                cliente
+            );
+
+            renderSelectClientes(
+                [cliente],
+                id
+            );
+
+        }
+
     }
 
     function programarBusquedaCliente(){
-        clearTimeout(temporizadorBusquedaCliente);
-        temporizadorBusquedaCliente=setTimeout(buscarClientesVenta,280);
+
+        clearTimeout(
+            temporizadorBusquedaCliente
+        );
+
+        temporizadorBusquedaCliente=
+            setTimeout(
+                buscarClientesVenta,
+                280
+            );
+
     }
 
     async function buscarClientesVenta(){
-        const input=document.getElementById('buscar-cliente');
-        const ayuda=document.getElementById('ayuda-cliente');
-        const q=(input?.value||'').trim();
-        const seleccionado=document.getElementById('cliente')?.value||'';
+
+        const input=
+            document.getElementById(
+                'buscar-cliente'
+            );
+
+        const ayuda=
+            document.getElementById(
+                'ayuda-cliente'
+            );
+
+        const q=
+            (input?.value||'')
+                .trim();
+
+        const seleccionado=
+            document.getElementById(
+                'cliente'
+            )?.value
+            ||
+            '';
 
         if(q.length<2){
-            renderSelectClientes([],seleccionado);
-            ayuda.textContent='Escribe mínimo 2 caracteres. Se muestran hasta 30 coincidencias.';
+
+            renderSelectClientes(
+                [],
+                seleccionado
+            );
+
+            ayuda.textContent=
+                'Escribe mínimo 2 caracteres. Se muestran hasta 30 coincidencias.';
+
             return;
+
         }
 
         try{
-            ayuda.textContent='Buscando clientes...';
-            const encontrados=await json(`/api/clientes/buscar?q=${encodeURIComponent(q)}`);
-            encontrados.forEach(registrarClienteLocal);
-            renderSelectClientes(encontrados,seleccionado);
-            ayuda.textContent=encontrados.length
-                ? `${encontrados.length} coincidencia(s). Selecciona el cliente correcto.`
-                : 'No se encontraron clientes con esa búsqueda.';
+
+            ayuda.textContent=
+                'Buscando clientes...';
+
+            const encontrados=
+                await json(
+                    `/api/clientes/buscar?q=${encodeURIComponent(q)}`
+                );
+
+            encontrados.forEach(
+                registrarClienteLocal
+            );
+
+            renderSelectClientes(
+                encontrados,
+                seleccionado
+            );
+
+            ayuda.textContent=
+                encontrados.length
+                    ?
+                    `${encontrados.length} coincidencia(s). Selecciona el cliente correcto.`
+                    :
+                    'No se encontraron clientes con esa búsqueda.';
+
         }catch(e){
-            ayuda.textContent='No fue posible buscar clientes.';
+
+            ayuda.textContent=
+                'No fue posible buscar clientes.';
+
         }
+
     }
 
     function seleccionarClienteVenta(){
-        const id=document.getElementById('cliente')?.value||'';
-        const input=document.getElementById('buscar-cliente');
-        const cliente=clientes.find(x=>Number(x.id_cliente)===Number(id));
-        if(input&&cliente){
-            input.value=`${cliente.nombreCompleto||''}${cliente.numeroDocumento?' - '+cliente.numeroDocumento:''}`;
+
+        const id=
+            document.getElementById(
+                'cliente'
+            )?.value
+            ||
+            '';
+
+        const input=
+            document.getElementById(
+                'buscar-cliente'
+            );
+
+        const cliente=
+            clientes.find(
+                x =>
+                    Number(x.id_cliente)
+                    ===
+                    Number(id)
+            );
+
+        if(
+            input
+            &&
+            cliente
+        ){
+
+            input.value=
+                `${cliente.nombreCompleto||''}${cliente.numeroDocumento?' - '+cliente.numeroDocumento:''}`;
+
         }
+
         actualizarDatosCliente();
+
         cambiarClienteVenta();
+
     }
 
     async function cargarEmpleados(){
@@ -774,6 +1351,7 @@
     }
 
     function abrirModalProductos(){
+
         document.getElementById(
             'modal-productos'
         ).classList.remove(
@@ -793,17 +1371,21 @@
                 ).focus(),
             50
         );
+
     }
 
     function cerrarModalProductos(){
+
         document.getElementById(
             'modal-productos'
         ).classList.add(
             'hidden'
         );
+
     }
 
     function productosFiltrados(){
+
         const q=
             texto(
                 document.getElementById(
@@ -837,156 +1419,281 @@
                     )
                 )
         );
+
+    }
+
+    function stockProductoPorTipo(producto,tipo){
+        const item={producto,tipoVenta:tipo};
+        return stockPresentacion(item);
+    }
+
+    function precioProductoPorTipo(producto,tipo){
+        const item={producto,tipoVenta:tipo};
+        return precioPresentacion(item);
+    }
+
+    function botonPresentacionModal(p,tipo,etiqueta,factor,disponible){
+        const stock=stockProductoPorTipo(p,tipo);
+        const precio=precioProductoPorTipo(p,tipo);
+        const habilitado=disponible && stock>0;
+        const detalle=disponible
+            ? `${stock} disponible(s)${factor>1 ? ` · ${factor} u. por ${etiqueta.toLowerCase()}` : ''}`
+            : 'Presentación no configurada';
+
+        return `
+            <div class="rounded-xl border overflow-hidden transition ${habilitado ? 'bg-white border-slate-200 hover:border-pillone-accent hover:shadow-sm' : 'bg-slate-50 border-slate-200 opacity-60'}">
+                <div class="p-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <span class="block text-[10px] uppercase tracking-wider font-bold ${habilitado ? 'text-pillone-accent' : 'text-slate-400'}">
+                                ${etiqueta}
+                            </span>
+                            <strong class="block text-base text-pillone-dark mt-1">${dinero(precio)}</strong>
+                        </div>
+                        ${habilitado ? '<span class="shrink-0 w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-black">+</span>' : ''}
+                    </div>
+                    <span class="block text-[10px] text-slate-500 mt-1.5 leading-4">
+                        ${detalle}
+                    </span>
+                </div>
+
+                <button type="button"
+                        ${habilitado ? `onclick="agregarProducto(${p.idProducto},true,'${tipo}')"` : 'disabled'}
+                        class="w-full px-3 py-2.5 text-xs font-bold flex items-center justify-center gap-2 transition ${habilitado ? 'bg-pillone-dark text-white hover:bg-pillone-darker cursor-pointer' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
+                    ${habilitado ? `
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"></path>
+                        </svg>
+                        Agregar ${etiqueta.toLowerCase()}
+                    ` : 'No disponible'}
+                </button>
+            </div>
+        `;
     }
 
     function renderProductosModal(){
-        const lista=
-            productosFiltrados();
 
-        const cont=
-            document.getElementById(
-                'lista-productos'
-            );
+        const lista=productosFiltrados();
+        const cont=document.getElementById('lista-productos');
 
         if(!lista.length){
-            cont.innerHTML=
-                '<div class="p-12 text-center text-sm text-slate-400">'
-                +
-                'No se encontraron productos.'
-                +
-                '</div>';
-
+            cont.innerHTML='<div class="xl:col-span-2 p-12 text-center text-sm text-slate-400">No se encontraron productos.</div>';
             return;
         }
 
-        cont.innerHTML=
-            lista.map(
-                p =>
-                    `
-                    <div class="product-result p-4 flex flex-col lg:flex-row lg:items-center gap-4">
+        cont.innerHTML=lista.map(p=>{
+            const stock=Number(p.stockTotal||0);
+            const unidadesSello=Number(p.unidadesPorSello||0);
+            const unidadesCaja=Number(p.unidadesPorEmpaque||0);
+            const selloDisponible=unidadesSello>1;
+            const cajaDisponible=unidadesCaja>1;
+
+            return `
+                <article class="product-result product-result-card p-4 sm:p-5">
+                    <div class="flex items-start justify-between gap-4">
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
-                                <h3 class="font-bold text-pillone-dark">
-                                    ${escapeHtml(p.nombreComercial)}
-                                </h3>
-
-                                ${
-                                    p.requiereFormula
-                                    ||
-                                    p.esControlado
-                                        ?
-                                        '<span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-semibold">Requiere fórmula</span>'
-                                        :
-                                        ''
-                                }
+                                <h3 class="font-bold text-pillone-dark text-base">${escapeHtml(p.nombreComercial)}</h3>
+                                ${p.requiereFormula||p.esControlado ? '<span class="text-[9px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-bold">REQUIERE FÓRMULA</span>' : ''}
                             </div>
-
                             <p class="text-xs text-slate-500 mt-1">
                                 ${escapeHtml(p.nombreGenerico||'')}
-                                ${p.concentracion?'• '+escapeHtml(p.concentracion):''}
-                                ${p.presentacion?'• '+escapeHtml(p.presentacion):''}
+                                ${p.concentracion?' · '+escapeHtml(p.concentracion):''}
+                                ${p.presentacion?' · '+escapeHtml(p.presentacion):''}
                             </p>
-
-                            <p class="text-[11px] text-slate-400 mt-1">
-                                Código: ${escapeHtml(p.codigoInterno)}
-                                · Barras: ${escapeHtml(p.codigoBarras||'')}
-                                · Stock: ${Number(p.stockTotal||0)} u.
+                            <p class="text-[10px] text-slate-400 mt-1">
+                                ${p.codigoInterno ? `Código ${escapeHtml(p.codigoInterno)}` : ''}
+                                ${p.codigoBarras ? ` · Barras ${escapeHtml(p.codigoBarras)}` : ''}
                             </p>
                         </div>
 
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs lg:w-[390px]">
-                            <div class="bg-slate-50 rounded-xl p-3">
-                                <span class="block text-slate-400">Precio unidad</span>
-                                <strong>${dinero(p.precioVenta)}</strong>
-                            </div>
-
-                            <div class="bg-slate-50 rounded-xl p-3">
-                                <span class="block text-slate-400">Stock</span>
-                                <strong>${Number(p.stockTotal||0)} u.</strong>
-                            </div>
-
-                            <button type="button"
-                                    onclick="agregarProducto(${p.idProducto})"
-                                    class="rounded-xl bg-pillone-accent text-white font-bold px-4 py-3">
-                                Agregar
-                            </button>
+                        <div class="shrink-0 text-right">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ${stock>0?'bg-emerald-50 text-emerald-700':'bg-red-50 text-red-600'}">
+                                ${stock>0 ? `${stock} u. reales` : 'Sin stock'}
+                            </span>
+                            <p class="text-[9px] text-slate-400 mt-1">Stock vendible por lotes</p>
                         </div>
                     </div>
-                    `
-            ).join('');
+
+                    <div class="mt-4 pt-4 border-t border-slate-100">
+                        <div class="flex items-center justify-between gap-3 mb-2">
+                            <div><p class="text-[10px] uppercase tracking-wider font-bold text-slate-500">Selecciona presentación</p><p class="text-[10px] text-slate-400 mt-0.5">Presiona <strong>Agregar</strong> en la presentación que vas a vender.</p></div>
+                            <p class="text-[10px] text-slate-400">FEFO · lotes vigentes</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            ${botonPresentacionModal(p,'UNIDAD','Unidad',1,true)}
+                            ${botonPresentacionModal(p,'SELLO','Sello / Blíster',unidadesSello,selloDisponible)}
+                            ${botonPresentacionModal(p,'CAJA','Caja',unidadesCaja,cajaDisponible)}
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join('');
     }
 
-    function agregarProducto(id,cerrarModal=true){
-        const p=productos.find(x=>Number(x.idProducto)===Number(id));
+    function agregarProducto(
+        id,
+        cerrarModal=true,
+        tipoVenta='UNIDAD'
+    ){
+
+        const p=
+            productos.find(
+                x =>
+                    Number(x.idProducto)
+                    ===
+                    Number(id)
+            );
 
         if(!p){
             return;
         }
 
-        const existente=carrito.find(
-            x=>x.idProducto===p.idProducto&&x.tipoVenta==='UNIDAD'
-        );
+        tipoVenta=String(tipoVenta||'UNIDAD').toUpperCase();
+
+        const existente=
+            carrito.find(
+                x =>
+                    x.idProducto===p.idProducto
+                    &&
+                    x.tipoVenta===tipoVenta
+            );
 
         if(existente){
+
             existente.cantidad++;
+
         }else{
+
             carrito.push({
+
                 idProducto:p.idProducto,
+
                 producto:p,
-                tipoVenta:'UNIDAD',
+
+                tipoVenta:tipoVenta,
+
                 cantidad:1,
+
                 idFormula:null,
+
                 formulasDisponibles:[],
+
                 cargandoFormulas:false
+
             });
+
         }
 
         if(cerrarModal){
+
             cerrarModalProductos();
+
         }
+
         renderCarrito();
+
         cargarFormulasCarrito();
+
     }
 
     function manejarCodigoBarras(event){
+
         if(event.key==='Enter'){
+
             event.preventDefault();
+
             agregarPorCodigoBarras();
+
         }
+
     }
 
     function agregarPorCodigoBarras(){
-        const input=document.getElementById('codigo-barras-venta');
-        const mensaje=document.getElementById('mensaje-codigo-barras');
-        const codigo=String(input?.value||'').trim();
+
+        const input=
+            document.getElementById(
+                'codigo-barras-venta'
+            );
+
+        const mensaje=
+            document.getElementById(
+                'mensaje-codigo-barras'
+            );
+
+        const codigo=
+            String(
+                input?.value
+                ||
+                ''
+            ).trim();
 
         if(!codigo){
-            mensaje.textContent='Escanea o escribe un código de barras.';
-            mensaje.className='text-[10px] text-amber-600 mt-1.5';
+
+            mensaje.textContent=
+                'Escanea o escribe un código de barras.';
+
+            mensaje.className=
+                'text-[10px] text-amber-600 mt-1.5';
+
             input?.focus();
+
             return;
+
         }
 
-        const producto=productos.find(p=>
-            String(p.codigoBarras||'').trim()===codigo && (!p.estado||p.estado==='ACTIVO')
-        );
+        const producto=
+            productos.find(
+                p =>
+                    String(
+                        p.codigoBarras
+                        ||
+                        ''
+                    ).trim()===codigo
+                    &&
+                    (
+                        !p.estado
+                        ||
+                        p.estado==='ACTIVO'
+                    )
+            );
 
         if(!producto){
-            mensaje.textContent=`No existe un producto activo con el código ${codigo}.`;
-            mensaje.className='text-[10px] text-red-600 mt-1.5';
+
+            mensaje.textContent=
+                `No existe un producto activo con el código ${codigo}.`;
+
+            mensaje.className=
+                'text-[10px] text-red-600 mt-1.5';
+
             input?.select();
+
             return;
+
         }
 
-        agregarProducto(producto.idProducto,false);
-        mensaje.textContent=`Agregado: ${producto.nombreComercial}.`;
-        mensaje.className='text-[10px] text-emerald-600 mt-1.5';
+        agregarProducto(
+            producto.idProducto,
+            false
+        );
+
+        mensaje.textContent=
+            `Agregado: ${producto.nombreComercial}.`;
+
+        mensaje.className=
+            'text-[10px] text-emerald-600 mt-1.5';
+
         input.value='';
+
         input.focus();
+
     }
 
     function factorPresentacion(item){
+
         if(item.tipoVenta==='CAJA'){
+
             return Math.max(
                 1,
                 Number(
@@ -995,9 +1702,11 @@
                     1
                 )
             );
+
         }
 
         if(item.tipoVenta==='SELLO'){
+
             return Math.max(
                 1,
                 Number(
@@ -1006,12 +1715,15 @@
                     1
                 )
             );
+
         }
 
         return 1;
+
     }
 
     function precioPresentacion(item){
+
         const unidad=
             Number(
                 item.producto.precioVenta
@@ -1020,6 +1732,7 @@
             );
 
         if(item.tipoVenta==='CAJA'){
+
             return Number(
                 item.producto.precioVentaEmpaque
                 ||
@@ -1033,18 +1746,34 @@
                 unidad
                 *
                 factorPresentacion(item);
+
         }
 
         if(item.tipoVenta==='SELLO'){
-            return unidad
+
+            const precioSello=
+                Number(
+                    item.producto.precioVentaSello
+                    ||
+                    0
+                );
+
+            return precioSello>0
+                ?
+                precioSello
+                :
+                unidad
                 *
                 factorPresentacion(item);
+
         }
 
         return unidad;
+
     }
 
     function stockPresentacion(item){
+
         return Math.floor(
             Number(
                 item.producto.stockTotal
@@ -1054,41 +1783,70 @@
             /
             factorPresentacion(item)
         );
+
     }
 
+    /*
+     * IMPORTANTE:
+     * Las tres formas de venta siempre aparecen.
+     * Si Sello o Caja no están configurados en Producto,
+     * se muestran deshabilitados en lugar de desaparecer.
+     */
     function opcionesPresentacion(item){
+
         const p=
             item.producto;
 
-        let html=
-            '<option value="UNIDAD">Unidad</option>';
-
-        if(
+        const unidadesSello=
             Number(
                 p.unidadesPorSello
                 ||
-                1
-            )>1
-        ){
-            html+=
-                `<option value="SELLO">Sello x ${Number(p.unidadesPorSello)}</option>`;
-        }
+                0
+            );
 
-        if(
+        const unidadesCaja=
             Number(
                 p.unidadesPorEmpaque
                 ||
-                1
-            )>1
-        ){
-            html+=
-                `<option value="CAJA">Caja x ${Number(p.unidadesPorEmpaque)}</option>`;
-        }
+                0
+            );
 
-        return html;
+        const selloDisponible=
+            unidadesSello>1;
+
+        const cajaDisponible=
+            unidadesCaja>1;
+
+        return `
+            <option value="UNIDAD">
+                Unidad
+            </option>
+
+            <option value="SELLO"
+                    ${selloDisponible ? '' : 'disabled'}>
+                ${
+                    selloDisponible
+                        ?
+                        `Sello / Blíster x ${unidadesSello}`
+                        :
+                        'Sello / Blíster — no configurado'
+                }
+            </option>
+
+            <option value="CAJA"
+                    ${cajaDisponible ? '' : 'disabled'}>
+                ${
+                    cajaDisponible
+                        ?
+                        `Caja x ${unidadesCaja}`
+                        :
+                        'Caja — no configurada'
+                }
+            </option>
+        `;
+
     }
-
-    function renderCarrito(){
+        function renderCarrito(){
         const body=
             document.getElementById(
                 'carrito-body'
@@ -1114,7 +1872,7 @@
                 (item,i) =>
                     `
                     <tr>
-                        <td class="p-3.5">
+                        <td class="p-3.5" data-label="Producto">
                             <div class="flex flex-wrap items-center gap-2">
                                 <div class="font-semibold text-pillone-dark">
                                     ${escapeHtml(item.producto.nombreComercial)}
@@ -1138,18 +1896,18 @@
                             </div>
                         </td>
 
-                        <td class="p-3.5">
+                        <td class="p-3.5" data-label="Presentación">
                             <select onchange="cambiarTipo(${i},this.value)"
-                                    class="select-presentacion px-2.5 py-2 border border-slate-200 rounded-lg bg-slate-50 text-xs">
+                                    class="select-presentacion w-full px-2.5 py-2 border border-slate-200 rounded-lg bg-slate-50 text-xs">
                                 ${opcionesPresentacion(item)}
                             </select>
                         </td>
 
-                        <td class="p-3.5">
+                        <td class="p-3.5" data-label="Fórmula médica">
                             ${renderSelectorFormula(item,i)}
                         </td>
 
-                        <td class="p-3.5 text-center">
+                        <td class="p-3.5 text-center" data-label="Stock">
                             <span class="font-semibold">
                                 ${stockPresentacion(item)}
                             </span>
@@ -1159,7 +1917,7 @@
                             </span>
                         </td>
 
-                        <td class="p-3.5 text-center">
+                        <td class="p-3.5 text-center" data-label="Cantidad">
                             <input type="number"
                                    min="1"
                                    max="${Math.max(1,stockPresentacion(item))}"
@@ -1176,13 +1934,20 @@
                             ${dinero(precioPresentacion(item)*item.cantidad)}
                         </td>
 
-                        <td class="p-3.5 text-center">
+                        <td class="p-3.5 text-center" data-label="Acción">
                             <button type="button"
                                     onclick="eliminarItem(${i})"
                                     class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100"
                                     title="Quitar producto">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"></path>
+                                <svg class="w-4 h-4"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     viewBox="0 0 24 24">
+                                    <path stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3">
+                                    </path>
                                 </svg>
                             </button>
                         </td>
@@ -1191,8 +1956,11 @@
             ).join('');
 
         carrito.forEach((item,i)=>{
-            const fila=body.querySelectorAll('tr')[i];
-            const select=fila?.querySelector('.select-presentacion');
+            const fila=
+                body.querySelectorAll('tr')[i];
+
+            const select=
+                fila?.querySelector('.select-presentacion');
 
             if(select){
                 select.value=item.tipoVenta;
@@ -1262,7 +2030,11 @@
     }
 
     function requiereFormula(item){
-        return Boolean(item?.producto?.requiereFormula||item?.producto?.esControlado);
+        return Boolean(
+            item?.producto?.requiereFormula
+            ||
+            item?.producto?.esControlado
+        );
     }
 
     function renderSelectorFormula(item,i){
@@ -1270,7 +2042,8 @@
             return '<span class="text-[11px] text-slate-400">No requerida</span>';
         }
 
-        const idCliente=document.getElementById('cliente')?.value;
+        const idCliente=
+            document.getElementById('cliente')?.value;
 
         if(!idCliente){
             return `
@@ -1284,7 +2057,10 @@
             return '<span class="text-[11px] text-slate-400">Buscando fórmulas...</span>';
         }
 
-        const formulas=item.formulasDisponibles||[];
+        const formulas=
+            item.formulasDisponibles
+            ||
+            [];
 
         if(!formulas.length){
             return `
@@ -1292,6 +2068,7 @@
                     <div class="text-[11px] text-red-600 font-semibold">
                         No tiene fórmula vigente.
                     </div>
+
                     <button type="button"
                             onclick="irCrearFormula(${i})"
                             class="px-3 py-2 rounded-lg bg-amber-600 text-white text-[11px] font-bold">
@@ -1301,11 +2078,26 @@
             `;
         }
 
-        const opciones=formulas.map(f=>{
-            const fecha=f.fechaVencimiento?' · vence '+f.fechaVencimiento:'';
-            const medico=f.nombreMedico?' · '+escapeHtml(f.nombreMedico):'';
-            return `<option value="${f.idFormula}">Fórmula #${f.idFormula}${medico}${fecha}</option>`;
-        }).join('');
+        const opciones=
+            formulas.map(
+                f=>{
+                    const fecha=
+                        f.fechaVencimiento
+                            ?
+                            ' · vence '+f.fechaVencimiento
+                            :
+                            '';
+
+                    const medico=
+                        f.nombreMedico
+                            ?
+                            ' · '+escapeHtml(f.nombreMedico)
+                            :
+                            '';
+
+                    return `<option value="${f.idFormula}">Fórmula #${f.idFormula}${medico}${fecha}</option>`;
+                }
+            ).join('');
 
         return `
             <select onchange="seleccionarFormula(${i},this.value)"
@@ -1313,8 +2105,15 @@
                 <option value="">Seleccione fórmula</option>
                 ${opciones}
             </select>
+
             <div class="mt-1 text-[10px] text-emerald-700">
-                ${formulas.length===1?'1 fórmula vigente encontrada':formulas.length+' fórmulas vigentes encontradas'}
+                ${
+                    formulas.length===1
+                        ?
+                        '1 fórmula vigente encontrada'
+                        :
+                        formulas.length+' fórmulas vigentes encontradas'
+                }
             </div>
         `;
     }
@@ -1322,19 +2121,24 @@
     async function cambiarClienteVenta(){
         actualizarDatosCliente();
 
-        carrito.forEach(item=>{
-            item.idFormula=null;
-            item.formulasDisponibles=[];
-        });
+        carrito.forEach(
+            item=>{
+                item.idFormula=null;
+                item.formulasDisponibles=[];
+            }
+        );
 
         renderCarrito();
+
         await cargarFormulasCarrito();
     }
 
     async function cargarFormulasCarrito(){
-        const idCliente=document.getElementById('cliente')?.value;
+        const idCliente=
+            document.getElementById('cliente')?.value;
 
         for(const item of carrito){
+
             if(!requiereFormula(item)){
                 item.idFormula=null;
                 item.formulasDisponibles=[];
@@ -1348,28 +2152,47 @@
             }
 
             item.cargandoFormulas=true;
+
             renderCarrito();
 
             try{
-                const r=await fetch(
-                    `/api/ventas/formulas-disponibles?clienteId=${encodeURIComponent(idCliente)}&productoId=${encodeURIComponent(item.idProducto)}`
-                );
+                const r=
+                    await fetch(
+                        `/api/ventas/formulas-disponibles?clienteId=${encodeURIComponent(idCliente)}&productoId=${encodeURIComponent(item.idProducto)}`
+                    );
 
-                const data=await r.json();
+                const data=
+                    await r.json();
 
                 if(!r.ok){
-                    throw new Error('No fue posible consultar las fórmulas.');
+                    throw new Error(
+                        'No fue posible consultar las fórmulas.'
+                    );
                 }
 
-                item.formulasDisponibles=Array.isArray(data)?data:[];
+                item.formulasDisponibles=
+                    Array.isArray(data)
+                        ?
+                        data
+                        :
+                        [];
+
                 item.cargandoFormulas=false;
 
                 if(item.formulasDisponibles.length===1){
-                    item.idFormula=Number(item.formulasDisponibles[0].idFormula);
+                    item.idFormula=
+                        Number(
+                            item.formulasDisponibles[0].idFormula
+                        );
                 }else if(
                     item.idFormula
                     &&
-                    !item.formulasDisponibles.some(f=>Number(f.idFormula)===Number(item.idFormula))
+                    !item.formulasDisponibles.some(
+                        f =>
+                            Number(f.idFormula)
+                            ===
+                            Number(item.idFormula)
+                    )
                 ){
                     item.idFormula=null;
                 }
@@ -1383,27 +2206,59 @@
 
         renderCarrito();
 
-        carrito.forEach((item,i)=>{
-            if(item.idFormula){
-                const fila=document.querySelectorAll('#carrito-body tr')[i];
-                const selector=fila?.querySelector('select[onchange^="seleccionarFormula"]');
-                if(selector){
-                    selector.value=String(item.idFormula);
+        carrito.forEach(
+            (item,i)=>{
+                if(item.idFormula){
+                    const fila=
+                        document.querySelectorAll(
+                            '#carrito-body tr'
+                        )[i];
+
+                    const selector=
+                        fila?.querySelector(
+                            'select[onchange^="seleccionarFormula"]'
+                        );
+
+                    if(selector){
+                        selector.value=
+                            String(item.idFormula);
+                    }
                 }
             }
-        });
+        );
     }
 
     function seleccionarFormula(i,idFormula){
-        carrito[i].idFormula=idFormula?Number(idFormula):null;
+        carrito[i].idFormula=
+            idFormula
+                ?
+                Number(idFormula)
+                :
+                null;
+
         actualizarAlertaFormulas();
     }
 
     function actualizarAlertaFormulas(){
-        const alerta=document.getElementById('alerta-formula');
-        const textoEl=document.getElementById('texto-formula');
-        const btn=document.getElementById('btn-registrar-formula');
-        const restringidos=carrito.filter(requiereFormula);
+        const alerta=
+            document.getElementById(
+                'alerta-formula'
+            );
+
+        const textoEl=
+            document.getElementById(
+                'texto-formula'
+            );
+
+        const btn=
+            document.getElementById(
+                'btn-registrar-formula'
+            );
+
+        const restringidos=
+            carrito.filter(
+                requiereFormula
+            );
 
         if(!restringidos.length){
             alerta.classList.add('hidden');
@@ -1413,28 +2268,59 @@
 
         alerta.classList.remove('hidden');
 
-        const idCliente=document.getElementById('cliente')?.value;
+        const idCliente=
+            document.getElementById('cliente')?.value;
 
         if(!idCliente){
-            textoEl.textContent='Hay medicamentos que requieren fórmula. Selecciona un cliente registrado para consultar sus fórmulas.';
+            textoEl.textContent=
+                'Hay medicamentos que requieren fórmula. Selecciona un cliente registrado para consultar sus fórmulas.';
+
             btn.classList.add('hidden');
+
             return false;
         }
 
-        const sinFormula=restringidos.filter(item=>!item.idFormula);
+        const sinFormula=
+            restringidos.filter(
+                item=>!item.idFormula
+            );
 
         if(!sinFormula.length){
-            textoEl.textContent='Todos los medicamentos restringidos tienen una fórmula médica vigente seleccionada.';
+            textoEl.textContent=
+                'Todos los medicamentos restringidos tienen una fórmula médica vigente seleccionada.';
+
             btn.classList.add('hidden');
+
             return true;
         }
 
-        const primero=sinFormula[0];
-        textoEl.textContent='Falta seleccionar o crear fórmula para: '+sinFormula.map(x=>x.producto.nombreComercial).join(', ')+'.';
-        btn.textContent='Crear fórmula';
-        btn.href='javascript:void(0)';
-        btn.onclick=()=>irCrearFormula(carrito.indexOf(primero));
+        const primero=
+            sinFormula[0];
+
+        textoEl.textContent=
+            'Falta seleccionar o crear fórmula para: '
+            +
+            sinFormula
+                .map(
+                    x=>x.producto.nombreComercial
+                )
+                .join(', ')
+            +
+            '.';
+
+        btn.textContent=
+            'Crear fórmula';
+
+        btn.href=
+            'javascript:void(0)';
+
+        btn.onclick=
+            ()=>irCrearFormula(
+                carrito.indexOf(primero)
+            );
+
         btn.classList.remove('hidden');
+
         return false;
     }
 
@@ -1444,120 +2330,256 @@
 
     function guardarBorradorVenta(){
         const borrador={
-            carrito:carrito.map(i=>({
-                idProducto:i.idProducto,
-                tipoVenta:i.tipoVenta,
-                cantidad:i.cantidad,
-                idFormula:i.idFormula||null
-            })),
-            cliente:document.getElementById('cliente')?.value||'',
-            sucursal:document.getElementById('sucursal')?.value||'',
-            empleado:document.getElementById('empleado')?.value||'',
-            metodoPago:document.getElementById('metodo-pago')?.value||'EFECTIVO',
-            descuento:document.getElementById('descuento')?.value||'0',
-            aplicaIva:document.getElementById('aplica-iva')?.checked??true
+            carrito:
+                carrito.map(
+                    i=>({
+                        idProducto:i.idProducto,
+                        tipoVenta:i.tipoVenta,
+                        cantidad:i.cantidad,
+                        idFormula:i.idFormula||null
+                    })
+                ),
+
+            cliente:
+                document.getElementById('cliente')?.value
+                ||
+                '',
+
+            sucursal:
+                document.getElementById('sucursal')?.value
+                ||
+                '',
+
+            empleado:
+                document.getElementById('empleado')?.value
+                ||
+                '',
+
+            metodoPago:
+                document.getElementById('metodo-pago')?.value
+                ||
+                'EFECTIVO',
+
+            descuento:
+                document.getElementById('descuento')?.value
+                ||
+                '0',
+
+            aplicaIva:true
         };
 
-        sessionStorage.setItem(BORRADOR_KEY,JSON.stringify(borrador));
+        sessionStorage.setItem(
+            BORRADOR_KEY,
+            JSON.stringify(borrador)
+        );
     }
 
     async function restaurarBorrador(){
-        const raw=sessionStorage.getItem(BORRADOR_KEY);
+        const raw=
+            sessionStorage.getItem(
+                BORRADOR_KEY
+            );
 
         if(!raw){
             return;
         }
 
         try{
-            const b=JSON.parse(raw);
+            const b=
+                JSON.parse(raw);
 
-            carrito=(b.carrito||[]).map(i=>{
-                const p=productos.find(x=>Number(x.idProducto)===Number(i.idProducto));
-                if(!p){
-                    return null;
-                }
+            carrito=
+                (b.carrito||[])
+                    .map(
+                        i=>{
+                            const p=
+                                productos.find(
+                                    x =>
+                                        Number(x.idProducto)
+                                        ===
+                                        Number(i.idProducto)
+                                );
 
-                return {
-                    idProducto:p.idProducto,
-                    producto:p,
-                    tipoVenta:i.tipoVenta||'UNIDAD',
-                    cantidad:Number(i.cantidad||1),
-                    idFormula:i.idFormula?Number(i.idFormula):null,
-                    formulasDisponibles:[],
-                    cargandoFormulas:false
-                };
-            }).filter(Boolean);
+                            if(!p){
+                                return null;
+                            }
 
-            if(b.cliente&&!clienteInicial){
-                await cargarClienteSeleccionado(b.cliente);
-                document.getElementById('cliente').value=String(b.cliente);
+                            return {
+                                idProducto:p.idProducto,
+                                producto:p,
+                                tipoVenta:i.tipoVenta||'UNIDAD',
+                                cantidad:Number(i.cantidad||1),
+                                idFormula:
+                                    i.idFormula
+                                        ?
+                                        Number(i.idFormula)
+                                        :
+                                        null,
+                                formulasDisponibles:[],
+                                cargandoFormulas:false
+                            };
+                        }
+                    )
+                    .filter(Boolean);
+
+            if(
+                b.cliente
+                &&
+                !clienteInicial
+            ){
+                await cargarClienteSeleccionado(
+                    b.cliente
+                );
+
+                document.getElementById(
+                    'cliente'
+                ).value=
+                    String(b.cliente);
             }
 
             if(b.sucursal){
-                document.getElementById('sucursal').value=String(b.sucursal);
+                document.getElementById(
+                    'sucursal'
+                ).value=
+                    String(b.sucursal);
             }
 
             if(b.metodoPago){
-                document.getElementById('metodo-pago').value=b.metodoPago;
+                document.getElementById(
+                    'metodo-pago'
+                ).value=
+                    b.metodoPago;
             }
 
             if(b.descuento!=null){
-                document.getElementById('descuento').value=b.descuento;
+                document.getElementById(
+                    'descuento'
+                ).value=
+                    b.descuento;
             }
 
             if(typeof b.aplicaIva==='boolean'){
                 aplicaIva=true;
             }
+
         }catch(e){
-            sessionStorage.removeItem(BORRADOR_KEY);
+            sessionStorage.removeItem(
+                BORRADOR_KEY
+            );
         }
     }
 
     function limpiarVentaNueva(){
         carrito=[];
-        sessionStorage.removeItem(BORRADOR_KEY);
-        sessionStorage.removeItem(RETOMAR_KEY);
 
-        const cliente=document.getElementById('cliente');
-        const buscarCliente=document.getElementById('buscar-cliente');
-        const sucursal=document.getElementById('sucursal');
-        const empleado=document.getElementById('empleado');
-        const metodoPago=document.getElementById('metodo-pago');
-        const descuento=document.getElementById('descuento');
-        const aplicaIvaEl=document.getElementById('aplica-iva');
-        const esDomicilio=document.getElementById('es-domicilio');
-        const direccion=document.getElementById('direccion-entrega');
-        const telefono=document.getElementById('telefono-contacto');
-        const domiciliario=document.getElementById('nombre-domiciliario');
-        const costoDomicilio=document.getElementById('costo-domicilio');
+        sessionStorage.removeItem(
+            BORRADOR_KEY
+        );
 
-        if(cliente&&!clienteInicial) cliente.value='';
-        if(buscarCliente&&!clienteInicial) buscarCliente.value='';
-        if(sucursal) sucursal.value='';
-        if(metodoPago) metodoPago.value='EFECTIVO';
-        if(descuento) descuento.value='0';
-        if(aplicaIvaEl){ aplicaIva=true; }
-        if(esDomicilio) esDomicilio.checked=false;
-        if(direccion) direccion.value='';
-        if(telefono) telefono.value='';
-        if(domiciliario) domiciliario.value='';
-        if(costoDomicilio) costoDomicilio.value='0';
+        sessionStorage.removeItem(
+            RETOMAR_KEY
+        );
+
+        const cliente=
+            document.getElementById('cliente');
+
+        const buscarCliente=
+            document.getElementById('buscar-cliente');
+
+        const sucursal=
+            document.getElementById('sucursal');
+
+        const metodoPago=
+            document.getElementById('metodo-pago');
+
+        const descuento=
+            document.getElementById('descuento');
+
+        const esDomicilio=
+            document.getElementById('es-domicilio');
+
+        const direccion=
+            document.getElementById('direccion-entrega');
+
+        const telefono=
+            document.getElementById('telefono-contacto');
+
+        const costoDomicilio=
+            document.getElementById('costo-domicilio');
+
+        if(
+            cliente
+            &&
+            !clienteInicial
+        ){
+            cliente.value='';
+        }
+
+        if(
+            buscarCliente
+            &&
+            !clienteInicial
+        ){
+            buscarCliente.value='';
+        }
+
+        if(sucursal){
+            sucursal.value='';
+        }
+
+        if(metodoPago){
+            metodoPago.value='EFECTIVO';
+        }
+
+        if(descuento){
+            descuento.value='0';
+        }
+
+        aplicaIva=true;
+
+        if(esDomicilio){
+            esDomicilio.checked=false;
+        }
+
+        if(direccion){
+            direccion.value='';
+        }
+
+        if(telefono){
+            telefono.value='';
+        }
+
+        if(costoDomicilio){
+            costoDomicilio.value='0';
+        }
 
         toggleDomicilio();
         renderCarrito();
     }
 
     function irCrearFormula(i){
-        const item=carrito[i];
-        const idCliente=document.getElementById('cliente')?.value;
+        const item=
+            carrito[i];
+
+        const idCliente=
+            document.getElementById(
+                'cliente'
+            )?.value;
 
         if(!idCliente){
-            mostrarError('Selecciona primero un cliente registrado para crear la fórmula.');
+            mostrarError(
+                'Selecciona primero un cliente registrado para crear la fórmula.'
+            );
+
             return;
         }
 
         guardarBorradorVenta();
-        sessionStorage.setItem(RETOMAR_KEY,'1');
+
+        sessionStorage.setItem(
+            RETOMAR_KEY,
+            '1'
+        );
 
         window.location.href=
             `/view/formulas/form?cliente=${encodeURIComponent(idCliente)}&producto=${encodeURIComponent(item.idProducto)}&retorno=ventas`;
@@ -1654,27 +2676,139 @@
     }
 
     function ivaIncluidoItem(item){
-        const tasa=Math.max(0,Number(item?.producto?.porcentajeIva||0));
-        const total=precioPresentacion(item)*item.cantidad;
-        return tasa>0 ? total-(total/(1+(tasa/100))) : 0;
+        const tasa=
+            Math.max(
+                0,
+                Number(
+                    item?.producto?.porcentajeIva
+                    ||
+                    0
+                )
+            );
+
+        const total=
+            precioPresentacion(item)
+            *
+            item.cantidad;
+
+        return tasa>0
+            ?
+            total-(total/(1+(tasa/100)))
+            :
+            0;
     }
 
     function recalcularTotales(){
-        const subtotal=carrito.reduce((t,i)=>t+(precioPresentacion(i)*i.cantidad),0);
-        let descuento=Math.max(0,Number(document.getElementById('descuento')?.value||0));
-        descuento=Math.min(descuento,subtotal);
-        const base=Math.max(0,subtotal-descuento);
-        const ivaBruto=carrito.reduce((t,i)=>t+ivaIncluidoItem(i),0);
-        const factor=subtotal>0?base/subtotal:0;
-        const iva=ivaBruto*factor;
-        const esDomicilio=document.getElementById('es-domicilio')?.checked||false;
-        const costoDomicilio=esDomicilio?Math.max(0,Number(document.getElementById('costo-domicilio')?.value||0)):0;
-        const total=base+costoDomicilio;
-        document.getElementById('subtotal').textContent=dinero(subtotal);
-        document.getElementById('descuento-vista').textContent=dinero(descuento);
-        document.getElementById('valor-iva').textContent=dinero(iva);
-        document.getElementById('costo-domicilio-vista').textContent=dinero(costoDomicilio);
-        document.getElementById('total').textContent=dinero(total);
+        const subtotal=
+            carrito.reduce(
+                (t,i)=>
+                    t
+                    +
+                    (
+                        precioPresentacion(i)
+                        *
+                        i.cantidad
+                    ),
+                0
+            );
+
+        let descuento=
+            Math.max(
+                0,
+                Number(
+                    document.getElementById(
+                        'descuento'
+                    )?.value
+                    ||
+                    0
+                )
+            );
+
+        descuento=
+            Math.min(
+                descuento,
+                subtotal
+            );
+
+        const base=
+            Math.max(
+                0,
+                subtotal-descuento
+            );
+
+        const ivaBruto=
+            carrito.reduce(
+                (t,i)=>
+                    t
+                    +
+                    ivaIncluidoItem(i),
+                0
+            );
+
+        const factor=
+            subtotal>0
+                ?
+                base/subtotal
+                :
+                0;
+
+        const iva=
+            ivaBruto
+            *
+            factor;
+
+        const esDomicilio=
+            document.getElementById(
+                'es-domicilio'
+            )?.checked
+            ||
+            false;
+
+        const costoDomicilio=
+            esDomicilio
+                ?
+                Math.max(
+                    0,
+                    Number(
+                        document.getElementById(
+                            'costo-domicilio'
+                        )?.value
+                        ||
+                        0
+                    )
+                )
+                :
+                0;
+
+        const total=
+            base
+            +
+            costoDomicilio;
+
+        document.getElementById(
+            'subtotal'
+        ).textContent=
+            dinero(subtotal);
+
+        document.getElementById(
+            'descuento-vista'
+        ).textContent=
+            dinero(descuento);
+
+        document.getElementById(
+            'valor-iva'
+        ).textContent=
+            dinero(iva);
+
+        document.getElementById(
+            'costo-domicilio-vista'
+        ).textContent=
+            dinero(costoDomicilio);
+
+        document.getElementById(
+            'total'
+        ).textContent=
+            dinero(total);
     }
 
     async function guardarVenta(){
@@ -1709,8 +2843,30 @@
 
         if(!idEmpleado){
             return mostrarError(
-                'Selecciona un empleado.'
+                'No fue posible identificar el usuario que registra la venta.'
             );
+        }
+
+        /*
+         * Validación adicional:
+         * evita vender una presentación que supere el stock disponible.
+         */
+        for(const item of carrito){
+
+            const disponible=
+                stockPresentacion(item);
+
+            if(disponible<=0){
+                return mostrarError(
+                    `No hay stock disponible de ${item.producto.nombreComercial} para la presentación seleccionada.`
+                );
+            }
+
+            if(Number(item.cantidad)>disponible){
+                return mostrarError(
+                    `La cantidad de ${item.producto.nombreComercial} supera el stock disponible (${disponible}).`
+                );
+            }
         }
 
         if(
@@ -1736,11 +2892,6 @@
         const telefonoContacto=
             document.getElementById(
                 'telefono-contacto'
-            ).value.trim();
-
-        const nombreDomiciliario=
-            document.getElementById(
-                'nombre-domiciliario'
             ).value.trim();
 
         const costoDomicilio=
@@ -1786,60 +2937,74 @@
         }
 
         const payload={
-            idSucursal:Number(idSucursal),
-            idCliente:idCliente
-                ?
-                Number(idCliente)
-                :
-                null,
-            idEmpleado:Number(idEmpleado),
-            descuento:Number(
-                document.getElementById(
-                    'descuento'
-                ).value
-                ||
-                0
-            ),
-            aplicaIva:
-                true,
+            idSucursal:
+                Number(idSucursal),
+
+            idCliente:
+                idCliente
+                    ?
+                    Number(idCliente)
+                    :
+                    null,
+
+            idEmpleado:
+                Number(idEmpleado),
+
+            descuento:
+                Number(
+                    document.getElementById(
+                        'descuento'
+                    ).value
+                    ||
+                    0
+                ),
+
+            aplicaIva:true,
+
             metodoPago:
                 document.getElementById(
                     'metodo-pago'
                 ).value,
+
             esDomicilio,
+
             direccionEntrega:
                 esDomicilio
                     ?
                     direccionEntrega
                     :
                     null,
+
             telefonoContacto:
                 esDomicilio
                     ?
                     telefonoContacto
                     :
                     null,
-            nombreDomiciliario:
-                esDomicilio
-                &&
-                nombreDomiciliario
-                    ?
-                    nombreDomiciliario
-                    :
-                    null,
+
             costoDomicilio:
                 esDomicilio
                     ?
                     costoDomicilio
                     :
                     0,
+
             items:
                 carrito.map(
                     i => ({
-                        idProducto:i.idProducto,
-                        idFormula:i.idFormula||null,
-                        tipoVenta:i.tipoVenta,
-                        cantidad:i.cantidad
+                        idProducto:
+                            i.idProducto,
+
+                        idFormula:
+                            i.idFormula
+                            ||
+                            null,
+
+                        tipoVenta:
+                            i.tipoVenta,
+
+                        cantidad:
+                            i.cantidad
                     })
                 )
         };
@@ -1850,6 +3015,7 @@
             );
 
         btn.disabled=true;
+
         btn.textContent=
             'Procesando...';
 
@@ -1859,12 +3025,15 @@
                     '/api/ventas',
                     {
                         method:'POST',
+
                         headers:{
                             'Content-Type':'application/json'
                         },
-                        body:JSON.stringify(
-                            payload
-                        )
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            )
                     }
                 );
 
@@ -1884,11 +3053,13 @@
 
             alert(
                 `Venta registrada correctamente
-    Factura: ${data.numeroFactura}
-    Total: ${dinero(data.total)}`
+Factura: ${data.numeroFactura}
+Total: ${dinero(data.total)}`
             );
 
-            sessionStorage.removeItem(BORRADOR_KEY);
+            sessionStorage.removeItem(
+                BORRADOR_KEY
+            );
 
             window.location.href=
                 '/view/ventas';
@@ -1897,8 +3068,10 @@
             mostrarError(
                 e.message
             );
+
         }finally{
             btn.disabled=false;
+
             btn.textContent=
                 'Cobrar y finalizar venta';
         }
@@ -1938,6 +3111,7 @@
             }
         }
     );
+
 </script>
 
 </body>

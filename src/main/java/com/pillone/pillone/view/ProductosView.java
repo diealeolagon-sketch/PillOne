@@ -6,6 +6,7 @@ import com.pillone.pillone.repository.CategoriasRepository;
 import com.pillone.pillone.repository.LotesRepository;
 import com.pillone.pillone.repository.ProductosRepository;
 import com.pillone.pillone.repository.ProveedoresRepository;
+import com.pillone.pillone.service.InventarioStockService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,8 +36,13 @@ public class ProductosView {
     @Autowired
     private LotesRepository lotesRepository;
 
+    @Autowired
+    private InventarioStockService inventarioStockService;
+
     @GetMapping("/view/productos")
     public String lista(Model model){
+
+        inventarioStockService.sincronizarTodo();
 
         List<Productos> productos=productosRepository.findAll();
 

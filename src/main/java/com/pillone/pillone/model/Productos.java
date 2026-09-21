@@ -57,6 +57,9 @@ public class Productos {
     @Column(name = "precio_venta_tableta")
     private Double precioVentaTableta;
 
+    @Column(name = "precio_venta_sello")
+    private Double precioVentaSello;
+
     @Column(name = "unidades_por_empaque")
     private Integer unidadesPorEmpaque;
 
@@ -228,6 +231,14 @@ public class Productos {
 
     public void setPrecioVentaTableta(Double precioVentaTableta) {
         this.precioVentaTableta = precioVentaTableta;
+    }
+
+    public Double getPrecioVentaSello() {
+        return precioVentaSello;
+    }
+
+    public void setPrecioVentaSello(Double precioVentaSello) {
+        this.precioVentaSello = precioVentaSello;
     }
 
     public Integer getUnidadesPorEmpaque() {

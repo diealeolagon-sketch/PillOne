@@ -580,7 +580,7 @@
 
 <script>
     let paginaActual=1;
-    let filasPorPagina=window.innerWidth<768?5:10;
+    let filasPorPagina=6;
     let filasFiltradas=[];
 
     function obtenerFilas(){
@@ -670,7 +670,7 @@
     }
 
     window.addEventListener('resize',()=>{
-        const nuevo=window.innerWidth<768?5:10;
+        const nuevo=6;
         if(nuevo!==filasPorPagina){
             filasPorPagina=nuevo;
             paginaActual=1;

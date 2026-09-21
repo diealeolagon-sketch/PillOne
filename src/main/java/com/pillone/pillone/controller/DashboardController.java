@@ -1,5 +1,7 @@
 package com.pillone.pillone.controller;
 
+import com.pillone.pillone.service.InventarioStockService;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,13 +19,20 @@ import java.util.*;
 public class DashboardController {
 
     private final JdbcTemplate jdbcTemplate;
+    private final InventarioStockService inventarioStockService;
 
-    public DashboardController(JdbcTemplate jdbcTemplate){
+    public DashboardController(
+            JdbcTemplate jdbcTemplate,
+            InventarioStockService inventarioStockService
+    ){
         this.jdbcTemplate=jdbcTemplate;
+        this.inventarioStockService=inventarioStockService;
     }
 
     @GetMapping
     public Map<String,Object> dashboard(){
+
+        inventarioStockService.sincronizarTodo();
 
         Map<String,Object> respuesta=new LinkedHashMap<>();
 
@@ -42,12 +51,43 @@ public class DashboardController {
 
         Map<String,Object> resumen=new LinkedHashMap<>();
 
-        BigDecimal ventasHoy=valorDecimal("""
+        BigDecimal ventasBrutasHoy=valorDecimal("""
             SELECT COALESCE(SUM(total),0)
             FROM ventas
             WHERE DATE(fecha_venta)=CURDATE()
               AND estado='PAGADA'
         """);
+
+        BigDecimal devolucionesHoy=valorDecimal("""
+            SELECT COALESCE(SUM(
+                LEAST(dev.cantidad_devuelta, det.cantidad_vendida)
+                * (det.total_producto / NULLIF(det.cantidad_vendida,0))
+            ),0)
+            FROM (
+                SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
+                FROM devoluciones
+                WHERE tipo_devolucion='CLIENTE'
+                  AND DATE(fecha_devolucion)=CURDATE()
+                GROUP BY id_venta,id_producto
+            ) dev
+            INNER JOIN (
+                SELECT id_venta,id_producto,
+                       SUM(cantidad) AS cantidad_vendida,
+                       SUM(subtotal) AS total_producto
+                FROM detalles_ventas
+                GROUP BY id_venta,id_producto
+            ) det
+                ON det.id_venta=dev.id_venta
+               AND det.id_producto=dev.id_producto
+            INNER JOIN ventas v
+                ON v.id_venta=dev.id_venta
+            WHERE v.estado='PAGADA'
+        """);
+
+        BigDecimal ventasHoy=ventasBrutasHoy.subtract(devolucionesHoy);
+        if(ventasHoy.signum()<0){
+            ventasHoy=BigDecimal.ZERO;
+        }
 
         Integer cantidadVentasHoy=valorEntero("""
             SELECT COUNT(*)
@@ -111,6 +151,7 @@ public class DashboardController {
         """);
 
         resumen.put("ventasHoy",ventasHoy);
+        resumen.put("devolucionesHoy",devolucionesHoy);
         resumen.put("cantidadVentasHoy",cantidadVentasHoy);
         resumen.put("ticketPromedio",ticketPromedio);
         resumen.put("productosStockBajo",productosStockBajo);
@@ -130,15 +171,59 @@ public class DashboardController {
 
         List<Map<String,Object>> consulta=jdbcTemplate.queryForList("""
             SELECT
-                DATE(fecha_venta) AS fecha,
-                COALESCE(SUM(total),0) AS total,
-                COUNT(*) AS cantidad
-            FROM ventas
-            WHERE DATE(fecha_venta) BETWEEN ? AND ?
-              AND estado='PAGADA'
-            GROUP BY DATE(fecha_venta)
-            ORDER BY DATE(fecha_venta)
-        """,inicio,hoy);
+                dias.fecha,
+                GREATEST(
+                    COALESCE(vtas.total,0)-COALESCE(devs.total_devuelto,0),
+                    0
+                ) AS total,
+                COALESCE(vtas.cantidad,0) AS cantidad
+            FROM (
+                SELECT DATE(fecha_venta) AS fecha
+                FROM ventas
+                WHERE DATE(fecha_venta) BETWEEN ? AND ?
+                UNION
+                SELECT DATE(fecha_devolucion) AS fecha
+                FROM devoluciones
+                WHERE tipo_devolucion='CLIENTE'
+                  AND DATE(fecha_devolucion) BETWEEN ? AND ?
+            ) dias
+            LEFT JOIN (
+                SELECT DATE(fecha_venta) AS fecha,
+                       SUM(total) AS total,
+                       COUNT(*) AS cantidad
+                FROM ventas
+                WHERE DATE(fecha_venta) BETWEEN ? AND ?
+                  AND estado='PAGADA'
+                GROUP BY DATE(fecha_venta)
+            ) vtas ON vtas.fecha=dias.fecha
+            LEFT JOIN (
+                SELECT DATE(d.fecha_devolucion) AS fecha,
+                       SUM(
+                           LEAST(d.cantidad_devuelta,det.cantidad_vendida)
+                           * (det.total_producto/NULLIF(det.cantidad_vendida,0))
+                       ) AS total_devuelto
+                FROM (
+                    SELECT DATE(fecha_devolucion) AS fecha_devolucion,
+                           id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
+                    FROM devoluciones
+                    WHERE tipo_devolucion='CLIENTE'
+                      AND DATE(fecha_devolucion) BETWEEN ? AND ?
+                    GROUP BY DATE(fecha_devolucion),id_venta,id_producto
+                ) d
+                INNER JOIN (
+                    SELECT id_venta,id_producto,
+                           SUM(cantidad) AS cantidad_vendida,
+                           SUM(subtotal) AS total_producto
+                    FROM detalles_ventas
+                    GROUP BY id_venta,id_producto
+                ) det ON det.id_venta=d.id_venta
+                     AND det.id_producto=d.id_producto
+                INNER JOIN ventas v ON v.id_venta=d.id_venta
+                WHERE v.estado='PAGADA'
+                GROUP BY DATE(d.fecha_devolucion)
+            ) devs ON devs.fecha=dias.fecha
+            ORDER BY dias.fecha
+        """,inicio,hoy,inicio,hoy,inicio,hoy,inicio,hoy);
 
         Map<LocalDate,Map<String,Object>> porFecha=new HashMap<>();
 
@@ -409,13 +494,38 @@ public class DashboardController {
 
         return jdbcTemplate.queryForList("""
             SELECT
-                metodo_pago AS metodo,
-                COUNT(*) AS cantidad,
-                COALESCE(SUM(total),0) AS total
-            FROM ventas
-            WHERE estado='PAGADA'
-              AND DATE(fecha_venta)>=DATE_SUB(CURDATE(),INTERVAL 30 DAY)
-            GROUP BY metodo_pago
+                v.metodo_pago AS metodo,
+                COUNT(DISTINCT v.id_venta) AS cantidad,
+                GREATEST(
+                    COALESCE(SUM(v.total),0)-COALESCE(SUM(dev.total_devuelto),0),
+                    0
+                ) AS total
+            FROM ventas v
+            LEFT JOIN (
+                SELECT d.id_venta,
+                       SUM(
+                           LEAST(d.cantidad_devuelta,det.cantidad_vendida)
+                           * (det.total_producto/NULLIF(det.cantidad_vendida,0))
+                       ) AS total_devuelto
+                FROM (
+                    SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
+                    FROM devoluciones
+                    WHERE tipo_devolucion='CLIENTE'
+                    GROUP BY id_venta,id_producto
+                ) d
+                INNER JOIN (
+                    SELECT id_venta,id_producto,
+                           SUM(cantidad) AS cantidad_vendida,
+                           SUM(subtotal) AS total_producto
+                    FROM detalles_ventas
+                    GROUP BY id_venta,id_producto
+                ) det ON det.id_venta=d.id_venta
+                     AND det.id_producto=d.id_producto
+                GROUP BY d.id_venta
+            ) dev ON dev.id_venta=v.id_venta
+            WHERE v.estado='PAGADA'
+              AND DATE(v.fecha_venta)>=DATE_SUB(CURDATE(),INTERVAL 30 DAY)
+            GROUP BY v.metodo_pago
             ORDER BY total DESC
         """);
     }

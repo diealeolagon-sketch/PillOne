@@ -4,6 +4,7 @@ import com.pillone.pillone.model.Lotes;
 import com.pillone.pillone.model.Productos;
 import com.pillone.pillone.repository.LotesRepository;
 import com.pillone.pillone.repository.ProductosRepository;
+import com.pillone.pillone.service.InventarioStockService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,17 +18,23 @@ public class AlertasVencimientoController {
 
     private final LotesRepository lotesRepository;
     private final ProductosRepository productosRepository;
+    private final InventarioStockService inventarioStockService;
 
     public AlertasVencimientoController(
             LotesRepository lotesRepository,
-            ProductosRepository productosRepository
+            ProductosRepository productosRepository,
+            InventarioStockService inventarioStockService
     ){
         this.lotesRepository=lotesRepository;
         this.productosRepository=productosRepository;
+        this.inventarioStockService=inventarioStockService;
     }
 
     @GetMapping
     public ResponseEntity<?> listar(){
+        // La API debe responder con el mismo inventario sincronizado que la vista.
+        inventarioStockService.sincronizarTodo();
+
         LocalDate hoy=LocalDate.now();
         LocalDate limite=hoy.plusDays(90);
 

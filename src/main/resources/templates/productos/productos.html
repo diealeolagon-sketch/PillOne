@@ -105,6 +105,17 @@
                 backdrop-filter:blur(8px);
             }
         }
+
+        /* Productos: tabla resumida. Códigos y presentación quedan disponibles en el ojo de detalle. */
+        .ui-table th:nth-child(1), .ui-table td:nth-child(1),
+        .ui-table th:nth-child(3), .ui-table td:nth-child(3){display:none!important;}
+        .products-pagination{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1rem;border-top:1px solid #E7E9F0;background:#fff;}
+        .products-page-controls{display:flex;align-items:center;gap:.35rem;}
+        .products-page-btn{min-width:2.25rem;height:2.25rem;padding:0 .7rem;display:inline-flex;align-items:center;justify-content:center;border:1px solid #E7E9F0;border-radius:.65rem;background:#fff;color:#475467;font-size:.72rem;font-weight:600;}
+        .products-page-btn.active{background:#07004D;color:#fff;border-color:#07004D;}
+        .products-page-btn:disabled{opacity:.4;cursor:not-allowed;}
+        @media(max-width:767px){.products-pagination{flex-direction:column;align-items:stretch}.products-page-controls{justify-content:center}}
+
     </style>
 
 </head>
@@ -588,6 +599,15 @@
 
                 </div>
 
+                <div id="paginacion-productos" class="products-pagination hidden">
+                    <div id="paginacion-productos-info" class="text-[11px] text-slate-500">Mostrando 0 de 0 productos</div>
+                    <div class="products-page-controls">
+                        <button type="button" id="productos-anterior" class="products-page-btn" onclick="cambiarPaginaProductos(-1)">‹</button>
+                        <div id="productos-numeros" class="products-page-controls"></div>
+                        <button type="button" id="productos-siguiente" class="products-page-btn" onclick="cambiarPaginaProductos(1)">›</button>
+                    </div>
+                </div>
+
             </section>
 
         </main>
@@ -986,54 +1006,50 @@
 
 <script>
 
+    let paginaProductos=1;
+    const filasPorPaginaProductos=6;
+    let filasProductosFiltradas=[];
+
     function filtrarTabla() {
-
-        const filtroTexto =
-            document
-                .getElementById('buscador-tabla')
-                .value
-                .toLowerCase()
-                .trim();
-
-        const filtroCategoria =
-            document
-                .getElementById('filtro-categoria')
-                .value;
-
-        let visibles = 0;
-
-        document
-            .querySelectorAll('.fila-producto')
-            .forEach(function(fila) {
-
-                const coincideTexto =
-                    fila.textContent
-                        .toLowerCase()
-                        .includes(filtroTexto);
-
-                const categoriaFila =
-                    fila.dataset.categoria || '';
-
-                const coincideCategoria =
-                    filtroCategoria === '' ||
-                    categoriaFila === filtroCategoria;
-
-                const mostrar =
-                    coincideTexto &&
-                    coincideCategoria;
-
-                fila.style.display =
-                    mostrar ? '' : 'none';
-
-                if(mostrar) {
-                    visibles++;
-                }
-            });
-
-        document
-            .getElementById('contador-total')
-            .textContent = visibles;
+        const filtroTexto=document.getElementById('buscador-tabla').value.toLowerCase().trim();
+        const filtroCategoria=document.getElementById('filtro-categoria').value;
+        filasProductosFiltradas=Array.from(document.querySelectorAll('.fila-producto')).filter(fila=>{
+            const coincideTexto=fila.textContent.toLowerCase().includes(filtroTexto);
+            const categoriaFila=fila.dataset.categoria || '';
+            return coincideTexto && (filtroCategoria==='' || categoriaFila===filtroCategoria);
+        });
+        paginaProductos=1;
+        renderProductosPaginados();
     }
+
+    function renderProductosPaginados(){
+        const todas=Array.from(document.querySelectorAll('.fila-producto'));
+        const total=filasProductosFiltradas.length;
+        const paginas=Math.max(1,Math.ceil(total/filasPorPaginaProductos));
+        if(paginaProductos>paginas) paginaProductos=paginas;
+        const inicio=(paginaProductos-1)*filasPorPaginaProductos;
+        const fin=Math.min(inicio+filasPorPaginaProductos,total);
+        todas.forEach(f=>f.style.display='none');
+        filasProductosFiltradas.slice(inicio,fin).forEach(f=>f.style.display='');
+        document.getElementById('contador-total').textContent=total;
+        const pag=document.getElementById('paginacion-productos');
+        if(!pag) return;
+        if(total<=filasPorPaginaProductos){pag.classList.add('hidden');return;}
+        pag.classList.remove('hidden');
+        document.getElementById('paginacion-productos-info').textContent=`Mostrando ${inicio+1}–${fin} de ${total} productos`;
+        document.getElementById('productos-anterior').disabled=paginaProductos===1;
+        document.getElementById('productos-siguiente').disabled=paginaProductos===paginas;
+        const nums=document.getElementById('productos-numeros'); nums.innerHTML='';
+        for(let i=1;i<=paginas;i++){
+            const b=document.createElement('button'); b.type='button'; b.className='products-page-btn'+(i===paginaProductos?' active':''); b.textContent=i;
+            b.onclick=()=>{paginaProductos=i;renderProductosPaginados();}; nums.appendChild(b);
+        }
+    }
+    function cambiarPaginaProductos(delta){
+        const paginas=Math.max(1,Math.ceil(filasProductosFiltradas.length/filasPorPaginaProductos));
+        const n=paginaProductos+delta; if(n<1||n>paginas)return; paginaProductos=n; renderProductosPaginados();
+    }
+    document.addEventListener('DOMContentLoaded',()=>{filasProductosFiltradas=Array.from(document.querySelectorAll('.fila-producto'));renderProductosPaginados();});
 
 
     function valorDataset(valor) {

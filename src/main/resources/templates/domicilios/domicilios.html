@@ -669,6 +669,14 @@
             }
         }
 
+
+        /* Vista compacta también en escritorio: el detalle completo está en “Ver”. */
+        .delivery-table th:nth-child(3), .delivery-table td:nth-child(3),
+        .delivery-table th:nth-child(4), .delivery-table td:nth-child(4),
+        .delivery-table th:nth-child(5), .delivery-table td:nth-child(5),
+        .delivery-table th:nth-child(6), .delivery-table td:nth-child(6),
+        .delivery-table th:nth-child(8), .delivery-table td:nth-child(8){display:none!important;}
+
     </style>
 
 </head>
@@ -735,7 +743,7 @@
                     </div>
 
                     <div class="delivery-table-wrap overflow-x-auto">
-                        <table class="delivery-table w-full min-w-[1180px] text-sm">
+                        <table class="delivery-table w-full min-w-[720px] text-sm">
                             <thead class="bg-pillone-dark text-white text-[10px] uppercase tracking-wider">
                             <tr>
                                 <th class="p-3 text-left">Factura</th>
@@ -825,7 +833,7 @@
                                     <div class="flex items-center justify-center gap-2 flex-wrap">
 
                                         <button type="button"
-                                                class="mobile-view-button delivery-action md:hidden px-3 py-2"
+                                                class="mobile-view-button delivery-action px-3 py-2"
                                                 th:attr="data-factura=${d.venta != null ? d.venta.numeroFactura : 'Venta'},
                                                      data-cliente=${d.cliente != null ? d.cliente.nombreCompleto : '-'},
                                                      data-telefono=${d.telefonoContacto != null ? d.telefonoContacto : '-'},

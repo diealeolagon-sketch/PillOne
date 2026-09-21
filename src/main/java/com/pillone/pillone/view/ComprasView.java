@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.pillone.pillone.service.InventarioStockService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -42,6 +43,9 @@ public class ComprasView {
 
     @Autowired
     private LotesRepository lotesRepository;
+
+    @Autowired
+    private InventarioStockService inventarioStockService;
 
     @GetMapping("/view/compras")
     public String lista(Model model) {
@@ -840,24 +844,22 @@ public class ComprasView {
             );
 
             lote.setEstado(
-                    "DISPONIBLE"
+                    inventarioStockService.estadoSegunVencimiento(
+                            lote.getFechaVencimiento()
+                    )
             );
 
-            lotesRepository.save(
-                    lote
-            );
+            lotesRepository.save(lote);
 
-            int stockActual =
-                    producto.getStockTotal() == null
-                            ?
-                            0
-                            :
-                            producto.getStockTotal();
+            // El stock del producto se deriva siempre de sus lotes vendibles.
+            inventarioStockService.sincronizarProducto(
+                    producto.getIdProducto()
+            );
 
             producto.setStockTotal(
-                    stockActual
-                            +
-                            unidadesRecibidas
+                    inventarioStockService.stockDisponible(
+                            producto.getIdProducto()
+                    )
             );
 
             productosRepository.save(

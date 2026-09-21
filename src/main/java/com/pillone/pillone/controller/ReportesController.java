@@ -1,5 +1,7 @@
 package com.pillone.pillone.controller;
 
+import com.pillone.pillone.service.InventarioStockService;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +20,14 @@ import java.util.*;
 public class ReportesController {
 
     private final JdbcTemplate jdbcTemplate;
+    private final InventarioStockService inventarioStockService;
 
-    public ReportesController(JdbcTemplate jdbcTemplate){
+    public ReportesController(
+            JdbcTemplate jdbcTemplate,
+            InventarioStockService inventarioStockService
+    ){
         this.jdbcTemplate=jdbcTemplate;
+        this.inventarioStockService=inventarioStockService;
     }
 
     @GetMapping
@@ -33,6 +40,8 @@ public class ReportesController {
             @DateTimeFormat(iso=DateTimeFormat.ISO.DATE)
             LocalDate hasta
     ){
+
+        inventarioStockService.sincronizarTodo();
 
         if(hasta==null){
             hasta=LocalDate.now();
@@ -96,118 +105,103 @@ public class ReportesController {
             LocalDate hasta
     ){
 
-        Map<String,Object> resumen=
-                new LinkedHashMap<>();
+        Map<String,Object> resumen=new LinkedHashMap<>();
 
-        Map<String,Object> fila=
-                jdbcTemplate.queryForMap("""
-                    SELECT
-                        COUNT(*) AS cantidadVentas,
-                        COALESCE(SUM(subtotal),0) AS subtotal,
-                        COALESCE(SUM(descuento),0) AS descuento,
-                        COALESCE(SUM(impuesto_iva),0) AS iva,
-                        COALESCE(SUM(total),0) AS total
-                    FROM ventas
-                    WHERE DATE(fecha_venta) BETWEEN ? AND ?
-                      AND estado='PAGADA'
-                """,desde,hasta);
+        Map<String,Object> fila=jdbcTemplate.queryForMap("""
+            SELECT
+                COUNT(*) AS cantidadVentas,
+                COALESCE(SUM(subtotal),0) AS subtotal,
+                COALESCE(SUM(descuento),0) AS descuento,
+                COALESCE(SUM(impuesto_iva),0) AS iva,
+                COALESCE(SUM(total),0) AS total
+            FROM ventas
+            WHERE DATE(fecha_venta) BETWEEN ? AND ?
+              AND estado='PAGADA'
+        """,desde,hasta);
 
-        int cantidadVentas=
-                numeroEntero(
-                        fila.get("cantidadVentas")
-                );
+        int cantidadVentas=numeroEntero(fila.get("cantidadVentas"));
+        BigDecimal subtotalBruto=numeroDecimal(fila.get("subtotal"));
+        BigDecimal descuento=numeroDecimal(fila.get("descuento"));
+        BigDecimal ivaBruto=numeroDecimal(fila.get("iva"));
+        BigDecimal totalBruto=numeroDecimal(fila.get("total"));
 
-        BigDecimal subtotal=
-                numeroDecimal(
-                        fila.get("subtotal")
-                );
+        Map<String,Object> dev=jdbcTemplate.queryForMap("""
+            SELECT
+                COALESCE(SUM(
+                    LEAST(d.cantidad_devuelta,det.cantidad_vendida)
+                    * (det.subtotal_producto/NULLIF(det.cantidad_vendida,0))
+                ),0) AS subtotalDevuelto,
+                COALESCE(SUM(
+                    LEAST(d.cantidad_devuelta,det.cantidad_vendida)
+                    * (det.iva_producto/NULLIF(det.cantidad_vendida,0))
+                ),0) AS ivaDevuelto,
+                COALESCE(SUM(
+                    LEAST(d.cantidad_devuelta,det.cantidad_vendida)
+                    * (det.total_producto/NULLIF(det.cantidad_vendida,0))
+                ),0) AS totalDevuelto
+            FROM (
+                SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
+                FROM devoluciones
+                WHERE tipo_devolucion='CLIENTE'
+                  AND DATE(fecha_devolucion) BETWEEN ? AND ?
+                GROUP BY id_venta,id_producto
+            ) d
+            INNER JOIN (
+                SELECT id_venta,id_producto,
+                       SUM(cantidad) AS cantidad_vendida,
+                       SUM(subtotal) AS subtotal_producto,
+                       SUM(
+                           CASE
+                               WHEN COALESCE(porcentaje_iva,0)>0 THEN
+                                   subtotal-(subtotal/(1+(porcentaje_iva/100)))
+                               ELSE 0
+                           END
+                       ) AS iva_producto,
+                       SUM(subtotal) AS total_producto
+                FROM detalles_ventas
+                GROUP BY id_venta,id_producto
+            ) det ON det.id_venta=d.id_venta
+                 AND det.id_producto=d.id_producto
+            INNER JOIN ventas v ON v.id_venta=d.id_venta
+            WHERE v.estado='PAGADA'
+        """,desde,hasta);
 
-        BigDecimal descuento=
-                numeroDecimal(
-                        fila.get("descuento")
-                );
+        BigDecimal subtotalDevuelto=numeroDecimal(dev.get("subtotalDevuelto"));
+        BigDecimal ivaDevuelto=numeroDecimal(dev.get("ivaDevuelto"));
+        BigDecimal totalDevuelto=numeroDecimal(dev.get("totalDevuelto"));
 
-        BigDecimal iva=
-                numeroDecimal(
-                        fila.get("iva")
-                );
+        BigDecimal subtotal=subtotalBruto.subtract(subtotalDevuelto).max(BigDecimal.ZERO);
+        BigDecimal iva=ivaBruto.subtract(ivaDevuelto).max(BigDecimal.ZERO);
+        BigDecimal total=totalBruto.subtract(totalDevuelto).max(BigDecimal.ZERO);
 
-        BigDecimal total=
-                numeroDecimal(
-                        fila.get("total")
-                );
-
-        BigDecimal ticketPromedio=
-                BigDecimal.ZERO;
-
+        BigDecimal ticketPromedio=BigDecimal.ZERO;
         if(cantidadVentas>0){
-
-            ticketPromedio=
-                    total.divide(
-                            BigDecimal.valueOf(
-                                    cantidadVentas
-                            ),
-                            2,
-                            RoundingMode.HALF_UP
-                    );
+            ticketPromedio=total.divide(
+                    BigDecimal.valueOf(cantidadVentas),
+                    2,
+                    RoundingMode.HALF_UP
+            );
         }
 
-        Integer ventasDomicilio=
-                consultarEntero("""
-                    SELECT COUNT(*)
-                    FROM ventas v
-                    INNER JOIN domicilios d
-                        ON d.id_venta=v.id_venta
-                    WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
-                      AND v.estado='PAGADA'
-                """,desde,hasta);
+        Integer ventasDomicilio=consultarEntero("""
+            SELECT COUNT(*)
+            FROM ventas v
+            INNER JOIN domicilios d ON d.id_venta=v.id_venta
+            WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
+              AND v.estado='PAGADA'
+        """,desde,hasta);
 
-        Integer ventasMostrador=
-                Math.max(
-                        0,
-                        cantidadVentas-
-                                ventasDomicilio
-                );
+        Integer ventasMostrador=Math.max(0,cantidadVentas-ventasDomicilio);
 
-        resumen.put(
-                "cantidadVentas",
-                cantidadVentas
-        );
-
-        resumen.put(
-                "subtotal",
-                subtotal
-        );
-
-        resumen.put(
-                "descuento",
-                descuento
-        );
-
-        resumen.put(
-                "iva",
-                iva
-        );
-
-        resumen.put(
-                "total",
-                total
-        );
-
-        resumen.put(
-                "ticketPromedio",
-                ticketPromedio
-        );
-
-        resumen.put(
-                "ventasDomicilio",
-                ventasDomicilio
-        );
-
-        resumen.put(
-                "ventasMostrador",
-                ventasMostrador
-        );
+        resumen.put("cantidadVentas",cantidadVentas);
+        resumen.put("subtotal",subtotal);
+        resumen.put("descuento",descuento);
+        resumen.put("iva",iva);
+        resumen.put("total",total);
+        resumen.put("totalDevoluciones",totalDevuelto);
+        resumen.put("ticketPromedio",ticketPromedio);
+        resumen.put("ventasDomicilio",ventasDomicilio);
+        resumen.put("ventasMostrador",ventasMostrador);
 
         return resumen;
     }
@@ -220,15 +214,41 @@ public class ReportesController {
         List<Map<String,Object>> consulta=
                 jdbcTemplate.queryForList("""
                     SELECT
-                        DATE(fecha_venta) AS fecha,
+                        DATE(v.fecha_venta) AS fecha,
                         COUNT(*) AS cantidad,
-                        COALESCE(SUM(total),0) AS total
-                    FROM ventas
-                    WHERE DATE(fecha_venta) BETWEEN ? AND ?
-                      AND estado='PAGADA'
-                    GROUP BY DATE(fecha_venta)
-                    ORDER BY DATE(fecha_venta)
-                """,desde,hasta);
+                        GREATEST(
+                            COALESCE(SUM(v.total),0)-COALESCE(SUM(dev.total_devuelto),0),
+                            0
+                        ) AS total
+                    FROM ventas v
+                    LEFT JOIN (
+                        SELECT d.id_venta,
+                               SUM(
+                                   LEAST(d.cantidad_devuelta,det.cantidad_vendida)
+                                   * (det.total_producto/NULLIF(det.cantidad_vendida,0))
+                               ) AS total_devuelto
+                        FROM (
+                            SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
+                            FROM devoluciones
+                            WHERE tipo_devolucion='CLIENTE'
+                              AND DATE(fecha_devolucion) BETWEEN ? AND ?
+                            GROUP BY id_venta,id_producto
+                        ) d
+                        INNER JOIN (
+                            SELECT id_venta,id_producto,
+                                   SUM(cantidad) AS cantidad_vendida,
+                                   SUM(subtotal) AS total_producto
+                            FROM detalles_ventas
+                            GROUP BY id_venta,id_producto
+                        ) det ON det.id_venta=d.id_venta
+                             AND det.id_producto=d.id_producto
+                        GROUP BY d.id_venta
+                    ) dev ON dev.id_venta=v.id_venta
+                    WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
+                      AND v.estado='PAGADA'
+                    GROUP BY DATE(v.fecha_venta)
+                    ORDER BY DATE(v.fecha_venta)
+                """,desde,hasta,desde,hasta);
 
         List<Map<String,Object>> resultado=
                 new ArrayList<>();
@@ -302,15 +322,41 @@ public class ReportesController {
 
         return jdbcTemplate.queryForList("""
             SELECT
-                metodo_pago AS metodo,
+                v.metodo_pago AS metodo,
                 COUNT(*) AS cantidad,
-                COALESCE(SUM(total),0) AS total
-            FROM ventas
-            WHERE DATE(fecha_venta) BETWEEN ? AND ?
-              AND estado='PAGADA'
-            GROUP BY metodo_pago
+                GREATEST(
+                    COALESCE(SUM(v.total),0)-COALESCE(SUM(dev.total_devuelto),0),
+                    0
+                ) AS total
+            FROM ventas v
+            LEFT JOIN (
+                SELECT d.id_venta,
+                       SUM(
+                           LEAST(d.cantidad_devuelta,det.cantidad_vendida)
+                           * (det.total_producto/NULLIF(det.cantidad_vendida,0))
+                       ) AS total_devuelto
+                FROM (
+                    SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
+                    FROM devoluciones
+                    WHERE tipo_devolucion='CLIENTE'
+                      AND DATE(fecha_devolucion) BETWEEN ? AND ?
+                    GROUP BY id_venta,id_producto
+                ) d
+                INNER JOIN (
+                    SELECT id_venta,id_producto,
+                           SUM(cantidad) AS cantidad_vendida,
+                           SUM(subtotal) AS total_producto
+                    FROM detalles_ventas
+                    GROUP BY id_venta,id_producto
+                ) det ON det.id_venta=d.id_venta
+                     AND det.id_producto=d.id_producto
+                GROUP BY d.id_venta
+            ) dev ON dev.id_venta=v.id_venta
+            WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
+              AND v.estado='PAGADA'
+            GROUP BY v.metodo_pago
             ORDER BY total DESC
-        """,desde,hasta);
+        """,desde,hasta,desde,hasta);
     }
 
     private List<Map<String,Object>> obtenerProductosMasVendidos(
@@ -323,25 +369,43 @@ public class ReportesController {
                 p.id_producto AS idProducto,
                 p.codigo_interno AS codigo,
                 p.nombre_comercial AS producto,
-                COALESCE(SUM(dv.cantidad),0) AS presentacionesVendidas,
-                COALESCE(SUM(dv.unidades_descontadas),0) AS unidadesVendidas,
-                COALESCE(SUM(dv.subtotal),0) AS totalVendido
+                GREATEST(
+                    COALESCE(SUM(dv.cantidad),0)-COALESCE(MAX(dev.cantidad_devuelta),0),
+                    0
+                ) AS presentacionesVendidas,
+                GREATEST(
+                    COALESCE(SUM(dv.unidades_descontadas),0)
+                    - COALESCE(MAX(dev.cantidad_devuelta),0)
+                      * (COALESCE(SUM(dv.unidades_descontadas),0)/NULLIF(COALESCE(SUM(dv.cantidad),0),0)),
+                    0
+                ) AS unidadesVendidas,
+                GREATEST(
+                    COALESCE(SUM(dv.subtotal),0)
+                    - COALESCE(MAX(dev.cantidad_devuelta),0)
+                      * (COALESCE(SUM(dv.subtotal),0)/NULLIF(COALESCE(SUM(dv.cantidad),0),0)),
+                    0
+                ) AS totalVendido
             FROM detalles_ventas dv
-            INNER JOIN ventas v
-                ON v.id_venta=dv.id_venta
-            INNER JOIN productos p
-                ON p.id_producto=dv.id_producto
+            INNER JOIN ventas v ON v.id_venta=dv.id_venta
+            INNER JOIN productos p ON p.id_producto=dv.id_producto
+            LEFT JOIN (
+                SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
+                FROM devoluciones
+                WHERE tipo_devolucion='CLIENTE'
+                  AND DATE(fecha_devolucion) BETWEEN ? AND ?
+                GROUP BY id_venta,id_producto
+            ) dev ON dev.id_venta=dv.id_venta
+                 AND dev.id_producto=dv.id_producto
             WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
               AND v.estado='PAGADA'
             GROUP BY
                 p.id_producto,
                 p.codigo_interno,
                 p.nombre_comercial
-            ORDER BY
-                unidadesVendidas DESC,
-                totalVendido DESC
+            HAVING presentacionesVendidas>0
+            ORDER BY unidadesVendidas DESC,totalVendido DESC
             LIMIT 10
-        """,desde,hasta);
+        """,desde,hasta,desde,hasta);
     }
 
     private Map<String,Object> obtenerDomicilios(

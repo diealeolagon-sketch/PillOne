@@ -174,6 +174,11 @@
             .page-controls{justify-content:center;}
             #paginacion-info{text-align:center;}
         }
+
+        .sales-eye-button{width:2.35rem;height:2.35rem;display:inline-flex;align-items:center;justify-content:center;border-radius:.7rem;border:1px solid #E7E9F0;background:#F8FAFC;color:#208AAE;transition:background .15s ease,transform .15s ease}.sales-eye-button:hover{background:#EEF7FB;transform:translateY(-1px)}
+        .sales-detail-sheet{width:100%;max-width:38rem;max-height:calc(100dvh - 2rem);display:flex;flex-direction:column;overflow:hidden}.sales-detail-body{overflow:auto;min-height:0;-webkit-overflow-scrolling:touch}.sales-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}.sales-detail-item{padding:.8rem;border:1px solid #E7E9F0;border-radius:.85rem;background:#FAFBFE}.sales-detail-item span:first-child{display:block;font-size:.61rem;font-weight:700;text-transform:uppercase;color:#98A2B3;margin-bottom:.2rem}.sales-detail-item strong{font-size:.77rem;color:#07004D;word-break:break-word}
+        @media(max-width:767px){#modal-detalle-venta{align-items:flex-end!important;padding:0!important}.sales-detail-sheet{max-width:none;max-height:94dvh;border-radius:1.25rem 1.25rem 0 0!important}.sales-detail-grid{grid-template-columns:1fr}.sales-table .fila-venta td:nth-child(2){display:none!important}.sales-table .fila-venta td:last-child{border-top:1px solid #F0F1F5;justify-content:flex-end}.sales-pagination{position:static!important;bottom:auto!important}}
+
     </style>
 
 </head>
@@ -270,47 +275,12 @@
                         <thead>
 
                         <tr class="bg-pillone-dark text-white uppercase text-[10px] tracking-wider">
-
-                            <th class="px-4 py-3">
-                                Factura
-                            </th>
-
-                            <th class="px-4 py-3">
-                                Fecha
-                            </th>
-
-                            <th class="px-4 py-3">
-                                Cliente
-                            </th>
-
-                            <th class="px-4 py-3">
-                                Empleado
-                            </th>
-
-                            <th class="px-4 py-3">
-                                Sucursal
-                            </th>
-
-                            <th class="px-4 py-3">
-                                Total
-                            </th>
-
-                            <th class="px-4 py-3">
-                                Método
-                            </th>
-
-                            <th class="px-4 py-3">
-                                Tipo
-                            </th>
-
-                            <th class="px-4 py-3">
-                                Entrega
-                            </th>
-
-                            <th class="px-4 py-3">
-                                Estado venta
-                            </th>
-
+                            <th class="px-4 py-3">Factura</th>
+                            <th class="px-4 py-3">Fecha</th>
+                            <th class="px-4 py-3">Cliente</th>
+                            <th class="px-4 py-3">Total</th>
+                            <th class="px-4 py-3">Estado</th>
+                            <th class="px-4 py-3 text-center">Ver</th>
                         </tr>
 
                         </thead>
@@ -319,7 +289,7 @@
                                class="divide-y divide-slate-100">
 
                         <tr>
-                            <td colspan="10"
+                            <td colspan="6"
                                 class="text-center py-10 text-slate-400">
                                 Cargando ventas...
                             </td>
@@ -356,13 +326,24 @@
 
 </div>
 
+
+<div id="modal-detalle-venta" class="fixed inset-0 z-[140] hidden items-center justify-center bg-slate-950/60 backdrop-blur-[2px] p-4">
+    <div class="sales-detail-sheet bg-white rounded-2xl shadow-2xl">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between gap-4">
+            <div><p class="text-[10px] uppercase tracking-[.18em] font-bold text-pillone-accent">Detalle de venta</p><h2 id="vd-factura" class="text-lg font-bold text-pillone-dark mt-1">Venta</h2></div>
+            <button type="button" onclick="cerrarDetalleVenta()" class="p-2 rounded-lg hover:bg-slate-100" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="sales-detail-body p-4 sm:p-5"><div id="vd-grid" class="sales-detail-grid"></div></div>
+        <div class="p-4 border-t border-slate-100"><button type="button" onclick="cerrarDetalleVenta()" class="w-full px-4 py-2.5 rounded-xl bg-pillone-dark text-white font-bold">Cerrar</button></div>
+    </div>
+</div>
 <script>
     let ventas=[];
     let domicilios=[];
     let domiciliosPorVenta=new Map();
     let ventasFiltradas=[];
     let paginaActual=1;
-    let filasPorPagina=window.innerWidth<768?5:10;
+    let filasPorPagina=6;
 
     document.addEventListener("DOMContentLoaded",()=>{
         cargarDatos();
@@ -374,7 +355,7 @@
 
         tabla.innerHTML=`
             <tr>
-                <td colspan="10" class="text-center py-10 text-slate-400">
+                <td colspan="6" class="text-center py-10 text-slate-400">
                     Cargando ventas...
                 </td>
             </tr>
@@ -417,7 +398,7 @@
 
             tabla.innerHTML=`
                 <tr>
-                    <td colspan="10"
+                    <td colspan="6"
                         class="text-center py-10 text-red-500">
                         No fue posible cargar las ventas.
                     </td>
@@ -465,122 +446,56 @@
     }
 
     function renderVentas(lista){
-
-        const tabla=
-            document.getElementById(
-                "tabla-ventas"
-            );
-
-        const contador=
-            document.getElementById(
-                "contador"
-            );
-
-        contador.textContent=
-            lista.length;
-
+        const tabla=document.getElementById("tabla-ventas");
+        const contador=document.getElementById("contador");
+        contador.textContent=lista.length;
         tabla.innerHTML="";
 
         if(lista.length===0){
-
-            tabla.innerHTML=`
-                <tr>
-                    <td colspan="10"
-                        class="text-center py-10 text-slate-400">
-                        No hay ventas registradas.
-                    </td>
-                </tr>
-            `;
-
+            tabla.innerHTML=`<tr><td colspan="6" class="text-center py-10 text-slate-400">No hay ventas registradas.</td></tr>`;
             return;
         }
 
         lista.forEach(venta=>{
+            const domicilio=obtenerDomicilio(venta);
+            const cliente=venta.cliente?.nombreCompleto || venta.cliente?.nombre_completo || "Sin cliente";
+            const empleado=venta.empleado?.nombre_completo || venta.empleado?.nombreCompleto || "-";
+            const sucursal=venta.sucursal?.nombre || "-";
+            const fecha=formatearFecha(venta.fechaVenta);
+            const total=formatearDinero(venta.total);
 
-            const domicilio=
-                obtenerDomicilio(venta);
+            const detalle={
+                factura:venta.numeroFactura || '-',
+                fecha,
+                cliente,
+                empleado,
+                sucursal,
+                total,
+                metodo:venta.metodoPago || '-',
+                tipo:domicilio ? 'Domicilio' : 'Mostrador',
+                entrega:domicilio ? (domicilio.estado || 'PENDIENTE') : 'No aplica',
+                estado:venta.estado || '-',
+                direccion:domicilio?.direccionEntrega || '-',
+                telefono:domicilio?.telefonoContacto || '-',
+                domiciliario:domicilio?.nombreDomiciliario || '-',
+                pagado:domicilio ? (domicilio.pagado ? 'Sí' : 'No') : 'No aplica'
+            };
 
-            const cliente=
-                venta.cliente?.nombreCompleto ||
-                venta.cliente?.nombre_completo ||
-                "Sin cliente";
-
-            const empleado=
-                venta.empleado?.nombre_completo ||
-                venta.empleado?.nombreCompleto ||
-                "-";
-
-            const sucursal=
-                venta.sucursal?.nombre ||
-                "-";
-
-            const fecha=
-                formatearFecha(
-                    venta.fechaVenta
-                );
-
-            const total=
-                formatearDinero(
-                    venta.total
-                );
-
-            const fila=
-                document.createElement(
-                    "tr"
-                );
-
-            fila.className=
-                "fila-venta";
-
+            const fila=document.createElement("tr");
+            fila.className="fila-venta";
             fila.innerHTML=`
-
-                <td class="px-4 py-3 font-bold text-pillone-accent whitespace-nowrap" data-label="Factura">
-                    ${venta.numeroFactura || "-"}
-                </td>
-
-                <td class="px-4 py-3 whitespace-nowrap" data-label="Fecha">
-                    ${fecha}
-                </td>
-
-                <td class="px-4 py-3 font-medium" data-label="Cliente">
-                    ${cliente}
-                </td>
-
-                <td class="px-4 py-3">
-                    ${empleado}
-                </td>
-
-                <td class="px-4 py-3">
-                    ${sucursal}
-                </td>
-
-                <td class="px-4 py-3 font-bold whitespace-nowrap" data-label="Total">
-                    ${total}
-                </td>
-
-                <td class="px-4 py-3">
-                    ${venta.metodoPago || "-"}
-                </td>
-
-                <td class="px-4 py-3">
-                    ${crearBadgeTipo(domicilio)}
-                </td>
-
-                <td class="px-4 py-3">
-                    ${crearEstadoEntrega(domicilio)}
-                </td>
-
-                <td class="px-4 py-3">
-                    <span class="px-2 py-1 rounded-lg bg-slate-100 font-semibold whitespace-nowrap">
-                        ${venta.estado || "-"}
-                    </span>
-                </td>
-            `;
-
-            tabla.appendChild(
-                fila
-            );
-
+                <td class="px-4 py-3 font-bold text-pillone-accent whitespace-nowrap" data-label="Factura">${detalle.factura}</td>
+                <td class="px-4 py-3 whitespace-nowrap" data-label="Fecha">${fecha}</td>
+                <td class="px-4 py-3 font-medium" data-label="Cliente">${cliente}</td>
+                <td class="px-4 py-3 font-bold whitespace-nowrap" data-label="Total">${total}</td>
+                <td class="px-4 py-3" data-label="Estado"><span class="px-2 py-1 rounded-lg bg-slate-100 font-semibold whitespace-nowrap">${detalle.estado}</span></td>
+                <td class="px-4 py-3 text-center" data-label="Ver">
+                    <button type="button" class="sales-eye-button" title="Ver detalle" aria-label="Ver detalle">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                    </button>
+                </td>`;
+            fila.querySelector('.sales-eye-button').addEventListener('click',()=>abrirDetalleVenta(detalle));
+            tabla.appendChild(fila);
         });
     }
 
@@ -691,6 +606,31 @@
                 Pendiente
             </span>
         `;
+    }
+
+    function abrirDetalleVenta(d){
+        document.getElementById('vd-factura').textContent=d.factura||'Venta';
+        const datos=[
+            ['Fecha',d.fecha],['Cliente',d.cliente],['Empleado',d.empleado],['Sucursal',d.sucursal],
+            ['Total',d.total],['Método de pago',d.metodo],['Tipo',d.tipo],['Estado entrega',d.entrega],
+            ['Estado venta',d.estado],['Dirección',d.direccion],['Teléfono',d.telefono],
+            ['Domiciliario',d.domiciliario],['Domicilio pagado',d.pagado]
+        ];
+        const grid=document.getElementById('vd-grid');
+        grid.innerHTML='';
+        datos.forEach(([label,value])=>{
+            const item=document.createElement('div'); item.className='sales-detail-item';
+            const l=document.createElement('span'); l.textContent=label;
+            const v=document.createElement('strong'); v.textContent=value||'-';
+            item.append(l,v); grid.appendChild(item);
+        });
+        const modal=document.getElementById('modal-detalle-venta');
+        modal.classList.remove('hidden'); modal.classList.add('flex');
+    }
+
+    function cerrarDetalleVenta(){
+        const modal=document.getElementById('modal-detalle-venta');
+        modal.classList.add('hidden'); modal.classList.remove('flex');
     }
 
     function filtrarTabla(){
@@ -827,13 +767,15 @@
     }
 
     window.addEventListener("resize",()=>{
-        const nuevo=window.innerWidth<768?5:10;
+        const nuevo=6;
         if(nuevo!==filasPorPagina){
             filasPorPagina=nuevo;
             paginaActual=1;
             renderVentasPaginadas();
         }
     });
+
+    document.addEventListener('click',e=>{if(e.target && e.target.id==='modal-detalle-venta') cerrarDetalleVenta();});
 
     function formatearFecha(fecha){
 

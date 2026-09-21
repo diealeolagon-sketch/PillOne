@@ -3,6 +3,7 @@ package com.pillone.pillone.controller;
 import com.pillone.pillone.model.Productos;
 import com.pillone.pillone.repository.LotesRepository;
 import com.pillone.pillone.repository.ProductosRepository;
+import com.pillone.pillone.service.InventarioStockService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,17 +17,22 @@ public class ProductosController {
 
     private final ProductosRepository productosRepository;
     private final LotesRepository lotesRepository;
+    private final InventarioStockService inventarioStockService;
 
     public ProductosController(
             ProductosRepository productosRepository,
-            LotesRepository lotesRepository
+            LotesRepository lotesRepository,
+            InventarioStockService inventarioStockService
     ){
         this.productosRepository=productosRepository;
         this.lotesRepository=lotesRepository;
+        this.inventarioStockService=inventarioStockService;
     }
 
     @GetMapping
     public List<Productos> listar(){
+
+        inventarioStockService.sincronizarTodo();
 
         List<Productos> productos=
                 productosRepository.findAll();
@@ -42,6 +48,8 @@ public class ProductosController {
     public ResponseEntity<Productos> obtener(
             @PathVariable Long id
     ){
+        inventarioStockService.sincronizarProducto(id);
+
         Productos producto=
                 productosRepository
                         .findById(id)

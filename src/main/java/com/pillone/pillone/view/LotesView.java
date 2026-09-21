@@ -4,6 +4,7 @@ import com.pillone.pillone.model.Lotes;
 import com.pillone.pillone.model.Productos;
 import com.pillone.pillone.repository.LotesRepository;
 import com.pillone.pillone.repository.ProductosRepository;
+import com.pillone.pillone.service.InventarioStockService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -22,15 +23,18 @@ public class LotesView {
     private final LotesRepository lotesRepository;
     private final ProductosRepository productosRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final InventarioStockService inventarioStockService;
 
     public LotesView(
             LotesRepository lotesRepository,
             ProductosRepository productosRepository,
-            JdbcTemplate jdbcTemplate
+            JdbcTemplate jdbcTemplate,
+            InventarioStockService inventarioStockService
     ){
         this.lotesRepository=lotesRepository;
         this.productosRepository=productosRepository;
         this.jdbcTemplate=jdbcTemplate;
+        this.inventarioStockService=inventarioStockService;
     }
 
     @GetMapping("/view/lotes")
@@ -39,7 +43,7 @@ public class LotesView {
             @RequestParam(required=false) Long loteId,
             Model model
     ){
-        actualizarEstadosYSincronizarStock();
+        inventarioStockService.sincronizarTodo();
 
         List<Productos> productos=productosRepository.findAll();
 
@@ -261,27 +265,9 @@ public class LotesView {
             );
         }
 
-        if(lote.getFechaVencimiento()!=null &&
-                lote.getFechaVencimiento().isBefore(LocalDate.now())){
-
-            lote.setEstado("VENCIDO");
-
-            lotesRepository.save(lote);
-
-            sincronizarStockProducto(
-                    lote.getIdProducto()
-            );
-
-            ra.addFlashAttribute(
-                    "error",
-                    "El lote ya está vencido. No es necesario retirarlo."
-            );
-
-            return construirRedireccion(
-                    productoIdActual
-            );
-        }
-
+        // Retirar es una acción operativa, incluso si el lote ya venció.
+        // Se conserva el registro por trazabilidad, pero deja de generar alertas
+        // y nunca vuelve a participar en el stock vendible.
         lote.setEstado("RETIRADO");
 
         lotesRepository.save(lote);
@@ -416,16 +402,17 @@ public class LotesView {
 
         if(ventas>0 || movimientos>0){
 
-            lote.setEstado("VENCIDO");
-
+            // En farmacia no se debe borrar un lote con trazabilidad.
+            // Se retira operativamente: conserva historial, desaparece de alertas
+            // y queda excluido del stock/FEFO.
+            lote.setEstado("RETIRADO");
             lotesRepository.save(lote);
+            sincronizarStockProducto(idProducto);
 
             ra.addFlashAttribute(
-                    "error",
-                    "Este lote no se puede eliminar porque tiene historial asociado. "+
-                            "Ventas relacionadas: "+ventas+
-                            ". Movimientos de inventario: "+movimientos+
-                            ". Se conservará como VENCIDO."
+                    "mensaje",
+                    "El lote tiene historial y no puede borrarse definitivamente. "+
+                            "Se retiró del inventario activo y de las alertas."
             );
 
             return construirRedireccion(
@@ -453,10 +440,25 @@ public class LotesView {
 
         }catch(Exception e){
 
-            ra.addFlashAttribute(
-                    "error",
-                    "No fue posible eliminar el lote porque existen registros relacionados con él."
-            );
+            // Si existe una relación no detectada, no destruimos trazabilidad.
+            // Lo retiramos de forma segura para que no siga generando alertas.
+            Lotes existente=lotesRepository.findById(id).orElse(null);
+            if(existente!=null){
+                existente.setEstado("RETIRADO");
+                lotesRepository.save(existente);
+                sincronizarStockProducto(idProducto);
+
+                ra.addFlashAttribute(
+                        "mensaje",
+                        "El lote no pudo borrarse por su historial, pero fue retirado del inventario activo y de las alertas."
+                );
+            }else{
+                sincronizarStockProducto(idProducto);
+                ra.addFlashAttribute(
+                        "mensaje",
+                        "Lote eliminado correctamente."
+                );
+            }
 
             return construirRedireccion(
                     productoIdActual
@@ -598,98 +600,11 @@ public class LotesView {
     }
 
     private void actualizarEstadosYSincronizarStock(){
-        List<Lotes> lotes=
-                lotesRepository.findAll();
-
-        Set<Long> productosAfectados=
-                new HashSet<>();
-
-        for(Lotes lote:lotes){
-
-            productosAfectados.add(
-                    lote.getIdProducto()
-            );
-
-            if("DEVUELTO".equalsIgnoreCase(
-                    lote.getEstado()
-            )){
-                continue;
-            }
-
-            if("RETIRADO".equalsIgnoreCase(
-                    lote.getEstado()
-            )){
-
-                if(lote.getFechaVencimiento()!=null &&
-                        lote.getFechaVencimiento().isBefore(
-                                LocalDate.now()
-                        )){
-
-                    lote.setEstado(
-                            "VENCIDO"
-                    );
-
-                    lotesRepository.save(
-                            lote
-                    );
-                }
-
-                continue;
-            }
-
-            String nuevoEstado=
-                    calcularEstado(
-                            lote.getFechaVencimiento()
-                    );
-
-            if(lote.getEstado()==null ||
-                    !nuevoEstado.equalsIgnoreCase(
-                            lote.getEstado()
-                    )){
-
-                lote.setEstado(
-                        nuevoEstado
-                );
-
-                lotesRepository.save(
-                        lote
-                );
-            }
-        }
-
-        productosAfectados.forEach(
-                this::sincronizarStockProducto
-        );
+        inventarioStockService.sincronizarTodo();
     }
 
-    private void sincronizarStockProducto(
-            Long idProducto
-    ){
-        Productos producto=
-                productosRepository
-                        .findById(idProducto)
-                        .orElse(null);
-
-        if(producto==null){
-            return;
-        }
-
-        Integer stock=
-                lotesRepository
-                        .sumarStockDisponible(
-                                idProducto,
-                                LocalDate.now()
-                        );
-
-        producto.setStockTotal(
-                stock==null
-                        ? 0
-                        : stock
-        );
-
-        productosRepository.save(
-                producto
-        );
+    private void sincronizarStockProducto(Long idProducto){
+        inventarioStockService.sincronizarProducto(idProducto);
     }
 
     public static class LoteFila {
