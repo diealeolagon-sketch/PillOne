@@ -978,7 +978,9 @@
                      data-producto=${dv.nombre_comercial},
                      data-codigo=${dv.codigo_interno},
                      data-lote=${dv.numero_lote},
-                     data-disponible=${dv.cantidad_disponible_devolver}"
+                     data-disponible=${dv.cantidad_disponible_devolver},
+                     data-tipo-venta=${dv.tipo_venta},
+                     data-cantidad-presentacion=${dv.cantidad_presentacion}"
             th:text="${dv.nombre_comercial + ' · Lote ' + dv.numero_lote + ' · Disponible: ' + dv.cantidad_disponible_devolver}">
     </option>
 </select>
@@ -1670,6 +1672,8 @@
                 copia.dataset.codigo=o.dataset.codigo||'';
                 copia.dataset.lote=o.dataset.lote||'';
                 copia.dataset.disponible=o.dataset.disponible||'0';
+                copia.dataset.tipoVenta=o.dataset.tipoVenta||'UNIDAD';
+                copia.dataset.cantidadPresentacion=o.dataset.cantidadPresentacion||'1';
                 select.appendChild(copia);
             });
         }
@@ -1709,12 +1713,14 @@
         const disponible=Number(opcion.dataset.disponible||0);
 
         cantidad.max=disponible;
-        cantidad.value=disponible>0?1:'';
+        cantidad.value=disponible>0?disponible:'';
+        cantidad.readOnly=true;
 
         info.textContent=
             'Código: '+(opcion.dataset.codigo||'-')+
             ' · Lote: '+(opcion.dataset.lote||'-')+
-            ' · Máximo disponible para devolver: '+disponible;
+            ' · Venta: '+(opcion.dataset.cantidadPresentacion||'1')+' '+(opcion.dataset.tipoVenta||'UNIDAD')+
+            ' · Cantidad exacta a devolver: '+disponible+' unidad(es)';
     }
 
     function abrirModalDetalleDomicilio(btn){

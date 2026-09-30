@@ -229,6 +229,11 @@ public class AuthController {
                 empleado.getNombre_completo()
         );
 
+        if(empleado.getSucursal()!=null){
+            session.setAttribute("idSucursal", empleado.getSucursal().getIdSucursal());
+            session.setAttribute("nombreSucursal", empleado.getSucursal().getNombre());
+        }
+
         session.setAttribute(
                 "correoEmpleado",
                 empleado.getCorreo()

@@ -73,6 +73,15 @@ public class Ventas {
     @Column(name = "metodo_pago")
     private String metodoPago = "EFECTIVO";
 
+    @Column(name = "metodo_pago_2", length = 30)
+    private String metodoPago2;
+
+    @Column(name = "monto_pago_1", precision = 12, scale = 2)
+    private BigDecimal montoPago1;
+
+    @Column(name = "monto_pago_2", precision = 12, scale = 2)
+    private BigDecimal montoPago2;
+
     @Column(name = "estado")
     private String estado = "PAGADA";
 }

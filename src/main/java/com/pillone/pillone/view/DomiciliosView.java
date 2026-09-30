@@ -2,6 +2,8 @@ package com.pillone.pillone.view;
 
 import com.pillone.pillone.model.Domicilios;
 import com.pillone.pillone.repository.DomiciliosRepository;
+import com.pillone.pillone.repository.VentasRepository;
+import com.pillone.pillone.model.Ventas;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,16 +23,18 @@ import java.util.UUID;
 public class DomiciliosView {
     private final DomiciliosRepository repo;
     private final JdbcTemplate jdbc;
+    private final VentasRepository ventasRepository;
 
-    public DomiciliosView(DomiciliosRepository repo,JdbcTemplate jdbc){
-        this.repo=repo;
-        this.jdbc=jdbc;
+    public DomiciliosView(DomiciliosRepository repo,JdbcTemplate jdbc,VentasRepository ventasRepository){
+        this.repo=repo; this.jdbc=jdbc; this.ventasRepository=ventasRepository;
     }
 
     @GetMapping
     @Transactional(readOnly=true)
     public String lista(Model model){
-        model.addAttribute("domicilios",repo.findAllByOrderByIdDomicilioDesc());
+        model.addAttribute("domicilios",repo.findAllByOrderByIdDomicilioDesc().stream()
+                .filter(d -> d.getEstado()==null || !"CANCELADO".equalsIgnoreCase(d.getEstado()))
+                .toList());
 
         /*
          * Una devolución parcial no debe cerrar el domicilio: todavía puede
@@ -50,6 +54,7 @@ public class DomiciliosView {
         model.addAttribute("detallesVentas",jdbc.queryForList("""
             SELECT dv.id_detalle_venta,dv.id_venta,dv.id_producto,dv.id_lote,
                    p.nombre_comercial,p.codigo_interno,l.numero_lote,
+                   dv.tipo_venta,dv.cantidad AS cantidad_presentacion,
                    dv.unidades_descontadas AS cantidad_vendida,
                    GREATEST(
                        dv.unidades_descontadas-COALESCE((
@@ -167,6 +172,13 @@ public class DomiciliosView {
 
         d.setFechaHoraEntrega(LocalDateTime.now());
         repo.save(d);
+        if(d.getVenta()!=null){
+            Ventas v=d.getVenta();
+            if(!"DEVUELTA".equalsIgnoreCase(v.getEstado()) && !"ANULADA".equalsIgnoreCase(v.getEstado())){
+                v.setEstado(pago?"PAGADA":"DEUDA");
+                ventasRepository.save(v);
+            }
+        }
 
         ra.addFlashAttribute("mensaje","Entrega confirmada correctamente con evidencia.");
         return "redirect:/view/domicilios";

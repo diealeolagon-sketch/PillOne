@@ -40,7 +40,7 @@ public class VentasController {
 
     @GetMapping
     public List<Ventas> listar(){
-        return ventasRepository.findAll();
+        return ventasRepository.findAllByOrderByFechaVentaDescIdVentaDesc();
     }
 
     @GetMapping("/{id}")
@@ -97,9 +97,6 @@ public class VentasController {
 
         validarRequest(request);
 
-        Sucursales sucursal=sucursalesRepository.findById(request.getIdSucursal())
-                .orElseThrow(()->new RuntimeException("Sucursal no encontrada"));
-
         Object idUsuarioSesion=session.getAttribute("idUsuario");
         if(!(idUsuarioSesion instanceof Number)){
             throw new RuntimeException("La sesión no tiene un usuario válido");
@@ -108,6 +105,13 @@ public class VentasController {
                 .orElseThrow(()->new RuntimeException("Usuario autenticado no encontrado"));
         Empleados empleado=empleadosRepository.findById(usuario.getIdEmpleado())
                 .orElseThrow(()->new RuntimeException("Empleado asociado al usuario no encontrado"));
+        if(empleado.getSucursal()==null || empleado.getSucursal().getIdSucursal()==null){
+            throw new RuntimeException("El empleado no tiene una sucursal asignada");
+        }
+        Sucursales sucursal=empleado.getSucursal();
+        if(!"ACTIVA".equalsIgnoreCase(sucursal.getEstado())){
+            throw new RuntimeException("La sucursal asignada al usuario está inactiva");
+        }
 
         Clientes cliente=null;
 
@@ -275,7 +279,16 @@ public class VentasController {
         venta.setImpuestoIva(impuestoIva);
         venta.setTotal(total);
         venta.setMetodoPago(metodoPago);
-        venta.setEstado("PAGADA");
+        if("PAGO_MIXTO".equals(metodoPago)){
+            validarPagoMixto(request,total);
+            venta.setMetodoPago2(normalizarMetodoPagoSecundario(request.getMetodoPago2()));
+            venta.setMontoPago1(request.getMontoPago1().setScale(2,RoundingMode.HALF_UP));
+            venta.setMontoPago2(request.getMontoPago2().setScale(2,RoundingMode.HALF_UP));
+        }
+        String estadoVenta=request.getEstado()==null?"PAGADA":request.getEstado().trim().toUpperCase();
+        if(!Set.of("PAGADA","DEUDA").contains(estadoVenta)) throw new RuntimeException("Estado de venta no válido");
+        if("DEUDA".equals(estadoVenta) && cliente==null) throw new RuntimeException("Una venta a deuda requiere un cliente registrado");
+        venta.setEstado(estadoVenta);
 
         venta=ventasRepository.save(venta);
 
@@ -331,10 +344,6 @@ public class VentasController {
             throw new RuntimeException("Solicitud de venta vacía");
         }
 
-        if(request.getIdSucursal()==null){
-            throw new RuntimeException("Debe seleccionar una sucursal");
-        }
-
         if(request.getItems()==null||request.getItems().isEmpty()){
             throw new RuntimeException("Debe agregar al menos un producto");
         }
@@ -351,6 +360,30 @@ public class VentasController {
         }
 
         return valor;
+    }
+
+    private String normalizarMetodoPagoSecundario(String metodo){
+        String v=metodo==null?"":metodo.trim().toUpperCase();
+        if(v.isBlank() || "PAGO_MIXTO".equals(v) || !METODOS_PAGO.contains(v)) throw new RuntimeException("Selecciona una segunda forma de pago válida");
+        return v;
+    }
+
+    private void validarPagoMixto(VentaRequest r, BigDecimal total){
+        if(r.getMontoPago1()==null || r.getMontoPago2()==null) throw new RuntimeException("Ingresa los dos valores del pago mixto");
+        if(r.getMontoPago1().signum()<0 || r.getMontoPago2().signum()<0) throw new RuntimeException("Los valores del pago mixto no pueden ser negativos");
+        if(r.getMontoPago1().add(r.getMontoPago2()).setScale(2,RoundingMode.HALF_UP).compareTo(total.setScale(2,RoundingMode.HALF_UP))!=0)
+            throw new RuntimeException("La suma del pago mixto debe ser igual al total de la venta");
+    }
+
+    @PutMapping("/{id}/estado")
+    @Transactional
+    public ResponseEntity<?> cambiarEstadoVenta(@PathVariable Long id,@RequestParam String estado){
+        String e=estado==null?"":estado.trim().toUpperCase();
+        if(!Set.of("PAGADA","DEUDA").contains(e)) return ResponseEntity.badRequest().body(Map.of("error","Estado no permitido"));
+        Ventas v=ventasRepository.findById(id).orElse(null);
+        if(v==null) return ResponseEntity.notFound().build();
+        if("DEVUELTA".equalsIgnoreCase(v.getEstado())||"ANULADA".equalsIgnoreCase(v.getEstado())) return ResponseEntity.badRequest().body(Map.of("error","No se puede cambiar el estado de una venta cerrada"));
+        v.setEstado(e); ventasRepository.save(v); return ResponseEntity.ok(Map.of("mensaje","Estado actualizado","estado",e));
     }
 
     private String normalizarTipo(String tipoVenta){
@@ -641,6 +674,10 @@ public class VentasController {
         private BigDecimal descuento;
         private Boolean aplicaIva=true;
         private String metodoPago;
+        private String metodoPago2;
+        private BigDecimal montoPago1;
+        private BigDecimal montoPago2;
+        private String estado="PAGADA";
         private Boolean esDomicilio=false;
         private String direccionEntrega;
         private String telefonoContacto;
@@ -659,6 +696,10 @@ public class VentasController {
         public void setAplicaIva(Boolean aplicaIva){this.aplicaIva=aplicaIva;}
         public String getMetodoPago(){return metodoPago;}
         public void setMetodoPago(String metodoPago){this.metodoPago=metodoPago;}
+        public String getMetodoPago2(){return metodoPago2;} public void setMetodoPago2(String v){this.metodoPago2=v;}
+        public BigDecimal getMontoPago1(){return montoPago1;} public void setMontoPago1(BigDecimal v){this.montoPago1=v;}
+        public BigDecimal getMontoPago2(){return montoPago2;} public void setMontoPago2(BigDecimal v){this.montoPago2=v;}
+        public String getEstado(){return estado;} public void setEstado(String v){this.estado=v;}
         public Boolean getEsDomicilio(){return esDomicilio;}
         public void setEsDomicilio(Boolean esDomicilio){this.esDomicilio=esDomicilio;}
         public String getDireccionEntrega(){return direccionEntrega;}

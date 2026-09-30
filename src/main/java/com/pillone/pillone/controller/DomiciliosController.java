@@ -2,6 +2,8 @@ package com.pillone.pillone.controller;
 
 import com.pillone.pillone.model.Domicilios;
 import com.pillone.pillone.repository.DomiciliosRepository;
+import com.pillone.pillone.repository.VentasRepository;
+import com.pillone.pillone.model.Ventas;
 import jakarta.transaction.Transactional;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import java.util.*;
 public class DomiciliosController {
 
     private final DomiciliosRepository domiciliosRepository;
+    private final VentasRepository ventasRepository;
 
     private final Path uploadDir=Paths
             .get("uploads","domicilios")
@@ -31,8 +34,8 @@ public class DomiciliosController {
             "CANCELADO"
     );
 
-    public DomiciliosController(DomiciliosRepository domiciliosRepository){
-        this.domiciliosRepository=domiciliosRepository;
+    public DomiciliosController(DomiciliosRepository domiciliosRepository, VentasRepository ventasRepository){
+        this.domiciliosRepository=domiciliosRepository; this.ventasRepository=ventasRepository;
     }
 
     @GetMapping
@@ -99,9 +102,13 @@ public class DomiciliosController {
             );
         }
 
-        domiciliosRepository.save(
-                domicilio
-        );
+        domiciliosRepository.save(domicilio);
+        if(domicilio.getVenta()!=null){
+            Ventas v=domicilio.getVenta();
+            if(!"DEVUELTA".equalsIgnoreCase(v.getEstado()) && !"ANULADA".equalsIgnoreCase(v.getEstado())){
+                v.setEstado(Boolean.TRUE.equals(domicilio.getPagado())?"PAGADA":"DEUDA"); ventasRepository.save(v);
+            }
+        }
 
         return ResponseEntity.ok(
                 domicilio
@@ -280,6 +287,14 @@ public class DomiciliosController {
         domiciliosRepository.save(
                 domicilio
         );
+
+        if(domicilio.getVenta()!=null){
+            Ventas v=domicilio.getVenta();
+            if(!"DEVUELTA".equalsIgnoreCase(v.getEstado()) && !"ANULADA".equalsIgnoreCase(v.getEstado())){
+                v.setEstado(pagado?"PAGADA":"DEUDA");
+                ventasRepository.save(v);
+            }
+        }
 
         return ResponseEntity.ok(
                 Map.of(

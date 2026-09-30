@@ -3,6 +3,7 @@ package com.pillone.pillone.view;
 import com.pillone.pillone.model.Lotes;
 import com.pillone.pillone.model.Productos;
 import com.pillone.pillone.repository.CategoriasRepository;
+import com.pillone.pillone.repository.ConfiguracionRepository;
 import com.pillone.pillone.repository.LotesRepository;
 import com.pillone.pillone.repository.ProductosRepository;
 import com.pillone.pillone.repository.ProveedoresRepository;
@@ -38,6 +39,9 @@ public class ProductosView {
 
     @Autowired
     private InventarioStockService inventarioStockService;
+
+    @Autowired
+    private ConfiguracionRepository configuracionRepository;
 
     @GetMapping("/view/productos")
     public String lista(Model model){
@@ -160,8 +164,15 @@ public class ProductosView {
             @Valid @ModelAttribute("producto") Productos producto,
             BindingResult result,
             Model model,
-            RedirectAttributes ra
+            RedirectAttributes ra,
+            @RequestParam(defaultValue="false") boolean aplicaIva
     ){
+
+        java.math.BigDecimal ivaGlobal=configuracionRepository.findAll().stream()
+                .findFirst()
+                .map(c -> c.getIvaGeneral()==null ? java.math.BigDecimal.ZERO : c.getIvaGeneral())
+                .orElse(java.math.BigDecimal.ZERO);
+        producto.setPorcentajeIva(aplicaIva ? ivaGlobal : java.math.BigDecimal.ZERO);
 
         if(result.hasErrors()){
 
@@ -380,6 +391,12 @@ public class ProductosView {
                 "proveedores",
                 proveedoresRepository.findAll()
         );
+
+        java.math.BigDecimal ivaGlobal=configuracionRepository.findAll().stream()
+                .findFirst()
+                .map(c -> c.getIvaGeneral()==null ? java.math.BigDecimal.ZERO : c.getIvaGeneral())
+                .orElse(java.math.BigDecimal.ZERO);
+        model.addAttribute("ivaGeneral",ivaGlobal);
     }
 
     public static class ResumenLotes {

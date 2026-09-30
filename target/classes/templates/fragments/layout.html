@@ -38,6 +38,52 @@
         </script>
 
         <style>
+            /* ===== PillOne UX visual system · 2026-09-29 ===== */
+            html { scroll-behavior:smooth; }
+            body { background:#F7F7FF; }
+            main { animation:pillone-page-in .28s ease both; }
+            @keyframes pillone-page-in { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+            @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;} }
+
+            /* Tarjetas: más jerarquía sin cambiar la estructura ni Thymeleaf */
+            main .rounded-2xl.bg-white,
+            main .bg-white.rounded-2xl,
+            main section.rounded-2xl,
+            main article.rounded-2xl {
+                border-color:rgba(226,232,240,.92)!important;
+                box-shadow:0 10px 28px rgba(7,0,77,.055);
+                transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+            }
+            @media (hover:hover){
+                main article.rounded-2xl:hover,
+                main .dashboard-card:hover {
+                    transform:translateY(-3px);
+                    box-shadow:0 18px 38px rgba(7,0,77,.105);
+                    border-color:rgba(32,138,174,.24)!important;
+                }
+            }
+
+            /* Controles con foco consistente y accesible */
+            main input:not([type=checkbox]):not([type=radio]), main select, main textarea {
+                transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease;
+            }
+            main input:not([type=checkbox]):not([type=radio]):focus, main select:focus, main textarea:focus {
+                border-color:#208AAE!important;
+                box-shadow:0 0 0 4px rgba(32,138,174,.10)!important;
+            }
+            main button, main a[class*="rounded"] { transition:transform .16s ease,box-shadow .16s ease,background-color .16s ease,border-color .16s ease,opacity .16s ease; }
+            @media (hover:hover){ main button:hover:not(:disabled), main a[class*="rounded"]:hover { transform:translateY(-1px); } }
+            main button:active:not(:disabled), main a[class*="rounded"]:active { transform:translateY(0) scale(.985); }
+
+            /* Tablas más fáciles de escanear */
+            main table thead { position:relative; z-index:1; }
+            main table tbody tr { transition:background-color .14s ease,box-shadow .14s ease; }
+            main table tbody tr:hover { background-color:#FAFCFF; box-shadow:inset 3px 0 0 rgba(32,138,174,.45); }
+
+            /* Badges y mensajes */
+            main [class*="rounded-full"] { letter-spacing:.01em; }
+            main .shadow-sm { box-shadow:0 5px 16px rgba(7,0,77,.06)!important; }
+
             .submenu-container {
                 max-height: 0;
                 overflow: hidden;
@@ -122,6 +168,12 @@
                 background: rgba(255,255,255,.15);
                 border-radius: 999px;
             }
+        
+        /* UX PillOne: superficies más vivas sin alterar la lógica */
+        .bg-white.rounded-xl,.bg-white.rounded-2xl{box-shadow:0 10px 28px rgba(7,0,77,.055);border-color:rgba(226,232,240,.9);transition:box-shadow .18s ease,transform .18s ease,border-color .18s ease;}
+        .bg-white.rounded-xl:hover,.bg-white.rounded-2xl:hover{box-shadow:0 16px 36px rgba(7,0,77,.085);border-color:rgba(32,138,174,.18);}
+        button,a,input,select,textarea{transition-duration:.16s;}
+        @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important;}}
         </style>
     </th:block>
 </head>
@@ -284,26 +336,23 @@
 
     <div class="flex items-center gap-3 sm:gap-4">
 
-        <!-- ALERTAS -->
-        <a th:href="@{/view/alertas/vencimientos}"
-           class="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all"
-           title="Alertas">
-
-            <svg class="w-4 h-4"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24">
-
-                <path stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.8"
-                      d="M15 17h5l-1.4-1.4A2 2 0 0118 14.17V11a6 6 0 00-4-5.66V5a2 2 0 10-4 0v.34A6 6 0 006 11v3.17a2 2 0 01-.6 1.43L4 17h5m6 0v1a3 3 0 11-6 0v-1"/>
-
-            </svg>
-
-            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-pillone-accent rounded-full ring-2 ring-pillone-dark"></span>
-
-        </a>
+        <!-- NOTIFICACIONES REALES -->
+        <div class="relative">
+            <button id="notif-button" type="button" aria-expanded="false" aria-controls="notif-panel" class="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all" title="Notificaciones">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.17V11a6 6 0 00-4-5.66V5a2 2 0 10-4 0v.34A6 6 0 006 11v3.17a2 2 0 01-.6 1.43L4 17h5m6 0v1a3 3 0 11-6 0v-1"/></svg>
+                <span id="notif-badge" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[9px] font-bold rounded-full items-center justify-center"></span>
+            </button>
+            <div id="notif-panel" class="hidden absolute right-0 mt-2 w-[min(94vw,560px)] bg-white rounded-2xl shadow-2xl border border-slate-200 text-slate-700 z-[120] overflow-hidden">
+                <div class="bg-white p-4 border-b border-slate-100">
+                    <div class="flex items-start justify-between gap-4">
+                        <div><p class="font-extrabold text-pillone-dark text-base">Centro de notificaciones</p><p class="text-[10px] text-slate-400 mt-0.5">Alertas operativas que requieren revisión</p></div>
+                        <span id="notif-total" class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-black">0 alertas</span>
+                    </div>
+                    <div id="notif-filtros" class="flex gap-1.5 overflow-x-auto pt-3 pb-1"></div>
+                </div>
+                <div id="notif-contenido" class="p-3 text-xs text-slate-500 max-h-[62vh] overflow-y-auto">Cargando alertas...</div>
+            </div>
+        </div>
 
         <!-- PERFIL -->
         <button type="button"
@@ -1019,6 +1068,15 @@
 
                 <span>Pacientes / Clientes</span>
 
+            </a>
+            <a th:href="@{/view/formulas}" data-nav-path="/view/formulas"
+               class="nav-link text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group">
+                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-pillone-accent/20">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M9 3h6v3H9zM7 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1M8 12h8M8 16h5"/>
+                    </svg>
+                </div>
+                <span>Fórmulas médicas</span>
             </a>
 
 
@@ -1793,7 +1851,129 @@
 
     </script>
 
+
+    <script>
+        (function(){
+            const STORAGE_VISTAS='pillone_notificaciones_vistas_v3';
+            const STORAGE_DESCARTADAS='pillone_notificaciones_descartadas_v3';
+            let itemsActuales=[];
+            let filtroActual='TODAS';
+
+            const leerSet=(k)=>{try{return new Set(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){return new Set();}};
+            const guardarSet=(k,set)=>localStorage.setItem(k,JSON.stringify(Array.from(set).slice(-400)));
+            const escapar=(v)=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+            const categorias=()=>['TODAS',...Array.from(new Set(itemsActuales.map(n=>n.categoria||'OTRAS')))];
+
+            function prioridadClase(p){
+                if(p==='CRITICA') return 'border-rose-200 bg-rose-50/80';
+                if(p==='ALTA') return 'border-amber-200 bg-amber-50/80';
+                if(p==='MEDIA') return 'border-sky-200 bg-sky-50/80';
+                return 'border-slate-200 bg-slate-50/80';
+            }
+            function prioridadPunto(p){return p==='CRITICA'?'bg-rose-500':p==='ALTA'?'bg-amber-500':p==='MEDIA'?'bg-sky-500':'bg-slate-400';}
+
+            const RECORDATORIO_MS = 15 * 60 * 1000;
+            let ultimoRecordatorio = 0;
+
+            function asegurarToastRecordatorio(){
+                let toast=document.getElementById('notif-recordatorio-toast');
+                if(toast)return toast;
+                toast=document.createElement('div');
+                toast.id='notif-recordatorio-toast';
+                toast.className='hidden fixed top-20 right-4 sm:right-6 z-[160] w-[min(92vw,390px)] rounded-2xl border border-amber-200 bg-white shadow-2xl overflow-hidden';
+                toast.innerHTML=`<div class="p-4 flex gap-3"><div class="w-10 h-10 shrink-0 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">🔔</div><div class="min-w-0 flex-1"><p class="font-extrabold text-sm text-pillone-dark">Alertas pendientes por resolver</p><p id="notif-recordatorio-texto" class="text-[11px] text-slate-500 mt-1 leading-relaxed"></p><div class="flex items-center gap-2 mt-3"><button id="notif-recordatorio-ver" type="button" class="px-3 py-2 rounded-xl bg-pillone-dark text-white text-[10px] font-extrabold hover:bg-pillone-accent">Ver pendientes</button><button id="notif-recordatorio-cerrar" type="button" class="px-3 py-2 rounded-xl bg-slate-100 text-slate-500 text-[10px] font-bold hover:bg-slate-200">Ahora no</button></div></div></div>`;
+                document.body.appendChild(toast);
+                toast.addEventListener('click',ev=>ev.stopPropagation());
+                toast.querySelector('#notif-recordatorio-cerrar')?.addEventListener('click',ev=>{ev.stopPropagation();toast.classList.add('hidden');});
+                toast.querySelector('#notif-recordatorio-ver')?.addEventListener('click',ev=>{
+                    ev.preventDefault();ev.stopPropagation();toast.classList.add('hidden');
+                    const panel=document.getElementById('notif-panel'),button=document.getElementById('notif-button');
+                    if(panel){panel.classList.remove('hidden');button?.setAttribute('aria-expanded','true');cargar().then(()=>{const vistas=leerSet(STORAGE_VISTAS);itemsActuales.forEach(n=>vistas.add(n.clave));guardarSet(STORAGE_VISTAS,vistas);pintar();});}
+                });
+                return toast;
+            }
+
+            function recordarPendientes(forzar=false){
+                const descartadas=leerSet(STORAGE_DESCARTADAS);
+                const pendientes=itemsActuales.filter(n=>!descartadas.has(n.clave));
+                if(!pendientes.length)return;
+                const ahora=Date.now();
+                if(!forzar && ahora-ultimoRecordatorio<RECORDATORIO_MS)return;
+                ultimoRecordatorio=ahora;
+                const criticas=pendientes.filter(n=>n.prioridad==='CRITICA').length;
+                const altas=pendientes.filter(n=>n.prioridad==='ALTA').length;
+                const toast=asegurarToastRecordatorio();
+                const texto=toast.querySelector('#notif-recordatorio-texto');
+                if(texto)texto.textContent=`Tienes ${pendientes.length} alerta${pendientes.length===1?'':'s'} pendiente${pendientes.length===1?'':'s'}${criticas?`, ${criticas} crítica${criticas===1?'':'s'}`:altas?`, ${altas} de alta prioridad`:''}. Revísalas cuando puedas.`;
+                toast.classList.remove('hidden');
+                window.clearTimeout(toast._pilloneTimer);
+                toast._pilloneTimer=window.setTimeout(()=>toast.classList.add('hidden'),9000);
+            }
+
+            function pintarFiltros(visibles){
+                const box=document.getElementById('notif-filtros'); if(!box)return;
+                box.innerHTML=categorias().map(c=>{
+                    const n=c==='TODAS'?visibles.length:visibles.filter(x=>(x.categoria||'OTRAS')===c).length;
+                    return `<button type="button" data-cat="${escapar(c)}" class="notif-filtro whitespace-nowrap px-3 py-1.5 rounded-xl text-[10px] font-extrabold border transition ${filtroActual===c?'bg-pillone-dark text-white border-pillone-dark':'bg-white text-slate-500 border-slate-200 hover:border-pillone-accent'}">${escapar(c==='TODAS'?'Todas':c)} <span class="opacity-70">${n}</span></button>`;
+                }).join('');
+                box.querySelectorAll('.notif-filtro').forEach(b=>b.addEventListener('click',(ev)=>{
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    filtroActual=b.dataset.cat;
+                    pintar();
+                }));
+            }
+
+            function pintar(){
+                const contenido=document.getElementById('notif-contenido');
+                const badge=document.getElementById('notif-badge');
+                const total=document.getElementById('notif-total');
+                if(!contenido||!badge)return;
+                const descartadas=leerSet(STORAGE_DESCARTADAS), vistas=leerSet(STORAGE_VISTAS);
+                const visibles=itemsActuales.filter(n=>!descartadas.has(n.clave));
+                const nuevas=visibles.filter(n=>!vistas.has(n.clave));
+                badge.textContent=nuevas.length>9?'9+':String(nuevas.length);
+                badge.classList.toggle('hidden',nuevas.length===0); badge.classList.toggle('flex',nuevas.length>0);
+                if(total)total.textContent=`${visibles.length} alerta${visibles.length===1?'':'s'}`;
+                pintarFiltros(visibles);
+                const filtradas=filtroActual==='TODAS'?visibles:visibles.filter(n=>(n.categoria||'OTRAS')===filtroActual);
+                if(!filtradas.length){contenido.innerHTML='<div class="p-8 text-center"><div class="mx-auto mb-2 w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">✓</div><p class="font-extrabold text-emerald-700">Sin alertas en esta categoría</p></div>';return;}
+                contenido.innerHTML=filtradas.map(n=>`<button type="button" data-clave="${escapar(n.clave)}" data-url="${escapar(n.url||'#')}" class="notif-item w-full text-left p-3.5 mb-2 rounded-2xl border transition hover:shadow-md ${prioridadClase(n.prioridad)}"><div class="flex gap-3"><span class="mt-1.5 w-2 h-2 rounded-full shrink-0 ${prioridadPunto(n.prioridad)}"></span><div class="min-w-0 flex-1"><div class="flex items-center justify-between gap-2"><p class="font-extrabold text-xs text-slate-800">${escapar(n.titulo)}</p><span class="text-[9px] font-black uppercase text-slate-400">${escapar(n.prioridad)}</span></div><p class="text-[10px] mt-1 text-slate-600 leading-relaxed">${escapar(n.mensaje)}</p><div class="flex items-center justify-between mt-2"><span class="px-2 py-1 rounded-lg bg-white/80 border border-black/5 text-[9px] font-bold text-slate-500">Origen: ${escapar(n.origen||n.categoria||'Sistema')}</span><span class="text-[10px] font-extrabold text-pillone-accent">Revisar →</span></div></div></div></button>`).join('');
+                contenido.querySelectorAll('.notif-item').forEach(btn=>btn.addEventListener('click',()=>{const d=leerSet(STORAGE_DESCARTADAS);d.add(btn.dataset.clave);guardarSet(STORAGE_DESCARTADAS,d);const u=btn.dataset.url;if(u&&u!=='#')location.href=u;else pintar();}));
+            }
+
+            async function cargar(){
+                const contenido=document.getElementById('notif-contenido');
+                try{const r=await fetch('/api/notificaciones',{cache:'no-store',headers:{Accept:'application/json'}});if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();itemsActuales=Array.isArray(d.notificaciones)?d.notificaciones:[];const activas=new Set(itemsActuales.map(x=>x.clave));const desc=leerSet(STORAGE_DESCARTADAS);guardarSet(STORAGE_DESCARTADAS,new Set([...desc].filter(x=>activas.has(x))));pintar();}
+                catch(e){if(contenido)contenido.innerHTML='<div class="p-6 text-center"><p class="font-bold text-rose-600">No se pudieron cargar las notificaciones.</p><p class="text-[10px] text-slate-400 mt-1">Revisa la conexión y vuelve a intentar.</p></div>';}
+            }
+
+            function toggle(ev){
+                ev?.preventDefault();ev?.stopPropagation();const panel=document.getElementById('notif-panel'),button=document.getElementById('notif-button');if(!panel)return;
+                const abrir=panel.classList.contains('hidden');panel.classList.toggle('hidden',!abrir);button?.setAttribute('aria-expanded',String(abrir));
+                if(abrir)cargar().then(()=>{const vistas=leerSet(STORAGE_VISTAS);itemsActuales.forEach(n=>vistas.add(n.clave));guardarSet(STORAGE_VISTAS,vistas);pintar();});
+            }
+            document.addEventListener('DOMContentLoaded',()=>{
+                const button=document.getElementById('notif-button'),panel=document.getElementById('notif-panel');
+                button?.addEventListener('click',toggle);
+                panel?.addEventListener('click',e=>e.stopPropagation());
+                document.addEventListener('click',e=>{
+                    if(panel&&!panel.classList.contains('hidden')&&!panel.contains(e.target)&&!button?.contains(e.target)){
+                        panel.classList.add('hidden');
+                        button?.setAttribute('aria-expanded','false');
+                    }
+                });
+                cargar().then(()=>{
+                    window.setTimeout(()=>recordarPendientes(true),45000);
+                });
+                setInterval(cargar,60000);
+                setInterval(()=>recordarPendientes(false),60000);
+            });
+        })();
+    </script>
+
 </th:block>
+
 
 </body>
 </html>

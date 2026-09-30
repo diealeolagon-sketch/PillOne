@@ -18,10 +18,13 @@
         }
         .formulas-shell{background:var(--pillone-bg);}
         .formulas-panel{
-            background:#fff;
+            position:relative; overflow:hidden;
+            background:linear-gradient(145deg,#fff 0%,#fff 72%,rgba(32,138,174,.035) 100%);
             border:1px solid var(--ui-border);
             box-shadow:var(--ui-shadow);
+            transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
         }
+        .formulas-panel:hover{box-shadow:0 16px 34px rgba(7,0,77,.085);border-color:rgba(32,138,174,.20);}
         .formulas-control{
             border:1px solid var(--ui-border);
             background:#FBFCFE;
@@ -48,6 +51,7 @@
             border-top:1px solid var(--ui-border);
             background:#fff;
         }
+        .formulas-pagination.hidden{display:none;}
         .page-controls{display:flex;align-items:center;gap:.35rem;}
         .page-btn{
             min-width:2.25rem;height:2.25rem;padding:0 .7rem;
@@ -128,554 +132,337 @@
             .compact-detail-sheet{max-width:none;max-height:94dvh;border-radius:1.25rem 1.25rem 0 0!important;}
             .compact-detail-grid{grid-template-columns:1fr;gap:.55rem;}
         }
-
     </style>
 
 </head>
 
-<body class="bg-pillone-bg text-pillone-text min-h-screen">
+<body class="bg-pillone-bg font-sans text-pillone-text antialiased min-h-screen flex flex-col text-xs">
 
 <header th:replace="fragments/layout :: topbar('Fórmulas Médicas')"></header>
 
-<aside th:replace="fragments/layout :: sidebar('formulas')"></aside>
+<div class="flex flex-1 relative min-h-[calc(100vh-4rem)] formulas-shell">
 
-<main class="formulas-shell lg:ml-64 pt-20 min-h-screen">
+    <aside th:replace="fragments/layout :: sidebar('formulas')"></aside>
 
-    <div class="formulas-main p-4 md:p-6 lg:p-8 max-w-[1450px] mx-auto">
+    <div class="flex-1 flex flex-col min-w-0">
 
-        <!-- MENSAJES -->
-        <div th:if="${mensaje}"
-             class="mb-6 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-green-800">
-            <div class="flex items-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     width="20"
-                     height="20"
-                     viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="1.8"
-                     stroke-linecap="round"
-                     stroke-linejoin="round">
-                    <path d="M20 6 9 17l-5-5"/>
-                </svg>
-                <span th:text="${mensaje}"></span>
-            </div>
-        </div>
+        <main class="formulas-main flex-1 p-4 sm:p-6 lg:p-8 max-w-[1450px] mx-auto w-full">
+            <section class="rounded-2xl border border-slate-200/80 bg-white/70 shadow-[0_14px_40px_rgba(7,0,77,.06)] p-4 md:p-6">
 
-        <div th:if="${error}"
-             class="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-red-700">
-            <div class="flex items-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     width="20"
-                     height="20"
-                     viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="1.8"
-                     stroke-linecap="round"
-                     stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-                <span th:text="${error}"></span>
-            </div>
-        </div>
+                <!-- MENSAJES -->
+                <div th:if="${mensaje}"
+                     class="mb-6 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-green-800">
+                    <div class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6 9 17l-5-5"/>
+                        </svg>
+                        <span th:text="${mensaje}"></span>
+                    </div>
+                </div>
 
-        <!-- ENCABEZADO -->
-        <div class="formulas-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div th:if="${error}"
+                     class="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-red-700">
+                    <div class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <span th:text="${error}"></span>
+                    </div>
+                </div>
 
-            <div>
-                <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark">
-                    Fórmulas médicas
-                </h1>
+                <!-- ENCABEZADO -->
+                <div class="formulas-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
 
-                <p class="text-gray-500 mt-1">
-                    Consulta y administra las fórmulas registradas de tus clientes.
-                </p>
-            </div>
+                    <div>
+                        <h1 class="text-2xl md:text-[30px] leading-tight font-bold text-pillone-dark">
+                            Fórmulas médicas
+                        </h1>
+                        <p class="text-gray-500 mt-1">
+                            Consulta y administra las fórmulas registradas de tus clientes.
+                        </p>
+                    </div>
 
-            <a th:href="@{/view/formulas/form}"
-               class="inline-flex items-center justify-center gap-2 rounded-xl
+                    <a th:href="@{/view/formulas/form}"
+                       class="inline-flex items-center justify-center gap-2 rounded-xl
                       bg-pillone-dark px-5 py-3 text-sm font-semibold text-white
                       hover:bg-pillone-darker transition shadow-sm">
 
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     width="20"
-                     height="20"
-                     viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="1.8"
-                     stroke-linecap="round"
-                     stroke-linejoin="round">
-                    <path d="M12 5v14"/>
-                    <path d="M5 12h14"/>
-                </svg>
-
-                Nueva fórmula
-            </a>
-        </div>
-
-        <!-- RESUMEN -->
-        <div class="formulas-summary grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-
-            <div class="formulas-panel rounded-2xl p-5">
-                <div class="flex items-center justify-between">
-
-                    <div>
-                        <p class="text-sm text-gray-500">
-                            Fórmulas registradas
-                        </p>
-
-                        <p class="text-2xl font-bold text-pillone-dark mt-1"
-                           th:text="${#lists.size(formulas)}">
-                            0
-                        </p>
-                    </div>
-
-                    <div class="w-11 h-11 rounded-xl bg-pillone-dark/10
-                                text-pillone-dark flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             width="22"
-                             height="22"
-                             viewBox="0 0 24 24"
-                             fill="none"
-                             stroke="currentColor"
-                             stroke-width="1.8"
-                             stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="9" y1="13" x2="15" y2="13"/>
-                            <line x1="9" y1="17" x2="15" y2="17"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14"/>
+                            <path d="M5 12h14"/>
                         </svg>
-                    </div>
 
-                </div>
-            </div>
-
-            <div class="formulas-panel rounded-2xl p-5">
-                <div class="flex items-center justify-between">
-
-                    <div>
-                        <p class="text-sm text-gray-500">
-                            Control de medicamentos
-                        </p>
-
-                        <p class="font-bold text-pillone-dark mt-1">
-                            Validación activa
-                        </p>
-                    </div>
-
-                    <div class="w-11 h-11 rounded-xl bg-pillone-accent/10
-                                text-pillone-accent flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             width="22"
-                             height="22"
-                             viewBox="0 0 24 24"
-                             fill="none"
-                             stroke="currentColor"
-                             stroke-width="1.8"
-                             stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path d="M9 12l2 2 4-4"/>
-                            <circle cx="12" cy="12" r="9"/>
-                        </svg>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="formulas-panel rounded-2xl p-5">
-                <div class="flex items-center justify-between">
-
-                    <div>
-                        <p class="text-sm text-gray-500">
-                            Historial
-                        </p>
-
-                        <p class="font-bold text-pillone-dark mt-1">
-                            Por cliente
-                        </p>
-                    </div>
-
-                    <div class="w-11 h-11 rounded-xl bg-gray-100
-                                text-gray-600 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             width="22"
-                             height="22"
-                             viewBox="0 0 24 24"
-                             fill="none"
-                             stroke="currentColor"
-                             stroke-width="1.8"
-                             stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="9"/>
-                            <polyline points="12 7 12 12 15 14"/>
-                        </svg>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-
-        <!-- BUSCADOR -->
-        <div class="formulas-panel formulas-search rounded-2xl p-4 mb-6">
-
-            <div class="relative">
-
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         width="19"
-                         height="19"
-                         viewBox="0 0 24 24"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="1.8"
-                         stroke-linecap="round"
-                         stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.35-4.35"/>
-                    </svg>
+                        Nueva fórmula
+                    </a>
                 </div>
 
-                <input id="buscarFormula"
-                       type="text"
-                       placeholder="Buscar por médico, entidad, fecha..."
-                       class="w-full rounded-xl border border-gray-200
-                              bg-gray-50 pl-11 pr-4 py-3 text-sm
-                              outline-none focus:border-pillone-accent
-                              focus:ring-2 focus:ring-pillone-accent/10">
+                <!-- RESUMEN -->
+                <div class="formulas-summary grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
-            </div>
-
-        </div>
-
-        <!-- TABLA -->
-        <div class="formulas-panel rounded-2xl overflow-hidden">
-
-            <div class="formulas-table-wrap overflow-x-auto">
-
-                <table class="formulas-table w-full">
-
-                    <thead class="bg-gray-50 border-b border-gray-100">
-
-                    <tr class="text-left text-xs uppercase tracking-wider text-gray-500">
-
-                        <th class="px-6 py-4 font-semibold">
-                            Fórmula
-                        </th>
-
-                        <th class="px-6 py-4 font-semibold">
-                            Médico
-                        </th>
-
-                        <th class="px-6 py-4 font-semibold">
-                            Entidad
-                        </th>
-
-                        <th class="px-6 py-4 font-semibold">
-                            Expedición
-                        </th>
-
-                        <th class="px-6 py-4 font-semibold">
-                            Vigencia
-                        </th>
-
-                        <th class="px-6 py-4 font-semibold text-right">
-                            Acciones
-                        </th>
-
-                    </tr>
-
-                    </thead>
-
-                    <tbody id="tablaFormulas"
-                           class="divide-y divide-gray-100">
-
-                    <tr th:each="formula : ${formulas}"
-                        class="formula-row hover:bg-gray-50/70 transition">
-
-                        <!-- ID -->
-                        <td class="px-6 py-4" data-label="Fórmula">
-
-                            <div class="flex items-center gap-3">
-
-                                <div class="w-10 h-10 rounded-xl bg-pillone-dark/10
-                                            text-pillone-dark flex items-center
-                                            justify-center font-bold text-sm">
-
-                                    <span th:text="${formula.idFormula}">
-                                        1
-                                    </span>
-
-                                </div>
-
-                                <div>
-                                    <p class="font-semibold text-pillone-dark">
-                                        Fórmula médica
-                                    </p>
-
-                                    <p class="text-xs text-gray-400">
-                                        ID #<span th:text="${formula.idFormula}">1</span>
-                                    </p>
-                                </div>
-
+                    <div class="formulas-panel rounded-2xl p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Fórmulas registradas</p>
+                                <p class="text-2xl font-bold text-pillone-dark mt-1"
+                                   th:text="${#lists.size(formulas)}">0</p>
                             </div>
-
-                        </td>
-
-                        <!-- MÉDICO -->
-                        <td class="px-6 py-4" data-label="Médico">
-
-                            <p class="font-medium text-gray-800"
-                               th:text="${formula.nombreMedico}">
-                                Médico
-                            </p>
-
-                            <p class="text-xs text-gray-400"
-                               th:if="${formula.tarjetaProfesional != null}"
-                               th:text="'TP: ' + ${formula.tarjetaProfesional}">
-                                TP
-                            </p>
-
-                        </td>
-
-                        <!-- ENTIDAD -->
-                        <td class="px-6 py-4 text-sm text-gray-600" data-label="Entidad">
-
-                            <span th:text="${formula.entidadSalud != null && !formula.entidadSalud.isEmpty()
-                                           ? formula.entidadSalud
-                                           : 'No registrada'}">
-                                Entidad
-                            </span>
-
-                        </td>
-
-                        <!-- FECHA -->
-                        <td class="px-6 py-4 text-sm text-gray-600" data-label="Expedición">
-
-                            <span th:if="${formula.fechaExpedicion != null}"
-                                  th:text="${#temporals.format(formula.fechaExpedicion, 'dd/MM/yyyy')}">
-                            </span>
-
-                            <span th:unless="${formula.fechaExpedicion != null}">
-                                —
-                            </span>
-
-                        </td>
-
-                        <!-- VIGENCIA -->
-                        <td class="px-6 py-4" data-label="Vigencia">
-
-                            <span th:if="${formula.vigente}"
-                                  class="inline-flex items-center gap-1.5 rounded-full
-                                         bg-green-50 border border-green-200
-                                         px-3 py-1 text-xs font-semibold text-green-700">
-
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-
-                                Vigente
-
-                            </span>
-
-                            <span th:unless="${formula.vigente}"
-                                  class="inline-flex items-center gap-1.5 rounded-full
-                                         bg-red-50 border border-red-200
-                                         px-3 py-1 text-xs font-semibold text-red-700">
-
-                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-
-                                Vencida
-
-                            </span>
-
-                            <p class="text-xs text-gray-400 mt-1"
-                               th:text="${formula.vigenciaDias != null
-                                        ? formula.vigenciaDias + ' días'
-                                        : '30 días'}">
-                                30 días
-                            </p>
-
-                        </td>
-
-                        <!-- ACCIONES -->
-                        <td class="px-6 py-4" data-label="Acciones">
-
-                            <div class="flex items-center justify-end gap-2">
-
-                                <a th:href="@{/view/formulas/detalle/{id}(id=${formula.idFormula})}"
-                                   title="Ver fórmula"
-                                   class="w-9 h-9 rounded-lg border border-gray-200
-                                          flex items-center justify-center text-gray-600
-                                          hover:bg-pillone-dark hover:text-white
-                                          hover:border-pillone-dark transition">
-
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         width="18"
-                                         height="18"
-                                         viewBox="0 0 24 24"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="1.8"
-                                         stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                    </svg>
-
-                                </a>
-
-                                <a th:href="@{/view/formulas/edit/{id}(id=${formula.idFormula})}"
-                                   title="Editar fórmula"
-                                   class="w-9 h-9 rounded-lg border border-gray-200
-                                          flex items-center justify-center text-gray-600
-                                          hover:bg-pillone-accent hover:text-white
-                                          hover:border-pillone-accent transition">
-
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         width="18"
-                                         height="18"
-                                         viewBox="0 0 24 24"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="1.8"
-                                         stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                        <path d="M12 20h9"/>
-                                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>
-                                    </svg>
-
-                                </a>
-
-                                <form th:action="@{/view/formulas/delete/{id}(id=${formula.idFormula})}"
-                                      method="post"
-                                      onsubmit="return confirm('¿Seguro que deseas eliminar esta fórmula médica?');">
-
-                                    <button type="submit"
-                                            title="Eliminar fórmula"
-                                            class="w-9 h-9 rounded-lg border border-red-200
-                                                   flex items-center justify-center text-red-500
-                                                   hover:bg-red-500 hover:text-white
-                                                   hover:border-red-500 transition">
-
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                             width="18"
-                                             height="18"
-                                             viewBox="0 0 24 24"
-                                             fill="none"
-                                             stroke="currentColor"
-                                             stroke-width="1.8"
-                                             stroke-linecap="round"
-                                             stroke-linejoin="round">
-                                            <polyline points="3 6 5 6 21 6"/>
-                                            <path d="M19 6l-1 14H6L5 6"/>
-                                            <path d="M10 11v6"/>
-                                            <path d="M14 11v6"/>
-                                            <path d="M9 6V4h6v2"/>
-                                        </svg>
-
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    <!-- SIN REGISTROS -->
-                    <tr th:if="${#lists.isEmpty(formulas)}">
-
-                        <td colspan="6"
-                            class="px-6 py-16 text-center">
-
-                            <div class="w-16 h-16 rounded-2xl bg-gray-100
-                                        flex items-center justify-center
-                                        text-gray-400 mx-auto mb-4">
-
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     width="30"
-                                     height="30"
-                                     viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor"
-                                     stroke-width="1.8"
-                                     stroke-linecap="round"
-                                     stroke-linejoin="round">
+                            <div class="w-11 h-11 rounded-xl bg-pillone-dark/10 text-pillone-dark flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                     <polyline points="14 2 14 8 20 8"/>
                                     <line x1="9" y1="13" x2="15" y2="13"/>
+                                    <line x1="9" y1="17" x2="15" y2="17"/>
                                 </svg>
-
                             </div>
+                        </div>
+                    </div>
 
-                            <h3 class="font-bold text-pillone-dark text-lg">
-                                No hay fórmulas registradas
-                            </h3>
+                    <div class="formulas-panel rounded-2xl p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Control de medicamentos</p>
+                                <p class="font-bold text-pillone-dark mt-1">Validación activa</p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl bg-pillone-accent/10 text-pillone-accent flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <circle cx="12" cy="12" r="9"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
 
-                            <p class="text-gray-500 text-sm mt-1 mb-5">
-                                Registra la primera fórmula médica de un cliente.
-                            </p>
+                    <div class="formulas-panel rounded-2xl p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Historial</p>
+                                <p class="font-bold text-pillone-dark mt-1">Por cliente</p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <polyline points="12 7 12 12 15 14"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
 
-                            <a th:href="@{/view/formulas/form}"
-                               class="inline-flex items-center gap-2 rounded-xl
+                </div>
+
+                <!-- BUSCADOR -->
+                <div class="formulas-panel formulas-search rounded-2xl p-4 mb-6">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.35-4.35"/>
+                            </svg>
+                        </div>
+                        <input id="buscarFormula"
+                               type="text"
+                               placeholder="Buscar por médico, entidad, fecha..."
+                               class="w-full rounded-xl border border-gray-200
+                              bg-gray-50 pl-11 pr-4 py-3 text-sm
+                              outline-none focus:border-pillone-accent
+                              focus:ring-2 focus:ring-pillone-accent/10">
+                    </div>
+                </div>
+
+                <!-- TABLA -->
+                <div class="formulas-panel rounded-2xl overflow-hidden">
+
+                    <div class="formulas-table-wrap overflow-x-auto">
+
+                        <table class="formulas-table w-full">
+
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                            <tr class="text-left text-xs uppercase tracking-wider text-gray-500">
+                                <th class="px-6 py-4 font-semibold">Fórmula</th>
+                                <th class="px-6 py-4 font-semibold">Médico</th>
+                                <th class="px-6 py-4 font-semibold">Entidad</th>
+                                <th class="px-6 py-4 font-semibold">Expedición</th>
+                                <th class="px-6 py-4 font-semibold">Vigencia</th>
+                                <th class="px-6 py-4 font-semibold text-right">Acciones</th>
+                            </tr>
+                            </thead>
+
+                            <tbody id="tablaFormulas" class="divide-y divide-gray-100">
+
+                            <tr th:each="formula : ${formulas}"
+                                class="formula-row hover:bg-gray-50/70 transition">
+
+                                <!-- ID -->
+                                <td class="px-6 py-4" data-label="Fórmula">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-pillone-dark/10
+                                            text-pillone-dark flex items-center
+                                            justify-center font-bold text-sm">
+                                            <span th:text="${formula.idFormula}">1</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-pillone-dark">Fórmula médica</p>
+                                            <p class="text-xs text-gray-400">
+                                                ID #<span th:text="${formula.idFormula}">1</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- MÉDICO -->
+                                <td class="px-6 py-4" data-label="Médico">
+                                    <p class="font-medium text-gray-800"
+                                       th:text="${formula.nombreMedico}">Médico</p>
+                                    <p class="text-xs text-gray-400"
+                                       th:if="${formula.tarjetaProfesional != null}"
+                                       th:text="${'TP: ' + formula.tarjetaProfesional}">TP</p>
+                                </td>
+
+                                <!-- ENTIDAD -->
+                                <td class="px-6 py-4 text-sm text-gray-600" data-label="Entidad">
+                                    <span th:text="${formula.entidadSalud != null && !formula.entidadSalud.isEmpty()
+                                                   ? formula.entidadSalud
+                                                   : 'No registrada'}">Entidad</span>
+                                </td>
+
+                                <!-- FECHA -->
+                                <td class="px-6 py-4 text-sm text-gray-600" data-label="Expedición">
+                                    <span th:if="${formula.fechaExpedicion != null}"
+                                          th:text="${#temporals.format(formula.fechaExpedicion, 'dd/MM/yyyy')}"></span>
+                                    <span th:unless="${formula.fechaExpedicion != null}">—</span>
+                                </td>
+
+                                <!-- VIGENCIA -->
+                                <td class="px-6 py-4" data-label="Vigencia">
+                                    <span th:if="${formula.vigente}"
+                                          class="inline-flex items-center gap-1.5 rounded-full
+                                                 bg-green-50 border border-green-200
+                                                 px-3 py-1 text-xs font-semibold text-green-700">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Vigente
+                                    </span>
+
+                                    <span th:unless="${formula.vigente}"
+                                          class="inline-flex items-center gap-1.5 rounded-full
+                                                 bg-red-50 border border-red-200
+                                                 px-3 py-1 text-xs font-semibold text-red-700">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                        Vencida
+                                    </span>
+
+                                    <p class="text-xs text-gray-400 mt-1"
+                                       th:text="${formula.vigenciaDias != null
+                                                ? formula.vigenciaDias + ' días'
+                                                : '30 días'}">30 días</p>
+                                </td>
+
+                                <!-- ACCIONES -->
+                                <td class="px-6 py-4" data-label="Acciones">
+                                    <div class="flex items-center justify-end gap-2">
+
+                                        <!-- El botón "Ver detalle" (ojo) lo agrega el JS compacto y abre el modal -->
+
+                                        <a th:href="@{/view/formulas/edit/{id}(id=${formula.idFormula})}"
+                                           title="Editar fórmula"
+                                           class="w-9 h-9 rounded-lg border border-gray-200
+                                          flex items-center justify-center text-gray-600
+                                          hover:bg-pillone-accent hover:text-white
+                                          hover:border-pillone-accent transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 20h9"/>
+                                                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>
+                                            </svg>
+                                        </a>
+
+                                        <form th:action="@{/view/formulas/delete/{id}(id=${formula.idFormula})}"
+                                              method="post"
+                                              onsubmit="return confirm('¿Seguro que deseas eliminar esta fórmula médica?');">
+                                            <button type="submit"
+                                                    title="Eliminar fórmula"
+                                                    class="w-9 h-9 rounded-lg border border-red-200
+                                                   flex items-center justify-center text-red-500
+                                                   hover:bg-red-500 hover:text-white
+                                                   hover:border-red-500 transition">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"/>
+                                                    <path d="M19 6l-1 14H6L5 6"/>
+                                                    <path d="M10 11v6"/>
+                                                    <path d="M14 11v6"/>
+                                                    <path d="M9 6V4h6v2"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                            <!-- SIN REGISTROS -->
+                            <tr th:if="${#lists.isEmpty(formulas)}">
+                                <td colspan="6" class="px-6 py-16 text-center">
+
+                                    <div class="w-16 h-16 rounded-2xl bg-gray-100
+                                        flex items-center justify-center
+                                        text-gray-400 mx-auto mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="9" y1="13" x2="15" y2="13"/>
+                                        </svg>
+                                    </div>
+
+                                    <h3 class="font-bold text-pillone-dark text-lg">No hay fórmulas registradas</h3>
+
+                                    <p class="text-gray-500 text-sm mt-1 mb-5">
+                                        Registra la primera fórmula médica de un cliente.
+                                    </p>
+
+                                    <a th:href="@{/view/formulas/form}"
+                                       class="inline-flex items-center gap-2 rounded-xl
                                       bg-pillone-dark px-5 py-3
                                       text-white text-sm font-semibold">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 5v14"/>
+                                            <path d="M5 12h14"/>
+                                        </svg>
+                                        Nueva fórmula
+                                    </a>
 
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     width="18"
-                                     height="18"
-                                     viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor"
-                                     stroke-width="1.8"
-                                     stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <path d="M12 5v14"/>
-                                    <path d="M5 12h14"/>
-                                </svg>
+                                </td>
+                            </tr>
 
-                                Nueva fórmula
+                            </tbody>
 
-                            </a>
+                        </table>
 
-                        </td>
+                    </div>
 
-                    </tr>
+                    <div id="paginacion-formulas" class="formulas-pagination hidden">
+                        <div id="paginacion-info" class="text-[11px] text-slate-500">Mostrando 0 de 0 fórmulas</div>
+                        <div class="page-controls">
+                            <button type="button" id="pagina-anterior" class="page-btn" onclick="cambiarPagina(-1)" aria-label="Página anterior">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+                            </button>
+                            <div id="numeros-pagina" class="page-controls"></div>
+                            <button type="button" id="pagina-siguiente" class="page-btn" onclick="cambiarPagina(1)" aria-label="Página siguiente">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                            </button>
+                        </div>
+                    </div>
 
-                    </tbody>
+                </div> <!-- cierra formulas-panel (tabla) -->
 
-                </table>
+            </section>
+        </main>
 
-            </div>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
 
-            <div id="paginacion-formulas" class="formulas-pagination hidden">
-                <div id="paginacion-info" class="text-[11px] text-slate-500">Mostrando 0 de 0 fórmulas</div>
-                <div class="page-controls">
-                    <button type="button" id="pagina-anterior" class="page-btn" onclick="cambiarPagina(-1)" aria-label="Página anterior">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
-                    </button>
-                    <div id="numeros-pagina" class="page-controls"></div>
-                    <button type="button" id="pagina-siguiente" class="page-btn" onclick="cambiarPagina(1)" aria-label="Página siguiente">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-    </div>
-
-</main>
-
-<footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div> <!-- cierra flex-1 flex-col (contenido) -->
+</div> <!-- cierra formulas-shell -->
 
 <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
-
 
 <!-- MODAL GENÉRICO DE DETALLE PARA TABLAS COMPACTAS -->
 <div id="compact-detail-modal" class="fixed inset-0 z-[140] hidden items-center justify-center bg-slate-950/60 backdrop-blur-[2px] p-4">
@@ -711,8 +498,9 @@
         const buscador=document.getElementById('buscarFormula');
         const texto=(buscador?.value||'').toLowerCase().trim();
 
+        // textContent (no innerText) para incluir también las columnas ocultas (entidad, fecha)
         filasFiltradas=obtenerFilas().filter(fila=>
-            !texto || fila.innerText.toLowerCase().includes(texto)
+            !texto || fila.textContent.toLowerCase().includes(texto)
         );
 
         paginaActual=1;
@@ -805,7 +593,6 @@
         document.getElementById('buscarFormula')?.addEventListener('input',filtrarFormulas);
     });
 </script>
-
 
 <script>
     (function(){

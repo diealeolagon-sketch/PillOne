@@ -38,7 +38,7 @@ public class VentasView {
 
     @GetMapping("/view/ventas")
     public String lista(Model model) {
-        model.addAttribute("ventas", ventasRepository.findAll());
+        model.addAttribute("ventas", ventasRepository.findAllByOrderByFechaVentaDescIdVentaDesc());
         return "ventas/ventas";
     }
 
@@ -88,7 +88,7 @@ public class VentasView {
     }
 
     private void cargarListas(Model model) {
-        model.addAttribute("sucursales", sucursalesRepository.findAll());
+        model.addAttribute("sucursales", sucursalesRepository.findAllByOrderByEstadoAscNombreAsc());
         model.addAttribute("clientes", clientesRepository.findAll());
         model.addAttribute("empleados", empleadosRepository.findAll());
     }

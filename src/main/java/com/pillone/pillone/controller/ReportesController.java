@@ -41,8 +41,6 @@ public class ReportesController {
             LocalDate hasta
     ){
 
-        inventarioStockService.sincronizarTodo();
-
         if(hasta==null){
             hasta=LocalDate.now();
         }
@@ -115,7 +113,7 @@ public class ReportesController {
                 COALESCE(SUM(impuesto_iva),0) AS iva,
                 COALESCE(SUM(total),0) AS total
             FROM ventas
-            WHERE DATE(fecha_venta) BETWEEN ? AND ?
+            WHERE fecha_venta >= ? AND fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
               AND estado='PAGADA'
         """,desde,hasta);
 
@@ -143,7 +141,7 @@ public class ReportesController {
                 SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
                 FROM devoluciones
                 WHERE tipo_devolucion='CLIENTE'
-                  AND DATE(fecha_devolucion) BETWEEN ? AND ?
+                  AND fecha_devolucion >= ? AND fecha_devolucion < DATE_ADD(?, INTERVAL 1 DAY)
                 GROUP BY id_venta,id_producto
             ) d
             INNER JOIN (
@@ -187,7 +185,7 @@ public class ReportesController {
             SELECT COUNT(*)
             FROM ventas v
             INNER JOIN domicilios d ON d.id_venta=v.id_venta
-            WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
+            WHERE v.fecha_venta >= ? AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
               AND v.estado='PAGADA'
         """,desde,hasta);
 
@@ -231,7 +229,7 @@ public class ReportesController {
                             SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
                             FROM devoluciones
                             WHERE tipo_devolucion='CLIENTE'
-                              AND DATE(fecha_devolucion) BETWEEN ? AND ?
+                              AND fecha_devolucion >= ? AND fecha_devolucion < DATE_ADD(?, INTERVAL 1 DAY)
                             GROUP BY id_venta,id_producto
                         ) d
                         INNER JOIN (
@@ -244,7 +242,7 @@ public class ReportesController {
                              AND det.id_producto=d.id_producto
                         GROUP BY d.id_venta
                     ) dev ON dev.id_venta=v.id_venta
-                    WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
+                    WHERE v.fecha_venta >= ? AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
                       AND v.estado='PAGADA'
                     GROUP BY DATE(v.fecha_venta)
                     ORDER BY DATE(v.fecha_venta)
@@ -339,7 +337,7 @@ public class ReportesController {
                     SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
                     FROM devoluciones
                     WHERE tipo_devolucion='CLIENTE'
-                      AND DATE(fecha_devolucion) BETWEEN ? AND ?
+                      AND fecha_devolucion >= ? AND fecha_devolucion < DATE_ADD(?, INTERVAL 1 DAY)
                     GROUP BY id_venta,id_producto
                 ) d
                 INNER JOIN (
@@ -352,7 +350,7 @@ public class ReportesController {
                      AND det.id_producto=d.id_producto
                 GROUP BY d.id_venta
             ) dev ON dev.id_venta=v.id_venta
-            WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
+            WHERE v.fecha_venta >= ? AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
               AND v.estado='PAGADA'
             GROUP BY v.metodo_pago
             ORDER BY total DESC
@@ -392,11 +390,11 @@ public class ReportesController {
                 SELECT id_venta,id_producto,SUM(cantidad) AS cantidad_devuelta
                 FROM devoluciones
                 WHERE tipo_devolucion='CLIENTE'
-                  AND DATE(fecha_devolucion) BETWEEN ? AND ?
+                  AND fecha_devolucion >= ? AND fecha_devolucion < DATE_ADD(?, INTERVAL 1 DAY)
                 GROUP BY id_venta,id_producto
             ) dev ON dev.id_venta=dv.id_venta
                  AND dev.id_producto=dv.id_producto
-            WHERE DATE(v.fecha_venta) BETWEEN ? AND ?
+            WHERE v.fecha_venta >= ? AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
               AND v.estado='PAGADA'
             GROUP BY
                 p.id_producto,
@@ -423,8 +421,8 @@ public class ReportesController {
                     FROM domicilios d
                     INNER JOIN ventas v
                         ON v.id_venta=d.id_venta
-                    WHERE DATE(v.fecha_venta)
-                        BETWEEN ? AND ?
+                    WHERE v.fecha_venta >= ?
+                      AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
                 """,desde,hasta)
         );
 
@@ -435,8 +433,8 @@ public class ReportesController {
                     FROM domicilios d
                     INNER JOIN ventas v
                         ON v.id_venta=d.id_venta
-                    WHERE DATE(v.fecha_venta)
-                        BETWEEN ? AND ?
+                    WHERE v.fecha_venta >= ?
+                      AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
                       AND d.estado='PENDIENTE'
                 """,desde,hasta)
         );
@@ -448,8 +446,8 @@ public class ReportesController {
                     FROM domicilios d
                     INNER JOIN ventas v
                         ON v.id_venta=d.id_venta
-                    WHERE DATE(v.fecha_venta)
-                        BETWEEN ? AND ?
+                    WHERE v.fecha_venta >= ?
+                      AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
                       AND d.estado='EN_PREPARACION'
                 """,desde,hasta)
         );
@@ -461,8 +459,8 @@ public class ReportesController {
                     FROM domicilios d
                     INNER JOIN ventas v
                         ON v.id_venta=d.id_venta
-                    WHERE DATE(v.fecha_venta)
-                        BETWEEN ? AND ?
+                    WHERE v.fecha_venta >= ?
+                      AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
                       AND d.estado='EN_CAMINO'
                 """,desde,hasta)
         );
@@ -474,8 +472,8 @@ public class ReportesController {
                     FROM domicilios d
                     INNER JOIN ventas v
                         ON v.id_venta=d.id_venta
-                    WHERE DATE(v.fecha_venta)
-                        BETWEEN ? AND ?
+                    WHERE v.fecha_venta >= ?
+                      AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
                       AND d.estado='ENTREGADO'
                 """,desde,hasta)
         );
@@ -487,8 +485,8 @@ public class ReportesController {
                     FROM domicilios d
                     INNER JOIN ventas v
                         ON v.id_venta=d.id_venta
-                    WHERE DATE(v.fecha_venta)
-                        BETWEEN ? AND ?
+                    WHERE v.fecha_venta >= ?
+                      AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
                       AND d.estado='CANCELADO'
                 """,desde,hasta)
         );
@@ -503,8 +501,8 @@ public class ReportesController {
                     FROM domicilios d
                     INNER JOIN ventas v
                         ON v.id_venta=d.id_venta
-                    WHERE DATE(v.fecha_venta)
-                        BETWEEN ? AND ?
+                    WHERE v.fecha_venta >= ?
+                      AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
                       AND d.estado<>'CANCELADO'
                 """,desde,hasta);
 
@@ -642,8 +640,8 @@ public class ReportesController {
                         ON c.id_cliente=v.id_cliente
                     LEFT JOIN domicilios d
                         ON d.id_venta=v.id_venta
-                    WHERE DATE(v.fecha_venta)
-                        BETWEEN ? AND ?
+                    WHERE v.fecha_venta >= ?
+                      AND v.fecha_venta < DATE_ADD(?, INTERVAL 1 DAY)
                     ORDER BY v.fecha_venta DESC
                     LIMIT 500
                 """,desde,hasta);

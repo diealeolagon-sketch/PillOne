@@ -425,15 +425,20 @@
                             </div>
 
 
-                            <div>
-                                <label class="block font-semibold text-slate-700 mb-1">
-                                    IVA del Producto (%) *
-                                </label>
-                                <input type="number" min="0" max="100" step="0.01"
-                                       th:field="*{porcentajeIva}" id="porcentajeIva"
-                                       oninput="calcularIvaProducto()" required
-                                       class="ui-control w-full px-3.5 py-2.5 rounded-xl outline-none text-xs">
-                                <p class="ui-field-help">0 para excluido, 5 o 19 según corresponda.</p>
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <label for="aplicaIva" class="block font-semibold text-slate-700">Aplica IVA</label>
+                                        <p class="ui-field-help mt-1">Usa automáticamente el IVA general configurado: <b th:text="${ivaGeneral + '%'}">19%</b>.</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                        <input type="checkbox" id="aplicaIva" name="aplicaIva" value="true" class="sr-only peer"
+                                               th:checked="${producto.porcentajeIva != null and producto.porcentajeIva.signum() > 0}"
+                                               onchange="sincronizarIvaProducto()">
+                                        <span class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:bg-pillone-accent transition after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:w-5 after:h-5 after:rounded-full after:transition peer-checked:after:translate-x-5"></span>
+                                    </label>
+                                </div>
+                                <input type="hidden" th:field="*{porcentajeIva}" id="porcentajeIva" th:attr="data-iva-global=${ivaGeneral}">
                             </div>
 
                             <div>
@@ -767,6 +772,13 @@
             sellos*unidades;
     }
 
+    function sincronizarIvaProducto(){
+        const check=document.getElementById('aplicaIva');
+        const campo=document.getElementById('porcentajeIva');
+        if(campo){ campo.value=(check&&check.checked)?(campo.dataset.ivaGlobal||'0'):'0'; }
+        calcularIvaProducto();
+    }
+
     function calcularIvaProducto(){
         const precio=Math.max(0,Number(document.getElementById('precioVenta')?.value||0));
         const tasa=Math.max(0,Number(document.getElementById('porcentajeIva')?.value||0));
@@ -777,7 +789,7 @@
 
     document.addEventListener('DOMContentLoaded',()=>{
         calcularEmpaque();
-        calcularIvaProducto();
+        sincronizarIvaProducto();
     });
 </script>
 

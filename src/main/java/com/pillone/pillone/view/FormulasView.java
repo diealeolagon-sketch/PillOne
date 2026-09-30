@@ -276,6 +276,7 @@ public class FormulasView {
     }
 
     private String guardarArchivo(MultipartFile archivo)throws IOException{
+        if(archivo.getSize()>8L*1024*1024) throw new IOException("El archivo no puede superar 8 MB.");
         String original=archivo.getOriginalFilename();
         String extension="";
 
@@ -291,11 +292,12 @@ public class FormulasView {
             throw new IOException("Solo se permiten imágenes JPG, PNG, WEBP o archivos PDF.");
         }
 
-        Path carpeta=Paths.get("uploads","formulas");
+        Path carpeta=Paths.get("uploads","formulas").toAbsolutePath().normalize();
         Files.createDirectories(carpeta);
 
         String nombreArchivo=UUID.randomUUID()+extension;
-        Path destino=carpeta.resolve(nombreArchivo);
+        Path destino=carpeta.resolve(nombreArchivo).normalize();
+        if(!destino.startsWith(carpeta)) throw new IOException("Nombre de archivo inválido.");
 
         Files.copy(
                 archivo.getInputStream(),

@@ -529,9 +529,9 @@
                                 Sucursal
                             </label>
 
-                            <select id="sucursal"
-                                    class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
-                            </select>
+                            <input type="text" th:value="${session.nombreSucursal != null ? session.nombreSucursal : 'Sucursal no asignada'}" readonly class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none bg-slate-100 font-semibold">
+                            <input id="sucursal" type="hidden" th:value="${session.idSucursal}">
+                            <p class="text-[10px] text-slate-400 mt-1">La sucursal se toma del usuario autenticado y no puede modificarse.</p>
                         </div>
 
                         <div>
@@ -583,7 +583,7 @@
                                 Método de pago
                             </label>
 
-                            <select id="metodo-pago"
+                            <select id="metodo-pago" onchange="togglePagoMixto()"
                                     class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none">
 
                                 <option value="EFECTIVO">Efectivo</option>
@@ -594,6 +594,20 @@
                                 <option value="PAGO_MIXTO">Pago mixto</option>
 
                             </select>
+                            <div id="pago-mixto-campos" class="hidden mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div><label class="text-[10px] font-bold text-slate-500">Segundo medio</label><select id="metodo-pago-2" class="pos-control w-full px-2 py-2 rounded-lg text-xs"><option value="TRANSFERENCIA">Transferencia</option><option value="NEQUI_DAVIPLATA">Nequi / Daviplata</option><option value="TARJETA_DEBITO">Tarjeta débito</option><option value="TARJETA_CREDITO">Tarjeta crédito</option><option value="EFECTIVO">Efectivo</option></select></div>
+                                    <div><label class="text-[10px] font-bold text-slate-500">Valor segundo medio</label><input id="monto-pago-2" type="number" min="0" step="0.01" value="0" oninput="validarPagoMixtoVisual()" class="pos-control w-full px-2 py-2 rounded-lg text-xs"></div>
+                                </div>
+                                <div><label class="text-[10px] font-bold text-slate-500">Valor primer medio</label><input id="monto-pago-1" type="number" min="0" step="0.01" value="0" oninput="validarPagoMixtoVisual()" class="pos-control w-full px-2 py-2 rounded-lg text-xs"></div>
+                                <p id="pago-mixto-validacion" class="text-[10px] font-semibold text-slate-500"></p>
+                                <p class="text-[10px] text-slate-400">Los dos valores deben sumar exactamente el total.</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Estado de pago</label>
+                            <select id="estado-venta" class="pos-control w-full px-3.5 py-2.5 rounded-xl text-sm outline-none"><option value="PAGADA">Pagada</option><option value="DEUDA">Deuda / pendiente por cobrar</option></select>
                         </div>
 
                         <div>
@@ -986,33 +1000,9 @@
     }
 
     async function cargarSucursales(){
-
-        const datos=
-            await json(
-                '/api/sucursales'
-            );
-
-        const s=
-            document.getElementById(
-                'sucursal'
-            );
-
-        s.innerHTML=
-            '<option value="">Seleccione sucursal</option>'
-            +
-            datos
-                .filter(
-                    x =>
-                        !x.estado
-                        ||
-                        x.estado==='ACTIVA'
-                )
-                .map(
-                    x =>
-                        `<option value="${x.idSucursal}">${escapeHtml(x.nombre)}</option>`
-                )
-                .join('');
-
+        // La sucursal pertenece al usuario autenticado y el backend la resuelve
+        // directamente desde la sesión/empleado. El campo oculto es solo informativo.
+        return;
     }
 
     async function cargarClientes(){
@@ -2523,9 +2513,7 @@
             buscarCliente.value='';
         }
 
-        if(sucursal){
-            sucursal.value='';
-        }
+        // NO limpiar la sucursal: es fija para el usuario autenticado.
 
         if(metodoPago){
             metodoPago.value='EFECTIVO';
@@ -2811,6 +2799,11 @@
             dinero(total);
     }
 
+    function totalActualNumero(){ const t=document.getElementById('total')?.textContent||'0'; return Number(t.replace(/[^0-9,-]/g,'').replace(/\./g,'').replace(',','.'))||0; }
+    function togglePagoMixto(){ const activo=document.getElementById('metodo-pago')?.value==='PAGO_MIXTO'; document.getElementById('pago-mixto-campos')?.classList.toggle('hidden',!activo); if(activo){const total=totalActualNumero();const p1=document.getElementById('monto-pago-1');const p2=document.getElementById('monto-pago-2');if(p1&&!Number(p1.value))p1.value=total.toFixed(2);if(p2&&!p2.value)p2.value='0';validarPagoMixtoVisual();} }
+    function actualizarPagoMixto(){ validarPagoMixtoVisual(); }
+    function validarPagoMixtoVisual(){ const total=totalActualNumero(), a=Math.max(0,Number(document.getElementById('monto-pago-1')?.value||0)), b=Math.max(0,Number(document.getElementById('monto-pago-2')?.value||0)), dif=Math.abs((a+b)-total), m=document.getElementById('pago-mixto-validacion'); if(m){const ok=dif<0.01;m.textContent=ok?'✓ Los dos pagos completan el total.':`Faltan o sobran ${dinero(Math.abs(total-(a+b)))}. La suma debe ser ${dinero(total)}.`;m.className='text-[10px] font-semibold '+(ok?'text-emerald-600':'text-rose-600');} return dif<0.01; }
+
     async function guardarVenta(){
         ocultarError();
 
@@ -2834,12 +2827,6 @@
             document.getElementById(
                 'cliente'
             ).value;
-
-        if(!idSucursal){
-            return mostrarError(
-                'Selecciona una sucursal.'
-            );
-        }
 
         if(!idEmpleado){
             return mostrarError(
@@ -2936,9 +2923,15 @@
             );
         }
 
+        if(document.getElementById('metodo-pago').value==='PAGO_MIXTO' && !validarPagoMixtoVisual()){
+            return mostrarError('El pago mixto no coincide con el total de la venta. Corrige los valores antes de finalizar.');
+        }
+
         const payload={
+            // Compatibilidad con el DTO. El backend NO confía en este valor:
+            // toma la sucursal directamente del empleado autenticado.
             idSucursal:
-                Number(idSucursal),
+                idSucursal ? Number(idSucursal) : null,
 
             idCliente:
                 idCliente
@@ -2961,10 +2954,11 @@
 
             aplicaIva:true,
 
-            metodoPago:
-                document.getElementById(
-                    'metodo-pago'
-                ).value,
+            metodoPago:document.getElementById('metodo-pago').value,
+            metodoPago2:document.getElementById('metodo-pago').value==='PAGO_MIXTO'?document.getElementById('metodo-pago-2').value:null,
+            montoPago1:document.getElementById('metodo-pago').value==='PAGO_MIXTO'?Number(document.getElementById('monto-pago-1').value||0):null,
+            montoPago2:document.getElementById('metodo-pago').value==='PAGO_MIXTO'?Number(document.getElementById('monto-pago-2').value||0):null,
+            estado:document.getElementById('estado-venta').value,
 
             esDomicilio,
 

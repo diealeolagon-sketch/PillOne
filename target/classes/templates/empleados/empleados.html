@@ -434,11 +434,14 @@
                             <!-- ESTADO -->
                             <td class="px-4 py-3.5 text-center" data-label="Estado">
 
-                                <span
-                                        class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold"
-                                        th:classappend="${empleado.estado == 'ACTIVO' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}"
-                                        th:text="${empleado.estado}">
-                                </span>
+                                <form th:action="@{/view/empleados/estado/{id}(id=${empleado.id_empleado})}" method="post" class="inline-block">
+                                    <button type="submit"
+                                            onclick="return confirm('¿Cambiar el estado de este empleado y su acceso?')"
+                                            class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold transition hover:scale-105"
+                                            th:classappend="${empleado.estado == 'ACTIVO' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}"
+                                            th:text="${empleado.estado}" title="Haz clic para cambiar el estado">
+                                    </button>
+                                </form>
 
                             </td>
 

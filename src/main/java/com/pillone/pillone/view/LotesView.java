@@ -58,10 +58,13 @@ public class LotesView {
                 : lotesRepository.findByIdProductoOrderByFechaVencimientoAscIdLoteAsc(productoId);
 
         lotes.sort(
-                Comparator.comparing(
+                Comparator.comparingInt((Lotes l) -> {
+                    String estado=l.getEstado()==null?"":l.getEstado().toUpperCase();
+                    return ("RETIRADO".equals(estado)||"DEVUELTO".equals(estado)) ? 1 : 0;
+                }).thenComparing(
                         Lotes::getFechaVencimiento,
                         Comparator.nullsLast(Comparator.naturalOrder())
-                ).thenComparing(Lotes::getIdLote)
+                ).thenComparing(Lotes::getIdLote,Comparator.nullsLast(Comparator.reverseOrder()))
         );
 
         List<LoteFila> filas=lotes.stream()

@@ -95,10 +95,6 @@ public class DevolucionesView {
                 throw new IllegalArgumentException("Selecciona si el producto reingresa al inventario o debe desecharse.");
             }
 
-            if(cantidad==null||cantidad<=0){
-                throw new IllegalArgumentException("La cantidad debe ser mayor que cero.");
-            }
-
             Map<String,Object> domicilio=unico("""
                 SELECT d.id_domicilio,d.id_venta,d.estado,v.id_sucursal
                 FROM domicilios d
@@ -149,9 +145,9 @@ public class DevolucionesView {
                 throw new IllegalArgumentException("Ese producto ya fue devuelto completamente.");
             }
 
-            if(cantidad>disponible){
-                throw new IllegalArgumentException("Solo puedes devolver hasta "+disponible+" unidad(es) de este producto.");
-            }
+            // La devolución desde un domicilio toma automáticamente TODA la cantidad
+            // pendiente de la línea vendida. No confiamos en una cantidad escrita en el navegador.
+            cantidad=disponible;
 
             Devoluciones d=new Devoluciones();
             d.setIdSucursal(idSucursal);
@@ -218,16 +214,29 @@ public class DevolucionesView {
                                         : "El producto no apto quedó registrado como desechado.")
                 );
             }else{
+                // Una devolución desde el flujo de domicilio cierra la operación de entrega.
+                // La venta conserva su estado porque aún existen unidades vendidas no devueltas.
+                jdbc.update("""
+                    UPDATE domicilios
+                    SET estado='CANCELADO',
+                        observaciones_entrega=CONCAT(
+                            COALESCE(observaciones_entrega,''),
+                            CASE WHEN COALESCE(observaciones_entrega,'')='' THEN '' ELSE ' | ' END,
+                            'Domicilio cerrado por devolución parcial'
+                        )
+                    WHERE id_domicilio=?
+                    """,idDomicilio);
+
                 ra.addFlashAttribute(
                         "mensaje",
-                        "Devolución registrada. El domicilio continúa EN CAMINO con las unidades restantes. " +
+                        "Devolución registrada correctamente. El domicilio salió de la operación activa y quedó trazado en Devoluciones. " +
                                 ("APTO_PARA_REINGRESO".equals(estadoN)
-                                        ? "Las unidades devueltas aptas fueron reintegradas al inventario."
+                                        ? "Las unidades aptas fueron reintegradas al inventario."
                                         : "Las unidades no aptas quedaron registradas como desechadas.")
                 );
             }
 
-            return "redirect:/view/domicilios";
+            return "redirect:/view/devoluciones";
 
         }catch(Exception e){
             ra.addFlashAttribute("error",e.getMessage()==null?"No fue posible registrar la devolución.":e.getMessage());

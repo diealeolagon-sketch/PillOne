@@ -205,6 +205,27 @@ public class EmpleadosView {
         }
     }
 
+
+    @PostMapping("/view/empleados/estado/{id}")
+    @Transactional
+    public String cambiarEstado(@PathVariable Long id, RedirectAttributes ra){
+        Empleados empleado=empleadosRepository.findById(id).orElse(null);
+        if(empleado==null){
+            ra.addFlashAttribute("error","El empleado no existe.");
+            return "redirect:/view/empleados";
+        }
+        boolean activo="ACTIVO".equalsIgnoreCase(empleado.getEstado());
+        empleado.setEstado(activo?"INACTIVO":"ACTIVO");
+        empleadosRepository.save(empleado);
+        Usuarios usuario=usuariosRepository.findByIdEmpleado(id);
+        if(usuario!=null){
+            usuario.setEstado(activo?Usuarios.EstadoUsuario.INACTIVO:Usuarios.EstadoUsuario.ACTIVO);
+            usuariosRepository.save(usuario);
+        }
+        ra.addFlashAttribute("mensaje","Empleado "+(activo?"inactivado":"activado")+" correctamente.");
+        return "redirect:/view/empleados";
+    }
+
     @PostMapping("/view/empleados/delete/{id}")
     public String delete(@PathVariable Long id,RedirectAttributes ra){
         if(!empleadosRepository.existsById(id)){
